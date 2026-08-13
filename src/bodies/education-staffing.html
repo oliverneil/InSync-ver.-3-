@@ -1,0 +1,1682 @@
+<div class="edap" id="edap">
+<script>
+/* PRE-PAINT: flag the wrapper as JS-driven before anything renders. Without
+   this the reveal rules (.edap.js .ed-rv{opacity:0}) only bind once the
+   bottom-of-page script runs, so the page paints fully visible and then
+   snaps blank — the "loads, then disappears" flash. */
+(function(){ var w=document.getElementById('edap'); if(w) w.classList.add('js'); })();
+</script>
+<style>
+/* ============================================================ TOKENS (scoped) */
+.edap{
+  --bg:#000; --bg-1:#070707; --bg-2:#0c0c0c; --bg-3:#131313;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16); --line-3:rgba(255,255,255,.24);
+  --ink:#f6f6f6; --ink-2:rgba(255,255,255,.66); --ink-3:rgba(255,255,255,.46); --ink-4:rgba(255,255,255,.30); --ink-5:rgba(255,255,255,.16);
+  --orange:#ef5a28; --orange-2:#ff7a4d; --orange-3:#ff9060;
+  --navy:#20335a; --navy-2:#16223f; --navy-3:#2c4474;
+  --f:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --max:1220px; --gutter:clamp(20px,5vw,72px);
+  --r:16px; --r-lg:22px;
+  --e:cubic-bezier(.22,1,.36,1); --e-out:cubic-bezier(.16,1,.3,1);
+  position:relative; background:var(--bg); color:var(--ink);
+  font-family:var(--f); line-height:1.5; letter-spacing:-.01em;
+  overflow:clip; isolation:isolate;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.edap *{ box-sizing:border-box; }
+.edap ::selection{ background:rgba(239,90,40,.28); color:#fff; }
+.edap__in{ position:relative; z-index:1; }
+.ed-wrap{ max-width:var(--max); margin:0 auto; padding-inline:var(--gutter); }
+
+/* eyebrow (label only, leading dash) */
+.ed-ey{ font-family:var(--f-mono); font-size:11.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--orange); display:inline-flex; align-items:center; gap:10px; }
+.ed-ey::before{ content:''; width:26px; height:1px; background:var(--orange); opacity:.75; }
+.ed-ey--muted{ color:var(--ink-3); }
+.ed-ey--muted::before{ background:var(--ink-4); }
+
+/* section shell */
+.ed-sec{ position:relative; padding:clamp(76px,10vw,148px) 0; }
+.ed-head{ position:relative; z-index:1; max-width:840px; }
+.ed-head h2{ font-size:clamp(30px,5vw,58px); line-height:1.03; font-weight:800; letter-spacing:-.035em; margin:18px 0 0; padding-bottom:.09em; }
+.ed-head h2 .o{ color:var(--orange); }
+.ed-head p{ font-size:clamp(15px,1.5vw,18px); color:var(--ink-2); line-height:1.62; margin:20px 0 0; max-width:660px; }
+
+/* buttons */
+.ed-btn{ display:inline-flex; align-items:center; gap:10px; font-family:var(--f); font-weight:600; font-size:15px; letter-spacing:-.01em; padding:15px 26px; border-radius:100px; text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .4s var(--e), background .3s var(--e), border-color .3s var(--e), color .3s var(--e); }
+.ed-btn svg{ width:17px; height:17px; transition:transform .4s var(--e); }
+.ed-btn--pri{ background:var(--orange); color:#fff; }
+.ed-btn--pri:hover{ transform:translateY(-2px); background:var(--orange-2); }
+.ed-btn--pri:hover svg{ transform:translateX(4px); }
+.ed-btn--ghost{ background:transparent; color:var(--ink); border-color:var(--line-2); }
+.ed-btn--ghost:hover{ transform:translateY(-2px); border-color:rgba(239,90,40,.5); color:#fff; }
+.ed-cta{ position:relative; z-index:1; margin-top:clamp(40px,5vw,56px); }
+
+/* reveals */
+.edap.js .ed-rv{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--e-out), transform .9s var(--e-out); }
+.edap.js .ed-rv.in{ opacity:1; transform:none; }
+.edap.js .ed-rv.d1{ transition-delay:.08s; } .edap.js .ed-rv.d2{ transition-delay:.16s; } .edap.js .ed-rv.d3{ transition-delay:.24s; }
+.edap.js .ed-head h2, .edap.js .ed-hero__title{ clip-path:inset(0 105% 0 0); transition:clip-path 1.05s var(--e-out); }
+.edap.js .ed-head.in h2, .edap.js .in .ed-head h2, .edap.js .ed-hero__title.in{ clip-path:inset(0 0 0 0); }
+
+/* hairline rule */
+.ed-rule{ position:relative; z-index:1; height:1px; background:var(--line); margin:0; border:0; }
+
+/* ============================================================ HERO */
+.ed-hero{ position:relative; padding:clamp(92px,15vh,180px) 0 0; }
+.ed-hero__glow{ position:absolute; top:-8%; left:50%; transform:translateX(-50%); width:min(1100px,120vw); height:min(640px,70vw); background:radial-gradient(60% 60% at 50% 0%,rgba(239,90,40,.14),transparent 70%); filter:blur(20px); z-index:0; pointer-events:none; }
+.ed-hero__in{ position:relative; z-index:1; }
+.ed-hero__eyrow{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.ed-hero__tick{ font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-4); }
+.ed-hero__title{ font-size:clamp(36px,6.6vw,88px); line-height:1.0; font-weight:800; letter-spacing:-.04em; margin:22px 0 0; max-width:17ch; padding-bottom:.12em; }
+.ed-hero__title .o{ color:var(--orange); }
+.ed-hero__bottom{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(24px,4vw,56px); align-items:end; margin-top:30px; }
+.ed-hero__roles{ font-family:var(--f-mono); font-size:clamp(12px,1.35vw,14px); font-weight:500; letter-spacing:.02em; color:var(--ink-2); margin:0; }
+.ed-hero__sub{ font-size:clamp(15px,1.5vw,18px); color:var(--ink-2); line-height:1.62; margin:14px 0 0; max-width:520px; }
+.ed-hero__ctas{ display:flex; flex-wrap:wrap; gap:14px; justify-content:flex-start; }
+
+/* hero: live role-matching panel — school needs paired with InSync's credentialed network */
+@keyframes ed-blink{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+.ed-av--o{ background:linear-gradient(135deg,var(--orange),var(--orange-3)); }
+.ed-av--n{ background:var(--navy-3); } .ed-av--n2{ background:var(--navy); }
+.ed-av--g{ background:var(--bg-3); border:1px solid var(--line-2); color:var(--ink-2); }
+.ed-match{ position:relative; margin-top:clamp(44px,6vw,72px); border:1px solid var(--line-2); border-radius:var(--r-lg); background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); padding:clamp(16px,2vw,22px); overflow:hidden; box-shadow:0 50px 90px -50px rgba(0,0,0,.9); }
+.ed-match__bar{ display:flex; align-items:center; justify-content:space-between; padding:0 4px 13px; margin-bottom:11px; border-bottom:1px solid var(--line); }
+.ed-match__title{ font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink); }
+.ed-match__stat{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--orange); display:inline-flex; align-items:center; gap:8px; }
+.ed-match__stat::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--orange); box-shadow:0 0 10px var(--orange); }
+.edap.js .ed-match__stat::before{ animation:ed-blink 1.7s ease-in-out infinite; }
+.ed-match__heads{ display:flex; align-items:center; justify-content:space-between; padding:0 6px 10px; }
+.ed-match__heads span{ font-family:var(--f-mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-4); }
+.ed-match__rows{ display:flex; flex-direction:column; gap:clamp(8px,1.1vw,11px); }
+.ed-match__row{ display:grid; grid-template-columns:1fr 1.1fr 1.3fr; align-items:center; gap:clamp(8px,1.3vw,14px); }
+.ed-match__need{ min-height:44px; display:flex; align-items:center; font-size:clamp(12px,1.35vw,14px); font-weight:600; letter-spacing:-.01em; color:var(--ink); background:var(--bg-2); border:1px solid var(--line-2); border-radius:10px; padding:8px 13px; line-height:1.2; }
+.ed-match__wire{ position:relative; height:22px; }
+.ed-match__wire i{ position:absolute; top:50%; left:2px; right:2px; height:2px; transform:translateY(-50%); background-image:repeating-linear-gradient(90deg,rgba(239,90,40,.6) 0 5px,transparent 5px 14px); }
+.edap.js .ed-match.in .ed-match__wire i{ animation:ed-march2 1s linear infinite; }
+@keyframes ed-march2{ from{ background-position:0 0; } to{ background-position:14px 0; } }
+.ed-match__wire b{ position:absolute; top:50%; left:2px; width:22px; height:9px; transform:translate(-11px,-50%); border-radius:9px; background:radial-gradient(closest-side,var(--orange-2),transparent); opacity:0; }
+.edap.js .ed-match.in .ed-match__wire b{ animation:ed-mpulse 2.6s var(--e) infinite; }
+@keyframes ed-mpulse{ 0%{ left:2px; opacity:0; } 14%{ opacity:1; } 80%{ opacity:1; } 100%{ left:calc(100% - 2px); opacity:0; } }
+.ed-match__pro{ display:flex; align-items:center; gap:9px; min-width:0; min-height:44px; background:var(--bg-2); border:1px solid var(--line-2); border-radius:10px; padding:7px 11px 7px 8px; transition:border-color .4s var(--e); }
+.ed-match__av{ width:26px; height:26px; border-radius:7px; flex:none; display:grid; place-items:center; font-family:var(--f-mono); font-size:9.5px; font-weight:700; color:#fff; }
+.ed-match__lbl{ font-family:var(--f-mono); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ed-match__ck{ margin-left:auto; width:19px; height:19px; border-radius:50%; border:1px solid var(--line-2); display:grid; place-items:center; color:var(--orange); flex:none; }
+.ed-match__ck svg{ width:10px; height:10px; }
+.ed-match__ck path{ stroke-dasharray:20; stroke-dashoffset:20; }
+.edap:not(.js) .ed-match__ck path{ stroke-dashoffset:0; }
+.edap:not(.js) .ed-match__ck, .edap:not(.js) .ed-match__pro{ border-color:rgba(239,90,40,.4); }
+.edap.js .ed-match.in .ed-match__pro{ animation:ed-mpro 2.6s var(--e) infinite; }
+.edap.js .ed-match.in .ed-match__ck path{ animation:ed-mck 2.6s var(--e) infinite; }
+@keyframes ed-mpro{ 0%,72%{ border-color:var(--line-2); } 84%,96%{ border-color:rgba(239,90,40,.55); } 100%{ border-color:var(--line-2); } }
+@keyframes ed-mck{ 0%,74%{ stroke-dashoffset:20; } 86%,96%{ stroke-dashoffset:0; } 100%{ stroke-dashoffset:20; } }
+.edap.js .ed-match.in .ed-match__row:nth-child(2) .ed-match__wire b, .edap.js .ed-match.in .ed-match__row:nth-child(2) .ed-match__pro, .edap.js .ed-match.in .ed-match__row:nth-child(2) .ed-match__ck path{ animation-delay:.5s; }
+.edap.js .ed-match.in .ed-match__row:nth-child(3) .ed-match__wire b, .edap.js .ed-match.in .ed-match__row:nth-child(3) .ed-match__pro, .edap.js .ed-match.in .ed-match__row:nth-child(3) .ed-match__ck path{ animation-delay:1s; }
+.edap.js .ed-match.in .ed-match__row:nth-child(4) .ed-match__wire b, .edap.js .ed-match.in .ed-match__row:nth-child(4) .ed-match__pro, .edap.js .ed-match.in .ed-match__row:nth-child(4) .ed-match__ck path{ animation-delay:1.5s; }
+.edap.js .ed-match.in .ed-match__row:nth-child(5) .ed-match__wire b, .edap.js .ed-match.in .ed-match__row:nth-child(5) .ed-match__pro, .edap.js .ed-match.in .ed-match__row:nth-child(5) .ed-match__ck path{ animation-delay:2s; }
+/* completed state — Difference bookend (all roles matched, static) */
+.ed-match--done .ed-match__wire i{ background:linear-gradient(90deg,var(--orange),var(--orange-3)); }
+.ed-match--done .ed-match__wire b{ display:none !important; }
+.ed-match--done .ed-match__pro{ border-color:rgba(239,90,40,.5); }
+.ed-match--done .ed-match__ck{ border-color:rgba(239,90,40,.5); }
+.ed-match--done .ed-match__ck path{ stroke-dashoffset:0; }
+.edap.js .ed-match--done.in .ed-match__wire i{ animation:none !important; }
+.edap.js .ed-match--done.in .ed-match__pro{ border-color:rgba(239,90,40,.5) !important; animation:none !important; }
+.edap.js .ed-match--done.in .ed-match__ck path{ stroke-dashoffset:0 !important; animation:none !important; }
+
+/* credentials line */
+.ed-creds{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.ed-creds__in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 0; padding:20px 0; }
+.ed-creds__i{ display:inline-flex; align-items:center; gap:8px; font-family:var(--f-mono); font-size:11px; letter-spacing:.05em; color:var(--ink-2); padding:0 clamp(14px,2vw,26px); border-right:1px solid var(--line); white-space:nowrap; }
+.ed-creds__i:last-child{ border-right:0; }
+.ed-creds__ck{ width:12px; height:12px; color:var(--orange); flex:none; }
+.ed-creds__ck path{ stroke-dasharray:22; stroke-dashoffset:22; }
+.edap:not(.js) .ed-creds__ck path{ stroke-dashoffset:0; }
+.edap.js .ed-creds .ed-creds__i{ opacity:0; transform:translateY(7px); transition:opacity .5s var(--e-out), transform .5s var(--e-out); }
+.edap:not(.js) .ed-creds .ed-creds__i{ opacity:1; transform:none; }
+.edap.js .ed-creds.in .ed-creds__i{ opacity:1; transform:none; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(2){ transition-delay:.09s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(3){ transition-delay:.18s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(4){ transition-delay:.27s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(5){ transition-delay:.36s; }
+.edap.js .ed-creds.in .ed-creds__ck path{ animation:ed-check .55s var(--e-out) forwards; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(2) .ed-creds__ck path{ animation-delay:.09s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(3) .ed-creds__ck path{ animation-delay:.18s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(4) .ed-creds__ck path{ animation-delay:.27s; }
+.edap.js .ed-creds.in .ed-creds__i:nth-child(5) .ed-creds__ck path{ animation-delay:.36s; }
+@keyframes ed-check{ to{ stroke-dashoffset:0; } }
+
+/* ============================================================ STAFFING GAP */
+.ed-gap{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(36px,5vw,72px); align-items:start; margin-top:clamp(36px,5vw,56px); }
+.ed-list{ position:relative; z-index:1; }
+.ed-li{ display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center; padding:18px 0; border-top:1px solid var(--line); }
+.ed-li:last-child{ border-bottom:1px solid var(--line); }
+.ed-li__mk{ width:20px; height:2px; border-radius:2px; background:var(--line-3); position:relative; overflow:hidden; flex:none; }
+.ed-li__mk::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,var(--orange),var(--orange-3)); transform:scaleX(0); transform-origin:left; transition:transform .55s var(--e-out); }
+.edap:not(.js) .ed-li__mk::after{ transform:scaleX(1); }
+.edap.js .ed-list.in .ed-li__mk::after{ transform:scaleX(1); }
+.edap.js .ed-list.in .ed-li:nth-child(2) .ed-li__mk::after{ transition-delay:.05s; }
+.edap.js .ed-list.in .ed-li:nth-child(3) .ed-li__mk::after{ transition-delay:.1s; }
+.edap.js .ed-list.in .ed-li:nth-child(4) .ed-li__mk::after{ transition-delay:.15s; }
+.edap.js .ed-list.in .ed-li:nth-child(5) .ed-li__mk::after{ transition-delay:.2s; }
+.edap.js .ed-list.in .ed-li:nth-child(6) .ed-li__mk::after{ transition-delay:.25s; }
+.edap.js .ed-list.in .ed-li:nth-child(7) .ed-li__mk::after{ transition-delay:.3s; }
+.ed-li__t{ font-size:clamp(16px,1.9vw,21px); font-weight:700; letter-spacing:-.02em; line-height:1.28; }
+/* gaps period grid */
+.ed-gaps{ position:sticky; top:24px; border:1px solid var(--line-2); border-radius:var(--r-lg); background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); padding:18px; box-shadow:0 40px 80px -44px rgba(0,0,0,.9); }
+.ed-gaps__bar{ display:flex; align-items:center; justify-content:space-between; padding-bottom:13px; margin-bottom:13px; border-bottom:1px solid var(--line); }
+.ed-gaps__t{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); }
+.ed-gaps__k{ font-family:var(--f-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(239,90,40,.8); display:inline-flex; align-items:center; gap:6px; }
+.ed-gaps__k::before{ content:''; width:9px; height:9px; border-radius:3px; border:1px dashed rgba(239,90,40,.6); }
+.ed-gaps__grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
+.ed-slot{ aspect-ratio:1/1; border-radius:7px; border:1px solid var(--line); background:rgba(255,255,255,.02); }
+.ed-slot--vac{ border:1px dashed rgba(239,90,40,.5); background:rgba(239,90,40,.05); }
+.edap.js .ed-gaps.in .ed-slot--vac{ animation:ed-vac 2.4s var(--e) infinite; }
+.edap.js .ed-gaps.in .ed-slot--vac:nth-child(4){ animation-delay:.5s; }
+.edap.js .ed-gaps.in .ed-slot--vac:nth-child(9){ animation-delay:.9s; }
+.edap.js .ed-gaps.in .ed-slot--vac:nth-child(12){ animation-delay:.3s; }
+@keyframes ed-vac{ 0%,100%{ opacity:.4; } 50%{ opacity:1; } }
+.ed-gaps__cap{ font-family:var(--f-mono); font-size:10px; color:var(--ink-3); letter-spacing:.04em; margin-top:13px; line-height:1.5; }
+.ed-note{ position:relative; z-index:1; max-width:840px; margin:clamp(38px,5vw,52px) 0 0; font-size:clamp(15px,1.5vw,17px); color:var(--ink-2); line-height:1.7; }
+.ed-note strong{ color:var(--ink); font-weight:700; }
+.ed-phones{ position:relative; z-index:1; display:flex; gap:26px; flex-wrap:wrap; margin-top:20px; }
+.ed-phones a{ font-family:var(--f-mono); font-size:15px; font-weight:500; color:var(--ink); text-decoration:none; display:inline-flex; align-items:center; gap:9px; transition:color .3s var(--e); }
+.ed-phones a::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--orange); }
+.ed-phones a:hover{ color:var(--orange-2); }
+
+/* ============================================================ WHAT WE STAFF — schedule-row bands */
+.ed-srows{ position:relative; z-index:1; margin-top:clamp(36px,5vw,52px); border-top:1px solid var(--line); }
+.ed-srow{ display:grid; grid-template-columns:290px 1fr; gap:clamp(20px,3vw,44px); padding:clamp(26px,3.4vw,40px) 0; border-bottom:1px solid var(--line); align-items:start; transition:background .4s var(--e); }
+.ed-srow:hover{ background:rgba(255,255,255,.014); }
+.ed-srow__head{ display:flex; gap:16px; align-items:flex-start; }
+.ed-srow__mk{ width:3px; align-self:stretch; min-height:30px; border-radius:3px; background:var(--line-2); position:relative; overflow:hidden; flex:none; margin-top:3px; }
+.ed-srow__mk i{ position:absolute; left:0; top:0; width:100%; height:100%; background:linear-gradient(180deg,var(--orange),var(--orange-3)); transform:scaleY(0); transform-origin:top; }
+.edap:not(.js) .ed-srow__mk i{ transform:scaleY(1); }
+.edap.js .ed-srow.in .ed-srow__mk i{ animation:ed-fillbar 1s var(--e-out) .1s forwards; }
+@keyframes ed-fillbar{ to{ transform:scaleY(1); } }
+.ed-srow__t{ font-size:clamp(18px,2.1vw,24px); font-weight:700; letter-spacing:-.02em; line-height:1.2; margin:0; }
+.ed-chips{ display:flex; flex-wrap:wrap; gap:9px; }
+.ed-chip{ display:inline-flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-2); background:var(--bg-2); border:1px solid var(--line); border-radius:100px; padding:8px 14px 8px 12px; letter-spacing:-.01em; transition:border-color .35s var(--e), color .35s var(--e), transform .35s var(--e); }
+.ed-chip svg{ width:13px; height:13px; color:var(--orange); flex:none; }
+.ed-srow:hover .ed-chip{ border-color:var(--line-2); }
+.ed-chip:hover{ color:var(--ink); transform:translateY(-2px); border-color:rgba(239,90,40,.4); }
+.edap.js .ed-chip{ opacity:0; transform:translateY(8px); transition:opacity .5s var(--e), transform .5s var(--e), border-color .35s var(--e), color .35s var(--e); }
+.edap:not(.js) .ed-chip{ opacity:1; transform:none; }
+.edap.js .ed-srow.in .ed-chip{ opacity:1; transform:none; }
+.edap.js .ed-srow.in .ed-chip:nth-child(2){ transition-delay:.05s; } .edap.js .ed-srow.in .ed-chip:nth-child(3){ transition-delay:.1s; }
+.edap.js .ed-srow.in .ed-chip:nth-child(4){ transition-delay:.15s; } .edap.js .ed-srow.in .ed-chip:nth-child(5){ transition-delay:.2s; } .edap.js .ed-srow.in .ed-chip:nth-child(6){ transition-delay:.25s; }
+
+/* ============================================================ TRUST — editorial checks + fill gauge */
+.ed-trust{ display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(40px,6vw,80px); align-items:center; }
+.ed-trust__lead{ position:relative; z-index:1; }
+.ed-sublabel{ font-family:var(--f-mono); font-size:11px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--orange); margin:26px 0 4px; }
+.ed-tlist{ list-style:none; margin:16px 0 0; padding:0; }
+.ed-tlist li{ display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:start; padding:18px 0; border-top:1px solid var(--line); }
+.ed-tlist li:last-child{ border-bottom:1px solid var(--line); }
+.ed-tlist__mk{ width:16px; height:2px; border-radius:2px; background:var(--orange); opacity:.65; margin-top:10px; flex:none; }
+.ed-tlist h3{ font-size:15.5px; font-weight:700; letter-spacing:-.01em; margin:0; line-height:1.32; }
+.ed-tlist p{ font-size:14px; color:var(--ink-3); line-height:1.56; margin:6px 0 0; }
+/* 100% meter — animated (fill sweep + count-up + continuous orbit + breathing glow) */
+.ed-meter{ position:relative; z-index:1; justify-self:center; width:clamp(240px,30vw,320px); aspect-ratio:1/1; }
+.ed-meter__glow{ position:absolute; inset:6%; border-radius:50%; background:radial-gradient(circle,rgba(239,90,40,.20),transparent 66%); filter:blur(18px); z-index:0; pointer-events:none; }
+.edap.js .ed-meter.in .ed-meter__glow{ animation:ed-breathe 3.6s ease-in-out infinite; }
+@keyframes ed-breathe{ 0%,100%{ opacity:.55; transform:scale(.95); } 50%{ opacity:1; transform:scale(1.05); } }
+.ed-meter svg{ position:relative; z-index:1; width:100%; height:auto; display:block; transform:rotate(-90deg); }
+.ed-meter__track{ fill:none; stroke:var(--line); stroke-width:10; }
+.ed-meter__val{ fill:none; stroke:url(#edmg); stroke-width:10; stroke-linecap:round; stroke-dasharray:534; stroke-dashoffset:534; }
+.edap:not(.js) .ed-meter__val{ stroke-dashoffset:2; }
+.edap.js .ed-meter.in .ed-meter__val{ animation:ed-fill 1.8s var(--e-out) .2s forwards; }
+@keyframes ed-fill{ to{ stroke-dashoffset:2; } }
+/* orbiting highlight (continuous, after fill) */
+.ed-meter__orbit{ transform-box:view-box; transform-origin:100px 100px; }
+.edap.js .ed-meter.in .ed-meter__orbit{ animation:ed-orbit 3.4s linear 1.9s infinite; }
+@keyframes ed-orbit{ to{ transform:rotate(360deg); } }
+.ed-meter__head{ fill:#fff; opacity:0; filter:drop-shadow(0 0 5px var(--orange-2)); }
+.edap.js .ed-meter.in .ed-meter__head{ animation:ed-headin .5s ease 1.9s forwards; }
+@keyframes ed-headin{ to{ opacity:1; } }
+.ed-meter__ticks line{ stroke:var(--line-2); stroke-width:2; }
+.ed-meter__center{ position:absolute; inset:0; z-index:2; display:grid; place-content:center; text-align:center; }
+.ed-meter__pct{ font-family:var(--f-mono); font-size:clamp(30px,4.4vw,46px); font-weight:700; letter-spacing:-.02em; color:var(--ink); line-height:1; }
+.ed-meter__lbl{ font-family:var(--f-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--orange); margin-top:8px; }
+
+/* ============================================================ HOW IT WORKS — horizontal 3-step flow */
+.ed-flow{ position:relative; z-index:1; margin-top:clamp(40px,5vw,60px); }
+.ed-flow__line{ position:absolute; top:26px; left:6%; right:6%; height:2px; background:var(--line); overflow:hidden; }
+.ed-flow__line i{ position:absolute; inset:0; background:linear-gradient(90deg,var(--orange),var(--orange-3)); transform:scaleX(0); transform-origin:left; }
+.edap.js .ed-flow.in .ed-flow__line i{ animation:ed-draw 1.4s var(--e-out) .2s forwards; }
+@keyframes ed-draw{ to{ transform:scaleX(1); } }
+.ed-flow__pulse{ position:absolute; top:27px; left:6%; width:46px; height:10px; transform:translate(-23px,-50%); border-radius:10px; background:radial-gradient(closest-side,var(--orange-2),transparent); opacity:0; z-index:1; pointer-events:none; }
+.edap.js .ed-flow.in .ed-flow__pulse{ animation:ed-travel 3.2s linear 1.5s infinite; }
+@keyframes ed-travel{ 0%{ left:6%; opacity:0; } 10%{ opacity:1; } 90%{ opacity:1; } 100%{ left:94%; opacity:0; } }
+.ed-step__ic::after{ content:''; position:absolute; inset:-2px; border-radius:16px; border:1.5px solid var(--orange); opacity:0; pointer-events:none; }
+.edap.js .ed-flow.in .ed-step__ic::after{ animation:ed-steppulse 3.2s var(--e) 1.5s infinite; }
+.edap.js .ed-flow.in .ed-step:nth-child(2) .ed-step__ic::after{ animation-delay:1.9s; }
+.edap.js .ed-flow.in .ed-step:nth-child(3) .ed-step__ic::after{ animation-delay:2.3s; }
+@keyframes ed-steppulse{ 0%{ transform:scale(1); opacity:0; } 8%{ opacity:.85; } 46%{ transform:scale(1.55); opacity:0; } 100%{ opacity:0; } }
+.ed-flow__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(24px,4vw,56px); }
+.ed-step__ic{ width:54px; height:54px; border-radius:14px; background:var(--bg-2); border:1px solid var(--line-2); color:var(--orange-2); display:grid; place-items:center; position:relative; z-index:1; }
+.ed-step__ic svg{ width:24px; height:24px; }
+.edap.js .ed-step__ic{ animation:ed-floaty 3.6s ease-in-out infinite; }
+.edap.js .ed-flow.in .ed-step:nth-child(2) .ed-step__ic{ animation-delay:.4s; }
+.edap.js .ed-flow.in .ed-step:nth-child(3) .ed-step__ic{ animation-delay:.8s; }
+@keyframes ed-floaty{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+.ed-step h3{ font-size:18px; font-weight:700; letter-spacing:-.02em; margin:20px 0 8px; line-height:1.24; }
+.ed-step p{ font-size:14px; color:var(--ink-3); line-height:1.58; margin:0; max-width:34ch; }
+
+/* ============================================================ THE REAL COST — editorial numbered list */
+.ed-cost{ position:relative; z-index:1; margin-top:clamp(36px,5vw,52px); border-top:1px solid var(--line); }
+.ed-cost__row{ display:grid; grid-template-columns:auto 1fr auto; gap:clamp(18px,3vw,40px); align-items:center; padding:clamp(20px,2.6vw,30px) 0; border-bottom:1px solid var(--line); transition:background .4s var(--e); }
+.ed-cost__row:hover{ background:rgba(255,255,255,.014); }
+.ed-cost__n{ font-family:var(--f-mono); font-size:clamp(22px,3vw,34px); font-weight:700; color:transparent; -webkit-text-stroke:1px var(--line-3); letter-spacing:-.02em; transition:-webkit-text-stroke .3s var(--e), color .3s var(--e); }
+.ed-cost__row:hover .ed-cost__n{ -webkit-text-stroke:1px var(--orange); color:transparent; }
+.ed-cost__t{ font-size:clamp(17px,2.1vw,24px); font-weight:700; letter-spacing:-.02em; line-height:1.25; }
+.ed-cost__side{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-4); white-space:nowrap; }
+.ed-cost__foot{ position:relative; z-index:1; max-width:840px; margin:clamp(34px,4vw,44px) 0 0; font-size:clamp(15px,1.5vw,17px); color:var(--ink-2); line-height:1.7; }
+
+/* ============================================================ DIFFERENCE — numbered manifesto + filled bookend */
+.ed-mani{ position:relative; z-index:1; margin-top:clamp(36px,5vw,52px); border-top:1px solid var(--line); }
+.ed-mani__row{ display:grid; grid-template-columns:auto 1fr; gap:clamp(20px,3.4vw,48px); padding:clamp(24px,3vw,38px) 0; border-bottom:1px solid var(--line); align-items:start; }
+.ed-mani__n{ font-family:var(--f-mono); font-size:clamp(24px,3.4vw,40px); font-weight:700; color:var(--orange); letter-spacing:-.02em; line-height:1; }
+.ed-mani__t{ font-size:clamp(20px,2.8vw,32px); font-weight:800; letter-spacing:-.03em; line-height:1.14; margin:0; }
+.ed-mani__p{ font-size:clamp(14px,1.5vw,16px); color:var(--ink-3); line-height:1.55; margin:9px 0 0; max-width:52ch; }
+.ed-bookend{ position:relative; z-index:1; margin-top:clamp(40px,5vw,60px); }
+.ed-bookend .ed-match{ margin-top:0; }
+
+/* ============================================================ CONTACT */
+.ed-contact{ display:grid; grid-template-columns:.9fr 1.1fr; gap:clamp(36px,6vw,80px); align-items:start; }
+.ed-contact__l{ position:relative; z-index:1; }
+.ed-contact__l h2{ font-size:clamp(28px,4.2vw,50px); line-height:1.05; font-weight:800; letter-spacing:-.035em; margin:14px 0 0; padding-bottom:.09em; }
+.ed-contact__l h2 .o{ color:var(--orange); }
+.ed-contact__l p{ font-size:16px; color:var(--ink-2); line-height:1.62; margin:20px 0 0; max-width:400px; }
+.ed-form{ position:relative; z-index:1; border:1px solid var(--line-2); border-radius:var(--r-lg); background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)); padding:clamp(22px,3vw,34px); }
+.ed-form__grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px 24px; }
+.ed-fld{ position:relative; }
+.ed-fld--full{ grid-column:1 / -1; }
+.ed-fld label{ display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; }
+.ed-fld input, .ed-fld textarea{ width:100%; background:transparent; border:0; border-bottom:1px solid var(--line-2); color:var(--ink); font-family:var(--f); font-size:16px; padding:8px 2px; letter-spacing:-.01em; transition:border-color .35s var(--e); }
+.ed-fld textarea{ resize:vertical; min-height:84px; line-height:1.5; }
+.ed-fld input:focus, .ed-fld textarea:focus{ outline:none; border-bottom-color:var(--orange); }
+.ed-fld input::placeholder, .ed-fld textarea::placeholder{ color:var(--ink-4); }
+.ed-consent{ grid-column:1 / -1; display:flex; gap:11px; align-items:flex-start; }
+.ed-consent input{ margin-top:3px; width:16px; height:16px; accent-color:var(--orange); flex:none; }
+.ed-consent label{ font-size:11.5px; color:var(--ink-3); line-height:1.55; }
+.ed-consent a{ color:var(--orange-2); font-weight:600; }
+.ed-form__submit{ grid-column:1 / -1; width:100%; justify-content:center; }
+.ed-fnote{ grid-column:1 / -1; font-size:10.5px; color:var(--ink-4); line-height:1.7; }
+.ed-thanks{ display:none; text-align:center; padding:44px 24px; }
+.ed-thanks.on{ display:block; }
+.ed-thanks b{ display:block; font-size:19px; font-weight:700; letter-spacing:-.02em; margin-bottom:8px; }
+.ed-thanks span{ font-size:14.5px; color:var(--ink-2); }
+
+/* ============================================================ CLOSING */
+.ed-close{ position:relative; text-align:center; }
+.ed-close__glow{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(680px,90vw); height:min(680px,90vw); background:radial-gradient(circle,rgba(239,90,40,.14),transparent 66%); filter:blur(30px); z-index:0; pointer-events:none; }
+.ed-close__in{ position:relative; z-index:1; max-width:820px; margin:0 auto; }
+.ed-close h2{ font-size:clamp(32px,5.4vw,72px); line-height:1.02; font-weight:900; letter-spacing:-.04em; margin:0; padding-bottom:.06em; }
+.ed-close h2 .o{ color:var(--orange); }
+.ed-close p{ font-size:clamp(15px,1.6vw,18px); color:var(--ink-2); line-height:1.7; margin:22px auto 0; max-width:560px; }
+.ed-close__btns{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:34px; }
+
+/* ============================================================ PINNED CARD TRACK (Real Cost + The InSync Difference) */
+.ed-pinsec{ position:relative; padding:0; }
+.ed-pin__outer{ position:relative; }
+.ed-pin__inner{ padding:clamp(64px,10vw,120px) 0; }
+@media (min-width:961px){ .ed-pin__inner{ min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:clamp(28px,5vh,52px) 0; } }
+.ed-pinsec .ed-head{ max-width:780px; }
+.ed-pinsec .ed-head h2{ font-size:clamp(25px,3.2vw,40px); margin-top:14px; }
+.ed-pinsec .ed-head p{ margin-top:12px; }
+.ed-ptrack-wrap{ position:relative; z-index:1; margin-top:clamp(18px,3vw,30px); }
+.ed-ptrack-steps{ display:flex; gap:8px; margin-bottom:16px; }
+.ed-ptrack-step{ height:3px; width:24px; border-radius:3px; background:var(--line-2); transition:background .4s var(--e), width .4s var(--e); }
+.ed-ptrack-step.on{ background:var(--orange); width:40px; }
+.ed-viewport{ overflow:hidden; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; }
+.ed-viewport::-webkit-scrollbar{ display:none; }
+@media (max-width:960px){ .ed-viewport{ overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; } }
+.ed-ptrack{ display:flex; gap:clamp(16px,2vw,24px); padding:6px; margin:-6px; will-change:transform; }
+.ed-pcard{ scroll-snap-align:start; flex:0 0 clamp(284px,30vw,366px); border:1px solid var(--line-2); border-radius:var(--r-lg); background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012)); -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px); padding:clamp(18px,2vw,24px); display:flex; flex-direction:column; position:relative; overflow:hidden; transition:border-color .45s var(--e), transform .45s var(--e), background .45s var(--e); }
+.ed-pcard::before{ content:''; position:absolute; left:0; top:0; height:100%; width:2px; background:linear-gradient(180deg,var(--orange),var(--orange-3)); transform:scaleY(0); transform-origin:top; transition:transform .6s var(--e); }
+.ed-pcard.active{ border-color:rgba(239,90,40,.45); background:linear-gradient(180deg,rgba(239,90,40,.055),rgba(255,255,255,.012)); }
+.ed-pcard.active::before{ transform:scaleY(1); }
+.ed-pcard__viz{ height:104px; border-radius:14px; border:1px solid var(--line); background:radial-gradient(130% 100% at 50% 0,rgba(255,255,255,.03),rgba(0,0,0,.28)); overflow:hidden; position:relative; margin-bottom:16px; }
+.ed-pcard__viz svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.ed-pcard__viz [class*="ed-vz"]{ transform-box:fill-box; }
+.ed-pcard__tag{ font-family:var(--f-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-4); margin-bottom:9px; transition:color .4s var(--e); }
+.ed-pcard.active .ed-pcard__tag{ color:var(--orange); }
+.ed-pcard__t{ font-size:clamp(17px,1.9vw,21px); font-weight:700; letter-spacing:-.02em; line-height:1.3; margin:0; }
+.ed-pcard__d{ font-size:13.5px; color:var(--ink-3); line-height:1.55; margin:10px 0 0; }
+.ed-ptrack-rail{ position:relative; height:2px; background:var(--line); border-radius:2px; margin-top:clamp(20px,3vw,28px); max-width:300px; overflow:hidden; }
+.ed-ptrack-bar{ position:absolute; inset:0; background:linear-gradient(90deg,var(--orange),var(--orange-3)); transform-origin:left; transform:scaleX(.15); transition:transform .12s linear; }
+.ed-ptrack-hint{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-4); margin-top:14px; display:flex; align-items:center; gap:8px; }
+.ed-ptrack-hint svg{ width:15px; height:15px; }
+.ed-pinsec__foot{ position:relative; z-index:1; padding:clamp(28px,4vw,52px) 0 clamp(56px,7vw,92px); }
+@media (max-width:960px){ .ed-pinsec__foot{ padding-top:clamp(30px,6vw,44px); } }
+
+/* -------- viz shared shapes -------- */
+.ed-vzln{ fill:none; stroke:var(--orange); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.ed-vzln2{ fill:none; stroke:var(--line-2); stroke-width:1.4; }
+.ed-vzbar{ fill:var(--orange); }
+.ed-vzdot{ fill:var(--orange); }
+.ed-vzgrid{ stroke:var(--line); stroke-width:1; }
+.ed-vzmut{ fill:var(--ink-5); }
+.ed-vzmut2{ stroke:var(--ink-4); fill:none; stroke-width:1.6; }
+
+/* Academic — descending score bars */
+.edap.js .ed-vz-fall .ed-vzbar{ transform-origin:bottom; animation:ed-bargrow 3.4s var(--e) infinite; }
+.edap.js .ed-vz-fall .ed-vzbar:nth-child(2){ animation-delay:.12s; }
+.edap.js .ed-vz-fall .ed-vzbar:nth-child(3){ animation-delay:.24s; }
+.edap.js .ed-vz-fall .ed-vzbar:nth-child(4){ animation-delay:.36s; }
+@keyframes ed-bargrow{ 0%{ transform:scaleY(0); } 22%,78%{ transform:scaleY(1); } 100%{ transform:scaleY(1); } }
+
+/* Compliance — document + warning pulse */
+.edap.js .ed-vz-warn .ed-vzwarn{ transform-origin:center; animation:ed-warn 1.8s var(--e) infinite; }
+@keyframes ed-warn{ 0%,100%{ opacity:.35; transform:scale(.9); } 50%{ opacity:1; transform:scale(1.08); } }
+
+/* Staffing — roster seats emptying */
+.edap.js .ed-vz-seat .ed-vzseat{ animation:ed-vac 2.6s var(--e) infinite; }
+.edap.js .ed-vz-seat .ed-vzseat:nth-child(2){ animation-delay:.7s; }
+.edap.js .ed-vz-seat .ed-vzseat:nth-child(4){ animation-delay:1.3s; }
+
+/* Safety — shield with expanding ring */
+.edap.js .ed-vz-shield .ed-vzring{ transform-origin:center; animation:ed-ring2 2.8s var(--e-out) infinite; }
+@keyframes ed-ring2{ 0%{ transform:scale(.5); opacity:.85; } 100%{ transform:scale(1.7); opacity:0; } }
+
+/* Liability — rising exposure bars */
+.edap.js .ed-vz-rise .ed-vzbar{ transform-origin:bottom; animation:ed-bargrow 3.2s var(--e) infinite; }
+.edap.js .ed-vz-rise .ed-vzbar:nth-child(2){ animation-delay:.14s; }
+.edap.js .ed-vz-rise .ed-vzbar:nth-child(3){ animation-delay:.28s; }
+.edap.js .ed-vz-rise .ed-vzbar:nth-child(4){ animation-delay:.42s; }
+
+/* Fully staffed — schedule cells filling */
+.edap.js .ed-vz-cells .ed-vzcell{ transform-origin:center; animation:ed-cellpop 3.6s var(--e) infinite; }
+.edap.js .ed-vz-cells .ed-vzcell:nth-child(2){ animation-delay:.2s; }
+.edap.js .ed-vz-cells .ed-vzcell:nth-child(3){ animation-delay:.4s; }
+.edap.js .ed-vz-cells .ed-vzcell:nth-child(4){ animation-delay:.6s; }
+.edap.js .ed-vz-cells .ed-vzcell:nth-child(5){ animation-delay:.8s; }
+.edap.js .ed-vz-cells .ed-vzcell:nth-child(6){ animation-delay:1s; }
+@keyframes ed-cellpop{ 0%{ opacity:.12; } 30%,84%{ opacity:1; } 100%{ opacity:1; } }
+
+/* Uninterrupted — continuous service signal (marching dashes = seamless loop) */
+.edap.js .ed-vz-flow .ed-vzpulse{ animation:ed-march 1.1s linear infinite; }
+@keyframes ed-march{ to{ stroke-dashoffset:-14; } }
+
+/* Stability — settling wobble */
+.edap.js .ed-vz-settle .ed-vzbeam{ transform-origin:center; animation:ed-wobble 3.2s ease-in-out infinite; }
+@keyframes ed-wobble{ 0%,100%{ transform:rotate(-3.5deg); } 50%{ transform:rotate(3.5deg); } }
+
+/* Partner — two nodes linking */
+.edap.js .ed-vz-link .ed-vzconn{ transform-origin:center; animation:ed-link 3s var(--e) infinite; }
+@keyframes ed-link{ 0%,100%{ transform:scaleX(.25); opacity:.5; } 50%{ transform:scaleX(1); opacity:1; } }
+.edap.js .ed-vz-link .ed-vznode{ transform-origin:center; animation:ed-vac 3s var(--e) infinite; }
+.edap.js .ed-vz-link .ed-vznode--b{ animation-delay:1.5s; }
+
+/* ============================================================ RESPONSIVE */
+@media (max-width:1024px){
+  .ed-hero__bottom{ grid-template-columns:1fr; gap:26px; align-items:start; }
+  .ed-trust{ grid-template-columns:1fr; gap:40px; }
+  .ed-meter{ order:-1; }
+  .ed-contact{ grid-template-columns:1fr; }
+}
+@media (max-width:820px){
+  .ed-gap{ grid-template-columns:1fr; }
+  .ed-gaps{ position:static; }
+  .ed-srow{ grid-template-columns:1fr; gap:16px; }
+  .ed-flow__grid{ grid-template-columns:1fr; gap:0; }
+  .ed-flow__line, .ed-flow__pulse{ display:none; }
+  .ed-step{ display:grid; grid-template-columns:auto 1fr; gap:18px; padding:20px 0; border-bottom:1px solid var(--line); align-items:start; }
+  .ed-step:first-child{ border-top:1px solid var(--line); }
+  .ed-step h3{ margin-top:8px; }
+  .ed-step p{ grid-column:2; }
+}
+@media (max-width:640px){
+  .ed-match__row{ grid-template-columns:1fr 0.75fr 0.55fr; gap:9px; }
+  .ed-match__lbl{ display:none; }
+  .ed-match__need{ min-height:40px; padding:7px 11px; }
+  .ed-match__pro{ min-height:40px; padding:6px 9px; justify-content:center; }
+  .ed-match__ck{ margin-left:6px; }
+  .ed-form__grid{ grid-template-columns:1fr; }
+  .ed-cost__row{ grid-template-columns:auto 1fr; }
+  .ed-cost__side{ display:none; }
+  .ed-hero__ctas, .ed-close__btns{ flex-direction:column; align-items:stretch; }
+  .ed-hero__ctas .ed-btn, .ed-close__btns .ed-btn{ width:100%; justify-content:center; }
+  .ed-creds__i{ border-right:0; }
+}
+
+/* motion off */
+@media (prefers-reduced-motion:reduce){
+  .edap.js .ed-rv{ opacity:1 !important; transform:none !important; }
+  .edap.js .ed-head h2, .edap.js .ed-hero__title{ clip-path:none !important; }
+  .edap.js .ed-match.in .ed-match__wire i, .edap.js .ed-match.in .ed-match__wire b, .edap.js .ed-match.in .ed-match__pro, .edap.js .ed-match.in .ed-match__ck path, .edap.js .ed-match__stat::before{ animation:none !important; }
+  .ed-match__wire b{ opacity:0 !important; } .ed-match__ck path{ stroke-dashoffset:0 !important; }
+  .ed-match__ck, .ed-match__pro{ border-color:rgba(239,90,40,.4) !important; }
+  .edap .ed-gaps.in .ed-slot--vac{ animation:none !important; }
+  .edap.js .ed-chip{ opacity:1 !important; transform:none !important; }
+  .edap.js .ed-meter.in .ed-meter__val{ stroke-dashoffset:2 !important; animation:none !important; }
+  .edap.js .ed-meter.in .ed-meter__orbit, .edap.js .ed-meter.in .ed-meter__glow{ animation:none !important; }
+  .ed-meter__head{ opacity:0 !important; animation:none !important; }
+  .edap.js .ed-flow.in .ed-flow__line i{ transform:scaleX(1) !important; animation:none !important; }
+  .edap.js .ed-flow.in .ed-flow__pulse, .edap.js .ed-flow.in .ed-step__ic::after{ animation:none !important; opacity:0 !important; }
+  .edap.js .ed-creds .ed-creds__i{ opacity:1 !important; transform:none !important; }
+  .edap.js .ed-creds__ck path{ stroke-dashoffset:0 !important; animation:none !important; }
+  .edap.js .ed-li__mk::after, .edap.js .ed-srow__mk i{ transform:none !important; animation:none !important; }
+  .edap.js .ed-step__ic, .edap.js .ed-pcard__viz [class*="ed-vz"]{ animation:none !important; }
+  .edap.js .ed-vz-cells .ed-vzcell{ opacity:1 !important; }
+}
+
+/* ============================================================
+   HERO v2 — reference-matched "Wonder" layer (appended; overrides base).
+   Ported from the Apex homepage reference: fixed hero that scroll-morphs
+   (zoom + fade + blur) across a 100svh runway while .ed-below rises over
+   it; a scroll-scrubbed fixed background video (frame 1 at page top, last
+   frame at the end of the runway; mobile autoplay-loops; reduced-motion
+   freezes frame 1); zoom-out page-load entrance with held copy reveal;
+   grid + ember ambience; spring-damped mouse parallax. Desktop and fine
+   pointer only — ≤1024px / coarse / reduced-motion get the in-flow hero.
+   ============================================================ */
+
+/* ---------- scroll-scrubbed background video (fixed, behind everything) */
+.ed-scrub{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; opacity:0; transition:opacity .5s ease; }
+.ed-scrub.is-on{ opacity:1; }
+.ed-scrub__par{ position:absolute; inset:0; will-change:transform; }
+/* Framing: top-anchored (subject sits high in frame) and widened 10% with the
+   extra thrown to the RIGHT — the box now spans -7%..117% instead of
+   -7%..107%, so the content centre lands right of the viewport centre and the
+   off-centre subject pulls right. Bleed on every edge is parallax room. */
+.ed-scrub__vid{ position:absolute; left:-7%; top:-2%; width:124%; height:118%;
+  transform:scaleX(-1); object-fit:cover; object-position:50% 0;
+  will-change:transform; }
+/* constant left-dark fade keeps the hero copy readable over the video; the
+   right-hand stops carry a slight floor so the hero reads a touch darker */
+.ed-scrub__grad{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.8) 22%, rgba(0,0,0,.58) 46%, rgba(0,0,0,.42) 70%, rgba(0,0,0,.34) 88%, rgba(0,0,0,.34) 100%); }
+/* full dark overlay that fades in as you leave the hero, so The Staffing Gap
+   copy stays readable over the video (reference alpha: .66) */
+.ed-scrub__shade{ position:absolute; inset:0; opacity:0; background:rgba(0,0,0,.66); }
+
+/* hero + scene stay transparent so the fixed video shows through */
+.ed-hero, .ed-hero__s1{ background:transparent; }
+
+/* ---------- fixed hero + morph runway (reset for mobile below) */
+.ed-hero{ position:fixed; inset:0; height:100svh; z-index:40; padding:0; overflow:hidden; will-change:opacity,transform; }
+.ed-hero__s1{ position:relative; height:100%; display:flex; flex-direction:column; justify-content:center;
+  padding:calc(var(--nav-h,72px) + 16px) 0 24px; transform-origin:50% 42svh; }
+.ed-hero__in{ z-index:3; }
+.ed-fadespacer{ height:100svh; }               /* runway the fixed hero fades across */
+.ed-below{ position:relative; z-index:4; }   /* content rises OVER the morphing
+   hero; no background of its own, so the scrub video shows behind the section
+   that shares its span (the wrapper's black sits under the video layer) */
+
+/* ---------- SCRUB SPAN: hero + The Staffing Gap
+   Reference model: the fixed scrub video sits behind the hero AND the first
+   section; those two are forced transparent so it shows through, the shade
+   (a fixed rgba(0,0,0,.66) overlay) ramps in across the last 45vh of the hero
+   so the section's copy stays readable, and the whole layer switches off past
+   the end of the span. Every other section keeps its own background, so no
+   page-wide transparency is needed. */
+.ed-hero, .ed-hero__s1, #roles{ background:transparent !important; }
+
+/* section tint (kept on sections OUTSIDE the scrub span) */
+.ed-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)); }
+
+/* mobile / reduced-motion: video is hero-only, so give the risen content a
+   solid floor (edu sections carry no background of their own) */
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  .ed-below{ background:var(--bg); }
+}
+
+/* ============================================================
+   BAND VIDEO — a second fixed video behind everything AFTER the
+   scrub span. Darkened + gradient-shaded so text stays readable;
+   band sections go transparent so the video shows through, and
+   band cards take the frosted-glass recipe. Fades in/out as the
+   band enters/leaves. Desktop / fine-pointer only.
+   ============================================================ */
+.ed-band{ position:relative; z-index:1; }
+.ed-bandvid{ position:fixed; inset:0; z-index:0; opacity:0; pointer-events:none; transition:opacity .6s ease; }
+.ed-bandvid.on{ opacity:1; }
+.ed-bandvid__media{ position:absolute; inset:0; overflow:hidden; }
+.ed-bandvid__media video{
+  position:absolute; left:50%; top:50%; width:100%; height:100%;
+  transform:translate(-50%,-50%); object-fit:cover;
+  filter:brightness(.6);                       /* darkened */
+}
+.ed-bandvid__shade{ position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.87) 0%, rgba(0,0,0,.81) 30%, rgba(0,0,0,.83) 70%, rgba(0,0,0,.9) 100%); }
+
+/* band sections transparent so the fixed video shows through */
+.ed-band > section{ background:transparent !important; }
+
+/* frosted glass over the band video — mirrors the hero card recipe so cards
+   read as glass instead of solid panels that hide the video */
+.ed-band .ed-pcard,
+.ed-band .ed-form,
+.ed-band .ed-chip,
+.ed-band .ed-step__ic{
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid var(--line-2) !important;
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.ed-band .ed-pcard, .ed-band .ed-form{ box-shadow:0 30px 60px -18px rgba(0,0,0,.7); }
+.ed-band .ed-pcard:hover,
+.ed-band .ed-chip:hover{
+  background:rgba(255,255,255,.075) !important;
+  border-color:rgba(239,90,40,.4) !important;
+}
+/* rows read stronger over moving footage */
+.ed-band .ed-srow:hover{ background:rgba(255,255,255,.04); }
+/* inputs sit on the glass, not on their own solid panel */
+.ed-band .ed-fld input,
+.ed-band .ed-fld select,
+.ed-band .ed-fld textarea{ background:rgba(255,255,255,.04) !important; }
+
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  /* no band video here -> restore solid surfaces for contrast + perf */
+  .ed-bandvid{ display:none !important; }
+  .ed-band > section{ background:var(--bg) !important; }
+  .ed-band > section.ed-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)) !important; }
+  .ed-band .ed-pcard{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012)) !important;
+    box-shadow:none;
+  }
+  .ed-band .ed-form{ background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)) !important; box-shadow:none; }
+  .ed-band .ed-chip, .ed-band .ed-step__ic{
+    background:var(--bg-2) !important;
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+}
+
+/* ambient grid + embers (scene layers under the copy) */
+.ed-hero__s1grid{ position:absolute; inset:0; z-index:1; pointer-events:none; will-change:transform;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%);
+          mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%); }
+.ed-hero__embers{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:2; will-change:transform; }
+.ed-ember{ position:absolute; bottom:-2%; width:var(--sz,3px); height:var(--sz,3px); border-radius:50%;
+  left:var(--x,50%); background:var(--orange-2); box-shadow:0 0 10px rgba(239,90,40,.6); opacity:0;
+  animation:ed-ember var(--t,12s) linear var(--dl,0s) infinite; }
+@keyframes ed-ember{
+  0%{ transform:translate3d(0,2vh,0); opacity:0; }
+  10%{ opacity:var(--op,.22); }
+  85%{ opacity:var(--op,.22); }
+  100%{ transform:translate3d(var(--swx,20px),-108vh,0); opacity:0; } }
+
+/* parallax rides these wrappers; reveals stay on their children */
+.ed-hero__copy, .ed-hero .ed-match{ will-change:transform; }
+
+/* ---------- desktop composition: copy left / role-matching panel right.
+   The stacked hero is taller than one viewport; the fixed 100svh frame
+   needs the healthcare-hero split so nothing clips. */
+@media (min-width:1025px) and (pointer:fine){
+  .ed-hero__in{ display:grid; grid-template-columns:1.04fr .96fr; gap:clamp(28px,3.5vw,56px); align-items:center; }
+  .ed-hero__title{ font-size:clamp(34px,3.7vw,54px); margin-top:18px; max-width:none; }
+  .ed-hero__bottom{ grid-template-columns:1fr; gap:14px; align-items:start; margin-top:22px; }
+  .ed-hero__sub{ margin-top:0; max-width:560px; }
+  .ed-hero .ed-match{ margin-top:0; }
+}
+@media (min-width:1025px) and (pointer:fine) and (max-height:820px){
+  .ed-hero__s1{ padding-top:calc(var(--nav-h,72px) + 8px); }
+  .ed-hero__title{ font-size:clamp(32px,3.3vw,46px); margin-top:14px; }
+  .ed-hero__roles{ display:none; }
+  .ed-match__heads{ display:none; }
+  .ed-hero .ed-match__need, .ed-hero .ed-match__pro{ min-height:38px; }
+}
+
+/* ---------- page-load entrance: scene snaps zoomed-up before paint, then
+   animates out; copy + panel hold until the zoom settles (JS drives it) */
+.edap.js .ed-hero.ed-enter .ed-hero__s1{ transform:scale(1.12) !important; opacity:.5 !important; transition:none !important; }
+.edap.js .ed-hero.ed-entering .ed-hero__s1{ transition:transform 1.7s cubic-bezier(.16,.84,.28,1), opacity 1.2s ease !important; }
+.edap.js .ed-hero.ed-enter .ed-hero__copy .ed-rv,
+.edap.js .ed-hero.ed-entering .ed-hero__copy .ed-rv,
+.edap.js .ed-hero.ed-enter .ed-match.ed-rv,
+.edap.js .ed-hero.ed-entering .ed-match.ed-rv{ opacity:0 !important; transform:translateY(24px) !important; }
+.edap.js .ed-hero.ed-enter .ed-hero__title,
+.edap.js .ed-hero.ed-entering .ed-hero__title{ clip-path:inset(0 105% 0 0) !important; }   /* hold the wipe too */
+.edap.js .ed-hero.ed-reveal-hero .ed-hero__copy .ed-rv,
+.edap.js .ed-hero.ed-reveal-hero .ed-match.ed-rv{ opacity:1 !important; transform:none !important; }
+/* release the wipe with the reveal — otherwise the hold above outlasts it and
+   the title only un-wipes when .ed-entering is cleared */
+.edap.js .ed-hero.ed-reveal-hero .ed-hero__title{ clip-path:inset(0 0 0 0) !important; }
+
+/* ---------- mobile / coarse / reduced-motion: in-flow hero, no morph */
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  .ed-hero{ position:relative; inset:auto; height:auto; z-index:auto; overflow:visible; padding:clamp(92px,15vh,180px) 0 0; }
+  .ed-hero__s1{ height:auto; display:block; padding:0; }
+  .ed-fadespacer{ display:none; }
+  .ed-below{ z-index:auto; }
+}
+@media (prefers-reduced-motion:reduce){
+  .edap.js .ed-hero.ed-enter .ed-hero__s1, .edap.js .ed-hero.ed-entering .ed-hero__s1{ transform:none !important; opacity:1 !important; }
+  .edap.js .ed-hero.ed-enter .ed-hero__copy .ed-rv, .edap.js .ed-hero.ed-entering .ed-hero__copy .ed-rv,
+  .edap.js .ed-hero.ed-enter .ed-match.ed-rv, .edap.js .ed-hero.ed-entering .ed-match.ed-rv{ opacity:1 !important; transform:none !important; }
+  .edap.js .ed-hero.ed-enter .ed-hero__title, .edap.js .ed-hero.ed-entering .ed-hero__title{ clip-path:none !important; }
+  .ed-ember{ animation:none !important; opacity:0 !important; }
+}
+
+/* cursor safety (scoped) */
+.edap, .edap *{ cursor:auto !important; }
+.edap a[href], .edap button, .edap .ed-btn, .edap label[for], .edap [role="button"]{ cursor:pointer !important; }
+.edap input, .edap textarea, .edap select{ cursor:text !important; }
+.edap input[type="checkbox"]{ cursor:pointer !important; }
+</style>
+
+<div class="edap__in">
+
+<!-- SCROLL-SCRUBBED BACKGROUND VIDEO (hero + morph runway) -->
+<div class="ed-scrub" id="edScrub" aria-hidden="true">
+  <div class="ed-scrub__par" id="edScrubPar">
+    <video class="ed-scrub__vid" id="edScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="ed-scrub__grad" aria-hidden="true"></div>
+  <div class="ed-scrub__shade" id="edScrubShade"></div>
+</div>
+
+<!-- ═══════════ HERO (v2 — fixed morph over the runway) ═══════════ -->
+<header class="ed-hero" id="edHero">
+<script>
+(function(){
+  var h = document.getElementById('edHero');
+  if (!h) return;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return;              /* no entrance for reduced-motion */
+  h.classList.add('ed-enter');       /* set zoomed-up + copy-hidden state before paint */
+})();
+</script>
+  <div class="ed-hero__s1" id="edHeroS1">
+    <div class="ed-hero__glow" aria-hidden="true"></div>
+    <div class="ed-hero__s1grid" aria-hidden="true"></div>
+    <div class="ed-hero__embers" id="edEmbers" aria-hidden="true"></div>
+    <div class="ed-wrap ed-hero__in">
+      <div class="ed-hero__copy" id="edHeroCopy">
+        <div class="ed-hero__eyrow ed-rv">
+          <span class="ed-ey">Nationwide Educational Staffing</span>
+          <span class="ed-hero__tick">SDVOSB · Joint Commission Aligned</span>
+        </div>
+        <h1 class="ed-hero__title ed-rv d1">Educational Staffing Solutions for Schools, Districts &amp; <span class="o">Special Education Programs</span></h1>
+        <div class="ed-hero__bottom">
+          <p class="ed-hero__roles ed-rv d2">School Nurses • Therapists • SPED Teachers • Behavioral Specialists • Student Support Staff</p>
+          <div class="ed-rv d2">
+            <p class="ed-hero__sub">InSync helps K–12 schools, charter schools, and private institutions stay fully staffed with qualified, credentialed educational professionals. Fast placement. Nationwide coverage. Healthcare-level rigor.</p>
+            <div class="ed-hero__ctas" style="margin-top:24px;">
+              <a href="/contact-us/" class="ed-btn ed-btn--pri">Request Qualified School Staff
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="#services" class="ed-btn ed-btn--ghost">See What We Staff</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- live role matching: school needs paired with InSync's credentialed professionals -->
+      <div class="ed-match ed-rv d1" aria-hidden="true">
+      <div class="ed-match__bar">
+        <span class="ed-match__title">Role Matching</span>
+        <span class="ed-match__stat">Live</span>
+      </div>
+      <div class="ed-match__heads"><span>School Needs</span><span>InSync Network</span></div>
+      <div class="ed-match__rows">
+        <div class="ed-match__row">
+          <span class="ed-match__need">School Nurse</span>
+          <span class="ed-match__wire"><i></i><b></b></span>
+          <span class="ed-match__pro"><span class="ed-match__av ed-av--o">RN</span><span class="ed-match__lbl">Verified</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+        </div>
+        <div class="ed-match__row">
+          <span class="ed-match__need">Speech-Language Pathologist</span>
+          <span class="ed-match__wire"><i></i><b></b></span>
+          <span class="ed-match__pro"><span class="ed-match__av ed-av--n">SL</span><span class="ed-match__lbl">Credentialed</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+        </div>
+        <div class="ed-match__row">
+          <span class="ed-match__need">SPED Teacher</span>
+          <span class="ed-match__wire"><i></i><b></b></span>
+          <span class="ed-match__pro"><span class="ed-match__av ed-av--g">SP</span><span class="ed-match__lbl">Cleared</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+        </div>
+        <div class="ed-match__row">
+          <span class="ed-match__need">Occupational Therapist</span>
+          <span class="ed-match__wire"><i></i><b></b></span>
+          <span class="ed-match__pro"><span class="ed-match__av ed-av--n2">OT</span><span class="ed-match__lbl">Licensed</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+        </div>
+        <div class="ed-match__row">
+          <span class="ed-match__need">Behavioral Specialist</span>
+          <span class="ed-match__wire"><i></i><b></b></span>
+          <span class="ed-match__pro"><span class="ed-match__av ed-av--o">BC</span><span class="ed-match__lbl">Verified</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.ed-hero__in -->
+  </div><!-- /.ed-hero__s1 -->
+</header>
+<div class="ed-fadespacer" id="edFadeSpacer" aria-hidden="true"></div>
+<div class="ed-below">
+
+<!-- credentials line -->
+<div class="ed-creds">
+  <div class="ed-wrap ed-creds__in">
+    <span class="ed-creds__i"><svg class="ed-creds__ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Service-Disabled Veteran-Owned (SDVOSB)</span>
+    <span class="ed-creds__i"><svg class="ed-creds__ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Joint Commission Aligned</span>
+    <span class="ed-creds__i"><svg class="ed-creds__ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Healthcare-Level Credentialing</span>
+    <span class="ed-creds__i"><svg class="ed-creds__ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Nationwide Coverage</span>
+    <span class="ed-creds__i"><svg class="ed-creds__ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Fast Placement</span>
+  </div>
+</div>
+
+<!-- ═══════════ STAFFING GAP ═══════════ -->
+<section class="ed-sec" id="roles">
+  <div class="ed-wrap">
+    <div class="ed-head ed-rv">
+      <span class="ed-ey ed-ey--muted">The Staffing Gap</span>
+      <h2>Schools Are Struggling to Find Qualified Educational Staff. <span class="o">We're Here to Fix That.</span></h2>
+      <p>Districts across the country face major shortages of:</p>
+    </div>
+    <div class="ed-gap">
+      <div class="ed-list ed-rv">
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">School Nurses</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Speech-Language Pathologists (SLPs)</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Special Education Teachers (SPED)</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Occupational and Physical Therapists</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Behavioral Intervention Staff</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Mental Health Professionals</span></div>
+        <div class="ed-li"><span class="ed-li__mk" aria-hidden="true"></span><span class="ed-li__t">Sign Language Interpreters and DHH Specialists</span></div>
+      </div>
+      <div class="ed-gaps ed-rv d1" aria-hidden="true">
+        <div class="ed-gaps__bar"><span class="ed-gaps__t">Unfilled periods</span><span class="ed-gaps__k">Vacant</span></div>
+        <div class="ed-gaps__grid">
+          <div class="ed-slot"></div><div class="ed-slot ed-slot--vac"></div><div class="ed-slot"></div><div class="ed-slot ed-slot--vac"></div><div class="ed-slot"></div>
+          <div class="ed-slot"></div><div class="ed-slot"></div><div class="ed-slot ed-slot--vac"></div><div class="ed-slot"></div><div class="ed-slot ed-slot--vac"></div>
+          <div class="ed-slot ed-slot--vac"></div><div class="ed-slot"></div><div class="ed-slot ed-slot--vac"></div><div class="ed-slot"></div><div class="ed-slot"></div>
+        </div>
+        <div class="ed-gaps__cap">Every vacant slot is a service a student doesn't receive.</div>
+      </div>
+    </div>
+    <p class="ed-note ed-rv">These vacancies impact compliance, student outcomes, and the overall stability of your district. <strong>Your students shouldn't be impacted by staffing challenges.</strong> That's why InSync delivers fast, reliable educational staffing support nationwide.</p>
+    <div class="ed-phones ed-rv">
+      <a href="tel:8886413444">(888) 641-3444</a>
+      <a href="tel:9162442085">(916) 244-2085</a>
+    </div>
+    <div class="ed-cta ed-rv">
+      <a href="/contact-us/" class="ed-btn ed-btn--pri">Accelerate Your Success Now
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ WHAT WE STAFF — schedule-row bands ═══════════ -->
+<!-- band video: fixed behind every section after The Staffing Gap -->
+<div class="ed-bandvid" id="edBandVid">
+  <div class="ed-bandvid__media" id="edBandVidMedia" aria-hidden="true"></div>
+  <div class="ed-bandvid__shade" aria-hidden="true"></div>
+</div>
+<div class="ed-band" id="edBand">
+
+<section class="ed-sec ed-sec--tint" id="services">
+  <div class="ed-wrap">
+    <div class="ed-head ed-rv">
+      <span class="ed-ey ed-ey--muted">What We Staff</span>
+      <h2>Educational Staffing Services <span class="o">We Provide</span></h2>
+      <p>Comprehensive coverage across the clinical, therapy, special education, and student-support roles schools rely on most.</p>
+    </div>
+
+    <div class="ed-srows">
+      <div class="ed-srow ed-rv">
+        <div class="ed-srow__head"><span class="ed-srow__mk" aria-hidden="true"><i></i></span><h3 class="ed-srow__t">Clinical &amp; Behavioral School Staffing</h3></div>
+        <div class="ed-chips ed-rv">
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>School Nurses (RN/LVN)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Behavioral Specialists</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Registered Behavior Technicians (RBTs)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>BCBAs</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>School Psychologists</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>School Counselors</span>
+        </div>
+      </div>
+      <div class="ed-srow ed-rv">
+        <div class="ed-srow__head"><span class="ed-srow__mk" aria-hidden="true"><i></i></span><h3 class="ed-srow__t">Therapy Staffing for Schools</h3></div>
+        <div class="ed-chips ed-rv">
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Speech-Language Pathologists (SLP, SLP-CF)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Occupational Therapists (OT)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Physical Therapists (PT)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Teletherapy Providers (all disciplines)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Mental Health Therapists</span>
+        </div>
+      </div>
+      <div class="ed-srow ed-rv">
+        <div class="ed-srow__head"><span class="ed-srow__mk" aria-hidden="true"><i></i></span><h3 class="ed-srow__t">Special Education Staffing</h3></div>
+        <div class="ed-chips ed-rv">
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Special Education Teachers (all categories)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Deaf &amp; Hard-of-Hearing Specialists (DHH)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Sign Language Interpreters (ASL)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Teachers of the Visually Impaired (TVI)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Paraprofessionals / Teacher's Aides</span>
+        </div>
+      </div>
+      <div class="ed-srow ed-rv">
+        <div class="ed-srow__head"><span class="ed-srow__mk" aria-hidden="true"><i></i></span><h3 class="ed-srow__t">Additional Student Support Roles</h3></div>
+        <div class="ed-chips ed-rv">
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Audiologists</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Social Workers</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Case Managers</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Adapted Physical Education Teachers (APE)</span>
+          <span class="ed-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Crisis Intervention Staff</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ed-cta ed-rv">
+      <a href="/contact-us/" class="ed-btn ed-btn--pri">Request a Staffing Proposal
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ WHY SCHOOLS CHOOSE INSYNC ═══════════ -->
+<section class="ed-sec" id="trust">
+  <div class="ed-wrap ed-trust">
+    <div class="ed-trust__lead ed-rv">
+      <span class="ed-ey ed-ey--muted">Why Schools Choose InSync</span>
+      <div class="ed-head ed-rv" style="max-width:none;">
+        <h2 style="font-size:clamp(28px,3.7vw,44px);">InSync Is Your Trusted Partner for <span class="o">Educational Staffing</span> Nationwide</h2>
+        <p>As a Service-Disabled Veteran-Owned Small Business (SDVOSB) with Joint Commission aligned healthcare staffing standards, InSync brings unmatched precision and reliability to school staffing.</p>
+      </div>
+      <div class="ed-sublabel">Why Schools Trust Us</div>
+      <ul class="ed-tlist ed-rv">
+        <li><span class="ed-tlist__mk" aria-hidden="true"></span><div><h3>Healthcare-Level Credentialing for Educational Roles</h3><p>We verify all state licenses, clearances, certifications, and child-safety requirements.</p></div></li>
+        <li><span class="ed-tlist__mk" aria-hidden="true"></span><div><h3>Nationwide Network of Therapists, Nurses &amp; SPED Professionals</h3><p>Our private talent pipeline lets us fill even the hardest-to-fill roles quickly.</p></div></li>
+        <li><span class="ed-tlist__mk" aria-hidden="true"></span><div><h3>Experience Across Healthcare + Special Education</h3><p>No other school staffing agency brings this level of clinical expertise.</p></div></li>
+        <li><span class="ed-tlist__mk" aria-hidden="true"></span><div><h3>Fast Response Times &amp; Dedicated Account Support</h3><p>We function like your internal HR extension — not an outside vendor.</p></div></li>
+      </ul>
+      <div class="ed-cta ed-rv">
+        <a href="/contact-us/" class="ed-btn ed-btn--pri">Speak With a Credentialing Expert
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="ed-meter ed-rv d1" aria-hidden="true">
+      <div class="ed-meter__glow"></div>
+      <svg viewBox="0 0 200 200">
+        <defs><linearGradient id="edmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9060"/><stop offset="1" stop-color="#ef5a28"/></linearGradient></defs>
+        <circle class="ed-meter__track" cx="100" cy="100" r="85"/>
+        <circle class="ed-meter__val" cx="100" cy="100" r="85"/>
+        <g class="ed-meter__orbit"><circle class="ed-meter__head" cx="100" cy="15" r="5.5"/></g>
+        <g class="ed-meter__ticks">
+          <line x1="100" y1="8" x2="100" y2="18"/><line x1="192" y1="100" x2="182" y2="100"/>
+          <line x1="100" y1="192" x2="100" y2="182"/><line x1="8" y1="100" x2="18" y2="100"/>
+        </g>
+      </svg>
+      <div class="ed-meter__center"><span class="ed-meter__pct"><span id="edMeterNum">100</span>%</span><span class="ed-meter__lbl">Fully Staffed</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ HOW IT WORKS — horizontal 3-step flow ═══════════ -->
+<section class="ed-sec ed-sec--tint" id="process">
+  <div class="ed-wrap">
+    <div class="ed-head ed-rv">
+      <span class="ed-ey ed-ey--muted">How It Works</span>
+      <h2>A Proven <span class="o">3-Step Plan</span> to Keep Your School Fully Staffed</h2>
+    </div>
+    <div class="ed-flow ed-rv d1">
+      <div class="ed-flow__line" aria-hidden="true"><i></i></div>
+      <span class="ed-flow__pulse" aria-hidden="true"></span>
+      <div class="ed-flow__grid">
+        <div class="ed-step ed-rv"><div class="ed-step__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div><h3>Tell Us Your Staffing Needs</h3><p>Share your job descriptions, hours, certifications required, and start dates.</p></div>
+        <div class="ed-step ed-rv"><div class="ed-step__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7-7 8-4-1-7-3.5-7-8V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>We Deliver Fully Vetted Candidates Fast</h3><p>All candidates meet district, state, and federal credentialing standards.</p></div>
+        <div class="ed-step ed-rv"><div class="ed-step__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v4c0 1.5 2.7 3 6 3s6-1.5 6-3v-4"/></svg></div><h3>Your Students Get the Support They Deserve</h3><p>You maintain compliance, minimize burnout, and protect student outcomes.</p></div>
+      </div>
+    </div>
+    <div class="ed-cta ed-rv">
+      <a href="/contact-us/" class="ed-btn ed-btn--pri">Start the 3-Step Staffing Process
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ THE REAL COST — editorial numbered list ═══════════ -->
+<section class="ed-sec ed-pinsec" id="cost">
+  <div class="ed-pin__outer" id="edCostOuter">
+    <div class="ed-pin__sticky" id="edCostPin">
+      <div class="ed-wrap ed-pin__inner">
+        <div class="ed-head ed-rv">
+          <span class="ed-ey ed-ey--muted">The Real Cost</span>
+          <h2>The Cost of Understaffing <span class="o">Is Too High</span></h2>
+          <p>Without enough qualified educational staff:</p>
+        </div>
+        <div class="ed-ptrack-wrap ed-rv d1">
+          <div class="ed-ptrack-steps" aria-hidden="true"><span class="ed-ptrack-step on"></span><span class="ed-ptrack-step"></span><span class="ed-ptrack-step"></span><span class="ed-ptrack-step"></span><span class="ed-ptrack-step"></span></div>
+          <div class="ed-viewport" id="edCostViewport">
+            <div class="ed-ptrack" id="edCostTrack">
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-fall" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><line class="ed-vzgrid" x1="30" y1="95" x2="212" y2="95"/><rect class="ed-vzbar" x="46" y="25" width="26" height="70" rx="3"/><rect class="ed-vzbar" x="90" y="43" width="26" height="52" rx="3"/><rect class="ed-vzbar" x="134" y="59" width="26" height="36" rx="3"/><rect class="ed-vzbar" x="178" y="73" width="26" height="22" rx="3"/></svg></div>
+                <span class="ed-pcard__tag">Academic</span>
+                <h3 class="ed-pcard__t">Students fall behind academically</h3>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-warn" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><rect class="ed-vzmut2" x="66" y="24" width="60" height="62" rx="6"/><line class="ed-vzgrid" x1="78" y1="40" x2="114" y2="40"/><line class="ed-vzgrid" x1="78" y1="52" x2="114" y2="52"/><line class="ed-vzgrid" x1="78" y1="64" x2="102" y2="64"/><g class="ed-vzwarn"><path d="M156 38 l18 32 h-36 z" fill="none" stroke="var(--orange)" stroke-width="2.4" stroke-linejoin="round"/><line x1="156" y1="50" x2="156" y2="59" stroke="var(--orange)" stroke-width="2.4" stroke-linecap="round"/><circle cx="156" cy="65" r="1.7" fill="var(--orange)"/></g></svg></div>
+                <span class="ed-pcard__tag">Compliance</span>
+                <h3 class="ed-pcard__t">SPED timelines and compliance are at risk</h3>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-seat" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><g fill="var(--orange)"><circle cx="48" cy="46" r="8"/><path d="M35 74 a13 13 0 0 1 26 0z"/></g><g class="ed-vzseat" fill="var(--orange)"><circle cx="96" cy="46" r="8"/><path d="M83 74 a13 13 0 0 1 26 0z"/></g><g fill="var(--orange)"><circle cx="144" cy="46" r="8"/><path d="M131 74 a13 13 0 0 1 26 0z"/></g><g class="ed-vzseat" fill="var(--orange)"><circle cx="192" cy="46" r="8"/><path d="M179 74 a13 13 0 0 1 26 0z"/></g></svg></div>
+                <span class="ed-pcard__tag">Staffing</span>
+                <h3 class="ed-pcard__t">Teacher and staff burnout increases</h3>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-shield" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle class="ed-vzring" cx="120" cy="55" r="20" fill="none" stroke="var(--orange)" stroke-width="1.6"/><path d="M120 28 l21 8 v13 c0 14 -10 21 -21 25 c-11 -4 -21 -11 -21 -25 v-13 z" fill="none" stroke="var(--orange)" stroke-width="2.4" stroke-linejoin="round"/><line x1="120" y1="46" x2="120" y2="58" stroke="var(--orange)" stroke-width="2.4" stroke-linecap="round"/><circle cx="120" cy="64" r="1.7" fill="var(--orange)"/></svg></div>
+                <span class="ed-pcard__tag">Safety</span>
+                <h3 class="ed-pcard__t">Safety concerns escalate</h3>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-rise" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><line class="ed-vzgrid" x1="30" y1="95" x2="212" y2="95"/><rect class="ed-vzbar" x="46" y="73" width="26" height="22" rx="3"/><rect class="ed-vzbar" x="90" y="59" width="26" height="36" rx="3"/><rect class="ed-vzbar" x="134" y="43" width="26" height="52" rx="3"/><rect class="ed-vzbar" x="178" y="25" width="26" height="70" rx="3"/></svg></div>
+                <span class="ed-pcard__tag">Liability</span>
+                <h3 class="ed-pcard__t">Legal and financial liability grow</h3>
+              </article>
+
+            </div>
+          </div>
+          <div class="ed-ptrack-rail"><span class="ed-ptrack-bar" id="edCostBar"></span></div>
+          <div class="ed-ptrack-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Keep scrolling to move through all five</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ THE INSYNC DIFFERENCE — pinned card track + matched bookend ═══════════ -->
+<section class="ed-sec ed-pinsec ed-sec--tint" id="difference">
+  <div class="ed-pin__outer" id="edDiffOuter">
+    <div class="ed-pin__sticky" id="edDiffPin">
+      <div class="ed-wrap ed-pin__inner">
+        <div class="ed-head ed-rv">
+          <span class="ed-ey ed-ey--muted">The InSync Difference</span>
+          <h2>What Success Looks Like for <span class="o">Your School</span></h2>
+          <p>When you partner with InSync, here's what changes — and how to get started.</p>
+        </div>
+        <div class="ed-ptrack-wrap ed-rv d1">
+          <div class="ed-ptrack-steps" aria-hidden="true"><span class="ed-ptrack-step on"></span><span class="ed-ptrack-step"></span><span class="ed-ptrack-step"></span><span class="ed-ptrack-step"></span></div>
+          <div class="ed-viewport" id="edDiffViewport">
+            <div class="ed-ptrack" id="edDiffTrack">
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-cells" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><rect class="ed-vzcell" x="56" y="28" width="44" height="26" rx="5" fill="var(--orange)"/><rect class="ed-vzcell" x="108" y="28" width="44" height="26" rx="5" fill="var(--orange)"/><rect class="ed-vzcell" x="160" y="28" width="44" height="26" rx="5" fill="var(--orange)"/><rect class="ed-vzcell" x="56" y="60" width="44" height="26" rx="5" fill="var(--orange)"/><rect class="ed-vzcell" x="108" y="60" width="44" height="26" rx="5" fill="var(--orange)"/><rect class="ed-vzcell" x="160" y="60" width="44" height="26" rx="5" fill="var(--orange)"/></svg></div>
+                <span class="ed-pcard__tag">Fully Staffed</span>
+                <h3 class="ed-pcard__t">Your school becomes fully staffed.</h3>
+                <p class="ed-pcard__d">No more scrambling. No more gaps.</p>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-flow" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><line class="ed-vzln2" x1="20" y1="55" x2="220" y2="55"/><line class="ed-vzpulse" x1="20" y1="55" x2="220" y2="55" stroke="var(--orange)" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="4 10"/><circle cx="120" cy="55" r="4" fill="var(--orange)"/></svg></div>
+                <span class="ed-pcard__tag">Continuity</span>
+                <h3 class="ed-pcard__t">Students receive uninterrupted services.</h3>
+                <p class="ed-pcard__d">SPED, therapy, and health services remain fully compliant.</p>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-settle" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M120 92 l-9 -12 h18 z" fill="var(--orange)"/><g class="ed-vzbeam"><rect x="66" y="50" width="108" height="8" rx="4" fill="var(--orange)"/><circle cx="70" cy="54" r="7" fill="none" stroke="var(--orange)" stroke-width="2.2"/><circle cx="170" cy="54" r="7" fill="none" stroke="var(--orange)" stroke-width="2.2"/></g></svg></div>
+                <span class="ed-pcard__tag">Stability</span>
+                <h3 class="ed-pcard__t">Your district gains stability and peace of mind.</h3>
+                <p class="ed-pcard__d">Reliable staffing, improved outcomes, and supportive environments.</p>
+              </article>
+
+              <article class="ed-pcard ed-rv">
+                <div class="ed-pcard__viz"><svg viewBox="0 0 240 110" class="ed-vz-link" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><line class="ed-vzconn" x1="88" y1="55" x2="152" y2="55" stroke="var(--orange)" stroke-width="2.8"/><circle class="ed-vznode" cx="82" cy="55" r="15" fill="none" stroke="var(--orange)" stroke-width="2.4"/><circle class="ed-vznode ed-vznode--b" cx="158" cy="55" r="15" fill="none" stroke="var(--orange)" stroke-width="2.4"/><circle cx="82" cy="55" r="4" fill="var(--orange)"/><circle cx="158" cy="55" r="4" fill="var(--orange)"/></svg></div>
+                <span class="ed-pcard__tag">Partnership</span>
+                <h3 class="ed-pcard__t">You finally have a partner, not a vendor.</h3>
+                <p class="ed-pcard__d">InSync becomes an extension of your HR and student services team.</p>
+              </article>
+
+            </div>
+          </div>
+          <div class="ed-ptrack-rail"><span class="ed-ptrack-bar" id="edDiffBar"></span></div>
+          <div class="ed-ptrack-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Keep scrolling to move through all four</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- bookend: every school need matched with a credentialed professional -->
+  <div class="ed-wrap ed-pinsec__foot">
+    <div class="ed-bookend ed-rv d1" aria-hidden="true">
+      <div class="ed-match ed-match--done">
+        <div class="ed-match__bar">
+          <span class="ed-match__title">Role Matching</span>
+          <span class="ed-match__stat">Fully Staffed</span>
+        </div>
+        <div class="ed-match__heads"><span>School Needs</span><span>InSync Network</span></div>
+        <div class="ed-match__rows">
+          <div class="ed-match__row">
+            <span class="ed-match__need">School Nurse</span>
+            <span class="ed-match__wire"><i></i><b></b></span>
+            <span class="ed-match__pro"><span class="ed-match__av ed-av--o">RN</span><span class="ed-match__lbl">Verified</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+          </div>
+          <div class="ed-match__row">
+            <span class="ed-match__need">Speech-Language Pathologist</span>
+            <span class="ed-match__wire"><i></i><b></b></span>
+            <span class="ed-match__pro"><span class="ed-match__av ed-av--n">SL</span><span class="ed-match__lbl">Credentialed</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+          </div>
+          <div class="ed-match__row">
+            <span class="ed-match__need">SPED Teacher</span>
+            <span class="ed-match__wire"><i></i><b></b></span>
+            <span class="ed-match__pro"><span class="ed-match__av ed-av--g">SP</span><span class="ed-match__lbl">Cleared</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+          </div>
+          <div class="ed-match__row">
+            <span class="ed-match__need">Occupational Therapist</span>
+            <span class="ed-match__wire"><i></i><b></b></span>
+            <span class="ed-match__pro"><span class="ed-match__av ed-av--n2">OT</span><span class="ed-match__lbl">Licensed</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+          </div>
+          <div class="ed-match__row">
+            <span class="ed-match__need">Behavioral Specialist</span>
+            <span class="ed-match__wire"><i></i><b></b></span>
+            <span class="ed-match__pro"><span class="ed-match__av ed-av--o">BC</span><span class="ed-match__lbl">Verified</span><span class="ed-match__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CONTACT ═══════════ -->
+<section class="ed-sec" id="contact" style="border-top:1px solid var(--line);">
+  <div class="ed-wrap ed-contact">
+    <div class="ed-contact__l ed-rv">
+      <span class="ed-ey">Request Qualified School Staff</span>
+      <h2>Request Qualified <span class="o">School Staff</span></h2>
+      <p>Tell us what your school needs and a staffing expert will reach out.</p>
+    </div>
+
+    <!-- NOTE: styled placeholder — wire these fields to a real GHL form / CRM workflow before publishing -->
+    <div class="ed-rv d1">
+      <form class="ed-form ed-rv" id="edForm" novalidate>
+        <div class="ed-form__grid">
+          <div class="ed-fld ed-rv"><label for="edFn">First Name *</label><input id="edFn" name="fn" type="text" placeholder="First Name" required></div>
+          <div class="ed-fld ed-rv"><label for="edLn">Last Name *</label><input id="edLn" name="ln" type="text" placeholder="Last Name" required></div>
+          <div class="ed-fld ed-fld--full ed-rv"><label for="edEm">Email *</label><input id="edEm" name="em" type="email" placeholder="you@school.org" required></div>
+          <div class="ed-fld ed-fld--full ed-rv"><label for="edPh">Phone *</label><input id="edPh" name="ph" type="tel" placeholder="(000) 000-0000" required></div>
+          <div class="ed-fld ed-fld--full ed-rv"><label for="edMs">Message *</label><textarea id="edMs" name="msg" placeholder="How can we help you?" required></textarea></div>
+          <div class="ed-consent">
+            <input id="edCon" type="checkbox" required>
+            <label for="edCon">I agree to receive communications by text message regarding my updates, hiring, support, and to respond to general inquiries from InSync Consulting Services. You may opt out by replying STOP or ask for more information by replying HELP. Message frequency varies. Message and data rates may apply. You may review our Privacy Policy to learn how your data is used.</label>
+          </div>
+          <button type="submit" class="ed-btn ed-btn--pri ed-form__submit">Submit
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <p class="ed-fnote">By submitting the form you acknowledge and agree that InSync Consulting Services will collect and process your personal data for the purpose of contacting you and providing information about our staffing services. You understand that we handle your information in compliance with applicable privacy laws and that InSync Consulting Services is not liable for any damages or losses incurred in connection with the use of the information provided or our staffing services.</p>
+        </div>
+      </form>
+      <div class="ed-thanks" id="edThanks"><b>Thank you!</b><span>A member of our team will be in touch shortly.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CLOSING ═══════════ -->
+<section class="ed-sec ed-close ed-rv">
+  <div class="ed-close__glow" aria-hidden="true"></div>
+  <div class="ed-wrap ed-close__in ed-rv">
+    <h2>Keep Your School Fully <span class="o">Staffed</span></h2>
+    <p>Partner with a staffing team that understands education. Request qualified, credentialed school staff — fast placement, nationwide coverage, healthcare-level rigor.</p>
+    <div class="ed-close__btns">
+      <a href="/contact-us/" class="ed-btn ed-btn--pri">Request Qualified School Staff
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/contact-us/" class="ed-btn ed-btn--ghost">Speak With a Credentialing Expert</a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /.ed-band -->
+</div><!-- /.ed-below -->
+</div><!-- /edap__in -->
+
+<script>
+(function(){
+  /* Band video source (section 3 onward). NOTE: .mov — Chrome often refuses
+     the QuickTime container even when the stream is H.264. If it doesn't play
+     on the live site, re-encode to .mp4 (H.264) and swap this constant. */
+  var ED_BAND_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a76553e7a46c6dc51a9ecc4.mov';
+  var wrap  = document.getElementById('edBandVid');
+  var media = document.getElementById('edBandVidMedia');
+  var band  = document.getElementById('edBand');
+  if (!wrap || !media || !band) return;
+  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  if (mqOff.matches) return;
+
+  var vidOk = true;
+  if (ED_BAND_VIDEO_URL.indexOf('http') === 0){
+    var v = document.createElement('video');
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('playsinline',''); v.preload = 'auto'; v.src = ED_BAND_VIDEO_URL;
+    /* if the container/codec is refused (e.g. .mov in Chrome), keep the layer
+       off entirely so the band sections sit on clean black, not a stray wash */
+    v.addEventListener('error', function(){ vidOk = false; wrap.classList.remove('on'); });
+    media.appendChild(v);
+    var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+  }
+
+  /* Toggle the layer on while the viewport centre sits inside the band's
+     vertical range. Absolute document offsets, so the band's height is fine. */
+  var raf = 0;
+  function bandRange(){
+    var r = band.getBoundingClientRect();
+    var top = r.top + window.scrollY;
+    return { top: top, bottom: top + r.height };
+  }
+  function update(){
+    raf = 0;
+    var vh = window.innerHeight;
+    var y = window.scrollY + vh * 0.5;
+    var r = bandRange();
+    wrap.classList.toggle('on', vidOk && y > r.top + 60 && y < r.bottom);
+  }
+  function onScroll(){ if (!raf) raf = requestAnimationFrame(update); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+
+
+
+<script>
+(function(){
+  var root=document.getElementById('edap'); if(!root) return;
+  root.classList.add('js');
+  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  var revs=root.querySelectorAll('.ed-rv, .ed-match, .ed-gaps, .ed-srow, .ed-meter, .ed-flow, .ed-creds, .ed-list');
+
+  /* Sibling stagger: where a parent holds several reveal children (cards,
+     steps, chip rows, form fields), delay each one a beat after the last so
+     the group cascades instead of popping in as a block. Elements that
+     already carry an explicit d1/d2/d3 delay are left alone. */
+  if(!reduce){
+    var groups=[];
+    revs.forEach(function(el){
+      var p=el.parentElement;
+      if(p && groups.indexOf(p)<0) groups.push(p);
+    });
+    groups.forEach(function(p){
+      var kids=[], i;
+      for(i=0;i<p.children.length;i++){
+        var c=p.children[i];
+        if(c.classList.contains('ed-rv') && !/\bd[123]\b/.test(c.className)) kids.push(c);
+      }
+      if(kids.length<2) return;
+      for(i=0;i<kids.length;i++){
+        kids[i].style.transitionDelay=Math.min(i*0.07,0.35).toFixed(2)+'s';
+      }
+    });
+  }
+
+  if('IntersectionObserver' in window && !reduce){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        e.target.classList.add('in');
+        /* cards sitting off to the RIGHT inside a horizontal track never
+           intersect on their own, so they'd stay blank until swiped to (and
+           then pop). Reveal a track's cards with its container. */
+        var tr = e.target.querySelectorAll ? e.target.querySelectorAll('.ed-ptrack > .ed-rv') : null;
+        if(tr) for(var i=0;i<tr.length;i++){ tr[i].classList.add('in'); io.unobserve(tr[i]); }
+        io.unobserve(e.target);
+      });
+    }, { threshold:0, rootMargin:'0px 0px -12% 0px' });
+    /* threshold 0 + a bottom offset fires when an element's top crosses ~88%
+       of the viewport. A ratio-based threshold starves on blocks taller than
+       the viewport (they can never reach the ratio), which left the long role
+       list and gaps panel stuck invisible. */
+    revs.forEach(function(el){ io.observe(el); });
+  } else { revs.forEach(function(el){ el.classList.add('in'); }); }
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){ if(el.getBoundingClientRect().top < window.innerHeight*0.94) el.classList.add('in'); });
+  });
+  /* Safety net for above-the-fold content only. This must NOT touch elements
+     further down the page — blanket-revealing everything is what killed the
+     scroll entrances. */
+  setTimeout(function(){
+    revs.forEach(function(el){
+      if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  }, 2500);
+
+  var form=document.getElementById('edForm'), thanks=document.getElementById('edThanks');
+  if(form && thanks){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(form.checkValidity && !form.checkValidity()){ form.reportValidity && form.reportValidity(); return; }
+      form.style.display='none'; thanks.classList.add('on');
+    });
+  }
+
+  /* meter: count 0 -> 100 when it scrolls into view */
+  var mnum=document.getElementById('edMeterNum');
+  if(mnum){
+    if(reduce || !('IntersectionObserver' in window)){ mnum.textContent='100'; }
+    else{
+      mnum.textContent='0';
+      var mhost=mnum.closest('.ed-meter') || mnum;
+      var mio=new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if(!e.isIntersecting) return;
+          mio.unobserve(e.target);
+          var t0=null, dur=1700;
+          function tick(ts){ if(t0===null) t0=ts; var p=Math.min(1,(ts-t0)/dur); mnum.textContent=String(Math.round(p*100)); if(p<1) requestAnimationFrame(tick); }
+          requestAnimationFrame(tick);
+        });
+      }, { threshold:0.4 });
+      mio.observe(mhost);
+    }
+  }
+})();
+</script>
+
+<script>
+/* Real Cost + The InSync Difference: GHL-safe manual pinned horizontal scroll.
+   JS-driven position:fixed / position:absolute — NOT position:sticky, which
+   GHL's overflow-clipped wrappers silently break. If an ancestor establishes a
+   containing block (transform/filter/contain/etc.), it falls back to native
+   horizontal swipe with NO inflated spacer, so there is never a trailing gap. */
+(function(){
+  if(!document.getElementById('edap')) return;
+  function reduced(){ return window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches; }
+
+  function initPin(cfg){
+    var sec=document.getElementById(cfg.sec);
+    var outer=document.getElementById(cfg.outer);
+    var pin=document.getElementById(cfg.pin);
+    var viewport=document.getElementById(cfg.viewport);
+    var track=document.getElementById(cfg.track);
+    var bar=document.getElementById(cfg.bar);
+    if(!sec||!outer||!pin||!viewport||!track) return;
+    var steps=sec.querySelectorAll('.ed-ptrack-step');
+    var cards=track.querySelectorAll('.ed-pcard');
+    var mqDesk=window.matchMedia('(min-width:961px) and (pointer:fine)');
+    var pinned=false, travel=0, state='';
+
+    /* position:fixed is unreliable if an ancestor establishes a containing block */
+    function fixedBroken(){
+      for(var n=sec.parentElement; n && n!==document.documentElement; n=n.parentElement){
+        var s=window.getComputedStyle(n);
+        if(s.transform!=='none' || s.perspective!=='none' || (s.filter && s.filter!=='none') ||
+           /transform|perspective/.test(s.willChange||'') || /paint|layout|strict|content/.test(s.contain||'')) return true;
+      }
+      return false;
+    }
+    function apply(p){
+      p=p<0?0:(p>1?1:p);
+      if(pinned) track.style.transform='translate3d('+(-p*travel).toFixed(1)+'px,0,0)';
+      if(bar) bar.style.transform='scaleX('+(0.15+0.85*p).toFixed(3)+')';
+      var idx=Math.round(p*(cards.length-1));
+      for(var i=0;i<cards.length;i++) cards[i].classList.toggle('active', i===idx);
+      for(var j=0;j<steps.length;j++) steps[j].classList.toggle('on', j===idx);
+    }
+    function measure(){
+      var prev=track.style.transform; track.style.transform='none';
+      travel=Math.max(0, track.scrollWidth - viewport.clientWidth);
+      track.style.transform=prev;
+    }
+    function setState(s){
+      if(s===state) return; state=s;
+      if(s==='fixed'){
+        var r=outer.getBoundingClientRect();
+        pin.style.position='fixed'; pin.style.top='0'; pin.style.bottom='auto';
+        pin.style.left=r.left+'px'; pin.style.width=r.width+'px';
+      } else if(s==='bottom'){
+        pin.style.position='absolute'; pin.style.top='auto'; pin.style.bottom='0';
+        pin.style.left='0'; pin.style.width='100%';
+      } else { /* 'top' */
+        pin.style.position='absolute'; pin.style.top='0'; pin.style.bottom='auto';
+        pin.style.left='0'; pin.style.width='100%';
+      }
+    }
+    function onScroll(){
+      if(!pinned){
+        var m=viewport.scrollWidth - viewport.clientWidth;
+        apply(m>0 ? viewport.scrollLeft/m : 0);
+        return;
+      }
+      var top=outer.getBoundingClientRect().top;
+      if(top>0){ setState('top'); apply(0); }
+      else if(top > -travel){ setState('fixed'); apply(-top/travel); }
+      else { setState('bottom'); apply(1); }
+    }
+    /* The pinned frame is a full viewport tall but its content is centred, so
+       it releases with dead space below the cards — which pushed this
+       section's closing copy + CTA a screen away. Measure that slack and pull
+       the foot up by it, leaving only its own padding as the gap. */
+    var foot = sec.querySelector('.ed-pinsec__foot');
+    var tail = pin.querySelector('.ed-ptrack-wrap');
+    function seatFoot(){
+      if(!foot) return;
+      if(!pinned || !tail){ foot.style.marginTop=''; return; }
+      var slack = pin.getBoundingClientRect().bottom - tail.getBoundingClientRect().bottom;
+      foot.style.marginTop = slack > 24 ? (-(slack - 12)).toFixed(0)+'px' : '';
+    }
+
+    function enable(){
+      measure();
+      if(travel<=0){ disable(); return; }
+      pinned=true; sec.classList.add('is-pinned');
+      viewport.style.overflow='hidden';
+      outer.style.height=(window.innerHeight + travel)+'px';
+      state=''; onScroll(); seatFoot();
+    }
+    function disable(){
+      pinned=false; sec.classList.remove('is-pinned');
+      outer.style.height='';
+      viewport.style.overflowX='auto'; viewport.style.overflowY='hidden';
+      pin.style.position=''; pin.style.top=''; pin.style.bottom=''; pin.style.left=''; pin.style.width='';
+      track.style.transform=''; state='';
+      seatFoot();
+      onScroll();
+    }
+    function setup(){
+      disable();
+      if(mqDesk.matches && !reduced() && !fixedBroken()) enable();
+    }
+
+    setup();
+    window.addEventListener('scroll', onScroll, {passive:true});
+    viewport.addEventListener('scroll', function(){ if(!pinned) onScroll(); }, {passive:true});
+    var t; window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(setup,150); });
+    if(mqDesk.addEventListener) mqDesk.addEventListener('change', setup);
+    window.addEventListener('load', function(){ if(pinned){ measure(); outer.style.height=(window.innerHeight+travel)+'px'; state=''; onScroll(); seatFoot(); } });
+  }
+
+  initPin({ sec:'cost',       outer:'edCostOuter', pin:'edCostPin', viewport:'edCostViewport', track:'edCostTrack', bar:'edCostBar' });
+  initPin({ sec:'difference', outer:'edDiffOuter', pin:'edDiffPin', viewport:'edDiffViewport', track:'edDiffTrack', bar:'edDiffBar' });
+})();
+</script>
+
+<script>
+/* HERO v2 — embers + spring-damped mouse parallax (ported from the Apex
+   homepage reference). Fine pointer + motion-on only. Scene moves AGAINST
+   the cursor; near layers travel more than far ones. */
+(function(){
+  'use strict';
+  var hero = document.getElementById('edHero');
+  if (!hero) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+
+  /* ---------- embers ---------- */
+  if (!reduced) {
+    var ew = document.getElementById('edEmbers');
+    if (ew) for (var i = 0; i < 9; i++) {
+      var e = document.createElement('span');
+      e.className = 'ed-ember';
+      e.style.setProperty('--x', (4 + Math.random()*92) + '%');
+      e.style.setProperty('--sz', (2 + Math.random()*2.4).toFixed(1) + 'px');
+      e.style.setProperty('--t', (9 + Math.random()*8).toFixed(1) + 's');
+      e.style.setProperty('--dl', (-Math.random()*16).toFixed(1) + 's');
+      e.style.setProperty('--swx', ((Math.random()*120) - 60).toFixed(0) + 'px');
+      e.style.setProperty('--op', (0.1 + Math.random()*0.16).toFixed(2));
+      ew.appendChild(e);
+    }
+  }
+
+  /* ---------- parallax: adaptive spring-damped depth ---------- */
+  if (!coarse && !reduced) {
+    var pCopy = document.getElementById('edHeroCopy');
+    var pMatch = hero.querySelector('.ed-match');
+    var pEmbers = document.getElementById('edEmbers');
+    var pGrid = hero.querySelector('.ed-hero__s1grid');
+    var scrubPar = document.getElementById('edScrubPar');
+
+    var tx = 0, ty = 0, x = 0, y = 0, vx = 0, vy = 0;
+    var live = true, still = 0;
+    var lastT = performance.now();
+    var mag = 1, scrollDamp = 1;
+
+    function calcMag(){ mag = Math.max(.55, Math.min(1.15, window.innerWidth / 1600)); }
+    calcMag();
+    window.addEventListener('resize', calcMag);
+
+    function calcScroll(){ scrollDamp = Math.max(0, 1 - (window.scrollY / (window.innerHeight * .7))); }
+    calcScroll();
+    window.addEventListener('scroll', function(){ calcScroll(); live = true; still = 0; }, { passive: true });
+
+    hero.addEventListener('mousemove', function(ev){
+      var r = hero.getBoundingClientRect();
+      var nx = (ev.clientX - r.left) / r.width - .5;
+      var ny = (ev.clientY - r.top) / Math.min(r.height, window.innerHeight) - .5;
+      tx = Math.sign(nx) * Math.pow(Math.min(1, Math.abs(nx) * 2), 1.2) * .72;
+      ty = Math.sign(ny) * Math.pow(Math.min(1, Math.abs(ny) * 2), 1.2) * .72;
+      live = true; still = 0;
+    });
+    hero.addEventListener('mouseleave', function(){ tx = 0; ty = 0; live = true; still = 0; });
+
+    var STIFF = 46, DAMP = 12.5;
+    function frame(now){
+      var dt = Math.min(.05, (now - lastT) / 1000) || .016; lastT = now;
+      var gx = tx * scrollDamp, gy = ty * scrollDamp;
+      vx += (gx - x) * STIFF * dt; vx *= Math.exp(-DAMP * dt);
+      vy += (gy - y) * STIFF * dt; vy *= Math.exp(-DAMP * dt);
+      x += vx * dt; y += vy * dt;
+      if (live) {
+        /* Depth order, most-to-least travel:
+           embers > copy > match panel > grid > BACKGROUND VIDEO (deepest). */
+        if (pCopy)   pCopy.style.transform   = 'translate3d(' + (-x * 60 * mag) + 'px,' + (-y * 40 * mag) + 'px,0)';
+        if (pMatch)  pMatch.style.transform  = 'translate3d(' + (-x * 44 * mag) + 'px,' + (-y * 30 * mag) + 'px,0)';
+        if (pEmbers) pEmbers.style.transform = 'translate3d(' + (-x * 74 * mag) + 'px,' + (-y * 50 * mag) + 'px,0)';
+        if (pGrid)   pGrid.style.transform   = 'translate3d(' + (-x * 34 * mag) + 'px,' + (-y * 22 * mag) + 'px,0)';
+        if (scrubPar) scrubPar.style.transform = 'translate3d(' + (-x * 30 * mag) + 'px,' + (-y * 20 * mag) + 'px,0)';
+        if (Math.abs(gx - x) < .0005 && Math.abs(gy - y) < .0005 && Math.abs(vx) < .001 && Math.abs(vy) < .001) {
+          if (++still > 30) live = false;
+        } else { still = 0; }
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+
+<script>
+/* HERO v2 — page-load entrance driver. The pre-paint script inside the
+   header set .ed-enter (scene snapped to scale 1.12, copy held). Arm the
+   transition and release both together: the scene zooms out while the copy
+   rises and the title wipes — no waiting for the zoom to settle first. */
+(function(){
+  var h = document.getElementById('edHero');
+  if (!h || !h.classList.contains('ed-enter')) return;  /* reduced-motion or missing -> skip */
+
+  function runEntrance(){
+    h.classList.add('ed-entering');
+    void h.offsetWidth;                          /* commit "zoomed + transition-armed" state */
+    requestAnimationFrame(function(){
+      h.classList.remove('ed-enter');            /* 1.12 -> 1 over 1.7s, opacity .5 -> 1 */
+      h.classList.add('ed-reveal-hero');         /* copy rises + title wipes in the SAME
+                                                    frame — no hold, animation intact */
+    });
+    setTimeout(function(){ h.classList.remove('ed-entering'); }, 2400);
+  }
+
+  requestAnimationFrame(function(){ requestAnimationFrame(runEntrance); });
+
+  /* idempotent safety: never leave the hero copy held (blank-hero guard) */
+  setTimeout(function(){
+    h.classList.remove('ed-enter'); h.classList.remove('ed-entering');
+    h.classList.add('ed-reveal-hero');
+  }, 3000);
+})();
+</script>
+
+<script>
+/* HERO v2 — fixed-hero scroll morph. The hero is position:fixed (zero
+   drift) and zooms + fades + blurs across the 100svh runway while
+   .ed-below rises over it. Desktop/fine-pointer only. */
+(function(){
+  var hero = document.getElementById('edHero');
+  if (!hero) return;
+  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  var armed=false, raf=0;
+  function paint(){
+    raf=0;
+    var dist = window.innerHeight * 0.82;
+    var t = Math.max(0, Math.min(1, window.scrollY / dist));
+    var e = t*t*(3-2*t);
+    if (t<=0.001) e=0; if (t>=0.999) e=1;
+    hero.style.opacity = String(1-e);
+    hero.style.transform = 'scale(' + (1 + e*1.4).toFixed(4) + ')';
+    hero.style.transformOrigin = '50% 42%';
+    hero.style.filter = e>0.01 ? 'blur(' + (e*10).toFixed(1) + 'px)' : 'none';
+    hero.style.pointerEvents = e>=0.9 ? 'none':'';
+    /* fully out: non-interactive & transparent (no display toggle => no race) */
+    hero.style.visibility = e>=1 ? 'hidden' : 'visible';
+  }
+  function onScroll(){ if(armed && !raf) raf=requestAnimationFrame(paint); }
+  function arm(){ if(mqOff.matches){disarm();return;} if(armed)return;
+    armed=true; window.addEventListener('scroll', onScroll, {passive:true}); paint(); }
+  function disarm(){ armed=false; window.removeEventListener('scroll', onScroll);
+    hero.style.cssText=''; }
+  arm();
+  if (mqOff.addEventListener) mqOff.addEventListener('change', arm);
+  window.addEventListener('resize', function(){ mqOff.matches?disarm():arm(); });
+})();
+</script>
+
+<script>
+/* HERO v2 — scroll-scrubbed background video. Desktop: playhead driven by
+   scroll (frame 1 at page top, last frame at the end of the runway),
+   eased each rAF to kill micro-stutter. Mobile/touch: muted autoplay
+   loop. Reduced-motion: freeze on frame 1. Media URL is a JS runtime
+   constant (immune to GHL attribute corruption). */
+(function(){
+  'use strict';
+  var wrap = document.getElementById('edScrub');
+  var vid  = document.getElementById('edScrubVid');
+  if (!wrap || !vid) return;
+
+  /* Education hero scrub asset (GHL media library). Set from JS as a
+     constant so GHL can't corrupt a src attribute. */
+  var ED_SCRUB_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7bb467bd38a5a67be9a8e3.mp4';
+  vid.src = ED_SCRUB_VIDEO_URL;
+
+  var shade = wrap.querySelector('.ed-scrub__shade');
+
+  /* The scrub spans scrollY 0 (top of the hero) -> the BOTTOM of "The Staffing
+     Gap" (#roles). Frame 1 at page top, last frame at the end of that section. */
+  function scrubEnd(){
+    var sec = document.getElementById('roles');
+    if (sec){
+      var r = sec.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* Start of the spanned section: the bottom of the hero runway (the
+     fadespacer on desktop; the in-flow hero itself when the spacer is
+     display:none on mobile / reduced-motion). */
+  function sectionTop(){
+    var sp = document.getElementById('edFadeSpacer');
+    if (sp){
+      var r = sp.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    var h = document.getElementById('edHero');
+    if (h){
+      var hr = h.getBoundingClientRect();
+      if (hr.height > 0) return hr.top + window.scrollY + hr.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* Hero shows the video CLEAN (only the constant left-fade grad); the full
+     dark overlay ramps in across the last 45vh of the hero so it is at full
+     strength by the time The Staffing Gap begins. */
+  function updateShade(){
+    if (!shade) return;
+    var vh = window.innerHeight;
+    var y  = window.scrollY;
+    var endY = sectionTop(), startY = endY - vh * 0.45;
+    var o = (y - startY) / (endY - startY);
+    if (o < 0) o = 0; if (o > 1) o = 1;
+    shade.style.opacity = String(o);
+  }
+  /* shade runs independently of video readiness, in every mode */
+  window.addEventListener('scroll', updateShade, { passive:true });
+  window.addEventListener('resize', updateShade);
+  updateShade();
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine    = window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch   = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  var canScrub = fine && !touch && !reduced;
+
+  /* ---- NON-SCRUB fallbacks ---- */
+  if (!canScrub){
+    wrap.classList.add('is-on');
+    if (reduced){
+      vid.removeAttribute('autoplay'); vid.pause();
+      var freeze = function(){ try{ vid.currentTime = 0; }catch(e){} vid.pause(); };
+      vid.addEventListener('loadeddata', freeze);
+    } else {
+      vid.loop = true; vid.autoplay = true; vid.muted = true; vid.setAttribute('autoplay','');
+      var pl = function(){ var p = vid.play(); if (p && p.catch) p.catch(function(){}); };
+      vid.addEventListener('loadeddata', pl); pl();
+      /* the span ends with The Staffing Gap; drop the layer and stop playback
+         past it so the loop costs nothing for the rest of the page */
+      var gate = function(){
+        var past = window.scrollY > scrubEnd() + 4;
+        if (past){ wrap.classList.remove('is-on'); if(!vid.paused) vid.pause(); }
+        else { wrap.classList.add('is-on'); if(vid.paused) pl(); }
+      };
+      window.addEventListener('scroll', gate, { passive:true });
+      window.addEventListener('resize', gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- DESKTOP: scrub currentTime from scroll ---- */
+  vid.loop = false; vid.autoplay = false; vid.pause();
+
+  var dur = 0, ready = false, target = 0, raf = 0;
+
+  function onMeta(){ dur = vid.duration || 0; ready = dur > 0; wrap.classList.add('is-on'); tick(); }
+  vid.addEventListener('loadedmetadata', onMeta);
+  vid.addEventListener('loadeddata', function(){ if(!ready) onMeta(); });
+
+  function computeTarget(){
+    var end = scrubEnd();
+    var y = window.scrollY;
+    var p = end > 0 ? (y / end) : 0;
+    if (p < 0) p = 0; if (p > 1) p = 1;
+    /* switch the whole layer off once we're past the span (it cross-fades out
+       over .5s; every section below carries its own background) */
+    if (y > end + 4) wrap.classList.remove('is-on'); else wrap.classList.add('is-on');
+    return p * dur;
+  }
+
+  /* rAF loop: ease currentTime toward the scroll-derived target for smoothness. */
+  function tick(){
+    raf = 0;
+    if (ready){
+      target = computeTarget();
+      var cur = vid.currentTime || 0;
+      var diff = target - cur;
+      if (Math.abs(diff) < 0.008) { /* settled */ }
+      else {
+        var next = cur + diff * 0.28;
+        try { vid.currentTime = next; } catch(e){}
+      }
+      if (Math.abs(target - (vid.currentTime||0)) > 0.008) schedule();
+    }
+  }
+  function schedule(){ if(!raf) raf = requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('resize', schedule);
+  schedule();
+})();
+</script>
+
+</div><!-- /edap -->

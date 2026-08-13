@@ -1,0 +1,132 @@
+# InSync Consulting Services — static site
+
+Body-only page blocks are kept in `src/`, wrapped with the shared shell plus the
+nav and footer partials at build time, and written to `dist/` for Vercel.
+
+## Layout
+
+```
+build.py              assembler — run it to produce dist/
+src/
+  bodies/             one file per page; the body block only, no nav/footer
+    index.html            -> /
+    healthcare-staffing.html
+    education-staffing.html
+    employer-of-record.html
+    404.html              -> /404.html
+  partials/
+    nav.html          global nav, injected at the top of every page
+    footer.html       global footer, injected at the bottom of every page
+  meta.json           per-page <title>, description, and og tags
+public/               copied to dist/ untouched
+  js/holo-hero.js     homepage only — hero face scan
+  js/holo-edges.js    every other page — left/right edge scan
+dist/                 build output — committed, see Deploy below
+```
+
+## Build
+
+```bash
+python3 build.py
+```
+
+Each `src/bodies/<slug>.html` becomes `dist/<slug>/index.html`, served at
+`/<slug>/`. A file named `index.html` becomes the homepage at `/`.
+
+## Adding a page
+
+Drop the body block in `src/bodies/<slug>.html`, add a `<slug>` entry to
+`src/meta.json`, and rebuild. Nothing else to wire — the shell, nav, footer, and
+holo script are attached automatically.
+
+## Holo overlay
+
+The homepage gets `holo-hero.js`; every other page gets `holo-edges.js`. The
+build picks based on the slug, so there is nothing to set per page.
+
+Two escape hatches:
+
+- Skip it on one page — add `data-holo="off"` to that page's wrapper element.
+- Control placement — put `<!--HOLO-->` anywhere in a body block and the script
+  tag goes there instead of at the end.
+
+Tuning attributes are documented in the header comment of each `.js` file.
+
+## Deploy
+
+```bash
+cd insync-site
+git init
+git add .
+git commit -m "InSync static site"
+git branch -M main
+git remote add origin <your-repo-url>
+git push -u origin main
+```
+
+Then import the repo in Vercel. `vercel.json` handles everything — no dashboard
+settings to change.
+
+`dist/` is committed on purpose. Vercel will rebuild it on each push, but if the
+build step ever fails for any reason, the committed copy is served instead, so a
+deploy can't break the site. The one thing to remember: after editing anything in
+`src/`, run `python3 build.py` before you commit, so the committed `dist/`
+matches your source.
+
+## Known open items
+
+- **Band videos are `.mov`.** Healthcare and Educational both point their band
+  video at a `.mov` file. Chrome refuses that container, so the band will render
+  as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
+  MP4 re-encode. The Educational page already has a comment noting this, and its
+  script keeps the layer usable if playback is refused.
+- **14 internal links have no destination yet** — including `/contact-us/`
+  (referenced 19 times) and `/apply-now/` (8). They land on the 404 page until
+  those pages are added.
+- **No favicon.** Drop one in `public/` and add the `<link>` to the shell in
+  `build.py`.
+- **Media lives on the GHL CDN.** Every image and video is a remote URL on
+  `assets.cdn.filesafe.space` or Firebase. Fine while GHL is still in the
+  picture; if the site moves off it entirely, those assets need to come along.
+- **Sandbox QA caveat.** Google Fonts and the media CDN are unreachable from the
+  build sandbox, so fonts, the nav logo, and video could not be verified
+  locally. Check them on the Vercel preview.
+
+## What the build normalizes
+
+The nav and footer were authored as standalone GHL global blocks, so each one
+carries a full preamble. That was fine when they were separate blocks; now that
+nav + page + footer share one document, `build.py` adjusts two things and logs
+each change as it runs:
+
+- **Duplicate font links** are stripped from the partials and from any body that
+  carries its own. The shell loads the family once.
+- **`cursor:none`** in the partials is switched to `cursor:auto`. It came from
+  the old custom-cursor treatment, but neither partial ships the cursor element
+  or its JS. The sector pages force `cursor:auto !important` inside their own
+  wrapper, so page content was safe, but the nav and footer sit outside that
+  wrapper and would have lost the pointer entirely.
+
+The `:root` token block in each partial is left alone on purpose. The sector
+pages scope their tokens to their own wrapper and never define `:root`, so the
+nav and footer genuinely need to carry their own.
+
+Source files are never modified — normalization happens on the way into `dist/`.
+
+## Known open items
+
+- **Band videos are `.mov`.** Healthcare and Educational both point their band
+  video at a `.mov` file. Chrome refuses that container, so the band will render
+  as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
+  MP4 re-encode. The Educational page already has a comment noting this, and its
+  script keeps the layer usable if playback is refused.
+- **Homepage not yet in the repo.** Add it as `src/bodies/index.html` and it
+  will pick up `holo-hero.js` automatically.
+- **Overlay intensity over the footer.** The edges overlay is a fixed
+  full-viewport layer, so it paints at the same strength over the footer as over
+  the hero. It reads well on the hero; over the footer's contact column it is
+  busier. Add `data-intensity="0.65"` to the edges tag in `build.py` to calm it
+  globally.
+- **Sandbox QA caveat.** Google Fonts and the media CDN are unreachable from the
+  build sandbox, so fonts, the nav logo, and video could not be verified
+  locally. Check them on the Vercel preview.

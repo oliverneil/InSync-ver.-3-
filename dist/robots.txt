@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://insynconline.net/sitemap.xml

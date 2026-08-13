@@ -1,0 +1,630 @@
+<!-- InSync Consulting Services — Global Footer (Apex Design)
+     Paste into GHL Global Footer Block. Body-only fragment. -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#000; --bg-1:#0a0a0a; --bg-2:#131313; --bg-3:#1a1a1a; --bg-card:#0e0e0e; --bg-elev:#171717;
+  --ink:#fff; --ink-2:rgba(255,255,255,.72); --ink-3:rgba(255,255,255,.5); --ink-4:rgba(255,255,255,.32); --ink-5:rgba(255,255,255,.18);
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28; --orange-2:#ff7a4d; --orange-3:#ff9060; --orange-glow:rgba(239,90,40,.4);
+  --f:'Inter',system-ui,-apple-system,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  --e:cubic-bezier(.4,0,.2,1); --e-out:cubic-bezier(.16,1,.3,1); --e-spring:cubic-bezier(.34,1.56,.64,1);
+  --nav-h:64px; --gutter:24px; --max-w:1440px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ background:var(--bg); scroll-behavior:smooth; overflow-x:hidden; }
+
+body{
+  font-family:var(--f); font-weight:400; font-size:17px; line-height:1.5; color:var(--ink-2);
+  background:var(--bg); overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  font-feature-settings:"ss01","cv11"; cursor:none;
+}
+
+img,svg{ display:block; max-width:100%; }
+
+button{ font:inherit; cursor:none; border:0; background:0; color:inherit; padding:0; }
+/* REVEAL */
+.rv{ opacity:0; transform:translateY(24px); transition:opacity 1s var(--e-out),transform 1s var(--e-out); }
+
+.rv.in{ opacity:1; transform:none; }
+
+.d1{ transition-delay:.12s; }
+
+.d2{ transition-delay:.24s; }
+
+.d3{ transition-delay:.36s; }
+
+.d4{ transition-delay:.48s; }
+
+.d5{ transition-delay:.60s; }
+
+.ap-step.rv.in .ap-step__num::before{ transform:scale(1); }
+
+.ap-step__body{ max-width:720px; }
+
+.ap-cred__logo:has(img[data-failed])::after{ opacity:1; }
+
+.ap-cred__body{
+  display:flex; flex-direction:column;
+  min-width:0;
+}
+
+.ap-hero__card-body{ flex:1; }
+
+.ap-step.rv.in .ap-step__num::before{
+  transform:scale(1);
+  box-shadow:0 0 12px rgba(239,90,40,.7);
+}
+
+@media (max-width:640px){
+  :root{ --gutter:16px; }
+}
+
+@media (max-width:400px){
+  :root{ --gutter:14px; }
+}
+
+@media (hover:none),(pointer:coarse){
+  body{ cursor:auto; } button{ cursor:pointer; } a{ cursor:pointer; }
+}
+
+@media (hover:none),(pointer:coarse),(max-width:900px){
+  .ap-cursor,.ap-cursor-glow{ display:none !important; }
+}
+
+@media (max-width:900px){ .ap-topbar{ display:none; } }
+
+@media (max-width:900px){
+  .ap-nav{ top:0; display:flex; justify-content:space-between; }
+}
+
+@media (max-width:900px){
+  .ap-nav__menu, .ap-nav__ctas{ display:none; }
+  .ap-nav__burger{ display:flex; }
+}
+
+@keyframes heroGlow{
+  0%{ transform:translateX(-50%) scale(.9); opacity:.8; }
+  100%{ transform:translateX(-50%) scale(1.1); opacity:1; }
+}
+
+@keyframes dotPulse{
+  0%,100%{ opacity:1; box-shadow:0 0 12px var(--orange); }
+  50%{ opacity:.5; box-shadow:0 0 4px var(--orange); }
+}
+
+@media (max-width:640px){
+  .ap-hero{ padding-top:calc(var(--nav-h) + 40px); }
+  .ap-hero__title{ font-size:clamp(40px,12vw,88px); letter-spacing:-.035em; }
+  .ap-hero__sub{ font-size:17px; margin-bottom:40px; }
+  .ap-hero__ctas{ flex-direction:column; align-items:stretch; }
+}
+
+@keyframes tickerScroll{
+  from{ transform:translateX(0); }
+  to{ transform:translateX(-50%); }
+}
+
+@media (max-width:640px){
+  .ap-section{ padding:80px var(--gutter); }
+  .ap-section__head{ margin-bottom:56px; }
+}
+
+@media (max-width:400px){
+  .ap-section{ padding:64px var(--gutter); }
+  .ap-section__head{ margin-bottom:40px; }
+}
+
+@media (max-width:900px){
+  .ap-stats{ grid-template-columns:repeat(2,1fr); gap:60px 0; padding:80px var(--gutter); }
+  .ap-stat:nth-child(3){ border-left:none; }
+}
+
+@media (max-width:520px){
+  .ap-stats{ grid-template-columns:1fr; gap:48px; }
+  .ap-stat{ border-left:none; padding:0; }
+}
+
+@media (max-width:1200px){
+  .ap-tiles{ grid-template-columns:repeat(4,1fr); }
+  .ap-tile{ grid-column:span 2; }
+  .ap-tile--featured{ grid-column:span 4; }
+}
+
+@media (max-width:900px){
+  .ap-tiles{ grid-template-columns:repeat(2,1fr); gap:12px; }
+  .ap-tile, .ap-tile--featured{ grid-column:span 2; min-height:auto; padding:32px 24px; }
+  .ap-tile--featured{ padding:36px 28px; }
+  .ap-tile--featured .ap-tile__title{ font-size:26px; }
+}
+
+@media (max-width:520px){
+  .ap-tiles{ grid-template-columns:1fr; }
+  .ap-tile, .ap-tile--featured{ grid-column:span 1; padding:28px 22px; }
+  .ap-tile__foot{ flex-direction:column; align-items:flex-start; gap:14px; }
+  .ap-tile__title{ font-size:20px; }
+  .ap-tile--featured .ap-tile__title{ font-size:24px; }
+}
+
+@media (max-width:900px){ .ap-tenets{ grid-template-columns:1fr; } }
+
+@media (max-width:900px){
+  .ap-split{ grid-template-columns:1fr; }
+  .ap-split__card{ padding:44px 32px; }
+}
+
+@media (max-width:800px){
+  .ap-challenge{ grid-template-columns:1fr; gap:20px; padding:32px 24px; }
+  .ap-challenge__ghost{ font-size:56px; }
+  .ap-challenge__side{ min-width:0; }
+}
+
+@media (max-width:800px){
+  .ap-step{ grid-template-columns:1fr; gap:16px; padding:36px 0; }
+  .ap-step__title{ font-size:24px; }
+}
+
+@media (max-width:900px){
+  .ap-stories__grid{ grid-template-columns:1fr; }
+  .ap-story{ padding:36px 28px; }
+}
+
+@media (max-width:900px){
+  .ap-creds-carousel{ padding:0; }
+  .ap-creds-carousel__arrow{ display:none; }
+}
+
+@media (max-width:900px){
+  .ap-cred{ flex:0 0 100%; }
+}
+
+@media (max-width:480px){
+  .ap-cred{ grid-template-columns:88px 1fr; gap:16px; padding:16px; }
+  .ap-cred__logo{ width:88px; height:88px; padding:10px; }
+  .ap-cred__name{ font-size:15px; }
+}
+
+@media (max-width:900px){
+  .ap-guide__grid{ grid-template-columns:1fr; gap:48px; }
+  .ap-guide__form{ padding:36px 28px; position:static; }
+}
+
+@media (max-width:900px){
+  .ap-foot__grid{ grid-template-columns:1fr 1fr; gap:40px; }
+  .ap-foot__brand{ grid-column:1 / -1; }
+}
+
+@media (max-width:520px){
+  .ap-foot__grid{ grid-template-columns:1fr; gap:32px; }
+  .ap-foot__bottom{ flex-direction:column; gap:12px; text-align:center; }
+}
+
+@keyframes cardFadeIn{ to{ opacity:.92; } }
+
+@keyframes cardFloat{
+  0%,100%{ translate:0 0; }
+  50%{ translate:0 -12px; }
+}
+
+@media (max-width:900px){
+  .ap-hero__cards{ display:block; }
+  .ap-hero__card{
+    min-width:150px; padding:10px 12px; gap:8px;
+    animation-duration:10s;
+  }
+  .ap-hero__card-avatar{ width:26px; height:26px; font-size:9px; }
+  .ap-hero__card-lines{ width:60px; height:5px; }
+  .ap-hero__card-role{ font-size:8px; }
+  .ap-hero__card-check{ width:14px; height:14px; font-size:8px; }
+  /* Show only 2 cards to avoid overlap with H1 text */
+  .ap-hero__card--2, .ap-hero__card--3{ display:none; }
+  .ap-hero__card--1{ top:10%; left:3%; transform:rotate(-4deg); }
+  .ap-hero__card--4{ bottom:12%; right:3%; transform:rotate(-6deg); }
+}
+
+@media (max-width:480px){
+  .ap-hero__card{ min-width:130px; padding:8px 10px; gap:7px; }
+  .ap-hero__card-avatar{ width:24px; height:24px; font-size:8px; }
+  .ap-hero__card-lines{ width:52px; height:4px; margin-bottom:5px; }
+  .ap-hero__card-role{ font-size:7.5px; letter-spacing:.1em; }
+  .ap-hero__card-check{ width:13px; height:13px; font-size:7px; }
+  .ap-hero__card--1{ top:8%; left:2%; }
+  .ap-hero__card--4{ bottom:8%; right:2%; }
+}
+
+@media (max-width:800px){
+  .ap-process::before, .ap-process__line{ display:none; }
+  .ap-step__num::after{ display:none; }
+}
+
+@media (max-width:640px){
+  .ap-guide__book{ width:200px; height:270px; margin-bottom:32px; }
+  .ap-guide__book-title{ font-size:18px; }
+}
+
+@media (max-width:640px){
+  .ap-split__mockup{ max-width:220px; height:250px; margin-bottom:28px; }
+}
+
+@media (max-width:800px){
+  .ap-process__pipeline{ max-width:100%; margin-bottom:60px; }
+  .ap-pipeline__board{ grid-template-columns:repeat(2,1fr); gap:8px; }
+  .ap-pipeline__col{ min-height:auto; }
+  .ap-pipeline{ padding:18px 20px; }
+}
+
+@media (max-width:480px){
+  .ap-pipeline{ padding:14px 16px; }
+  .ap-pipeline__title{ font-size:12px; }
+  .ap-pipeline__col-count{ font-size:18px; }
+  .ap-pipeline__board{ gap:6px; }
+  .ap-pipeline__col{ padding:8px; }
+}
+/* REDUCED MOTION */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  .rv{ opacity:1; transform:none; }
+  .ap-cursor,.ap-cursor-glow{ display:none !important; }
+  body{ cursor:auto; } button,a{ cursor:pointer; }
+}
+
+/* FOOTER */
+.ap-foot{
+  padding:96px var(--gutter) 40px;
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+/* Grid backdrop pattern */
+.ap-foot::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000 20%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000 20%,transparent 80%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.ap-foot__inner{
+  max-width:var(--max-w); margin:0 auto;
+  position:relative; z-index:1;
+}
+/* Grid columns */
+.ap-foot__grid{
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:48px;
+  padding-bottom:56px; border-bottom:1px solid var(--line); margin-bottom:32px;
+  position:relative;
+}
+
+.ap-foot__brand{ max-width:360px; position:relative; }
+
+.ap-foot__logo{
+  display:flex; align-items:center; gap:0;
+  margin-bottom:24px;
+  padding:4px;
+  border-radius:12px;
+  position:relative;
+  transition:transform .3s var(--e-spring);
+}
+
+.ap-foot__logo:hover{ transform:scale(1.03); }
+
+.ap-foot__logo-img{
+  height:56px; width:auto; display:block;
+  filter:grayscale(1) invert(1) contrast(1.4);
+  mix-blend-mode:lighten;
+  transition:filter .3s var(--e);
+}
+
+.ap-foot__logo:hover .ap-foot__logo-img{ filter:grayscale(1) invert(1) contrast(1.4) brightness(1.15); }
+
+.ap-foot__tag{
+  font-size:18px; font-weight:800; color:var(--ink);
+  margin-bottom:10px; letter-spacing:-.02em;
+  line-height:1.2;
+}
+
+.ap-foot__tag .accent{ color:var(--orange); }
+
+.ap-foot__blurb{ font-size:13px; color:var(--ink-3); line-height:1.6; margin-bottom:24px; }
+/* JC Badge card with more visual weight */
+.ap-foot__jc{
+  display:flex; align-items:center; gap:14px;
+  padding:14px 16px;
+  background:linear-gradient(135deg,var(--bg-card),var(--bg-elev));
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  margin-bottom:24px;
+  position:relative; overflow:hidden;
+  transition:border-color .3s var(--e), transform .3s var(--e);
+}
+
+.ap-foot__jc:hover{
+  border-color:rgba(239,90,40,.4);
+  transform:translateY(-2px);
+}
+
+.ap-foot__jc::before{
+  content:''; position:absolute;
+  top:0; right:0; width:60%; height:100%;
+  background:radial-gradient(circle at 100% 50%,rgba(239,90,40,.1) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+.ap-foot__jc-badge{
+  width:38px; height:38px; border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),var(--orange-2));
+  color:#fff; display:grid; place-items:center;
+  font-weight:800; font-size:16px; flex-shrink:0;
+  box-shadow:0 4px 12px rgba(239,90,40,.4);
+  position:relative;
+}
+
+.ap-foot__jc-title{ font-size:13px; font-weight:700; color:var(--ink); line-height:1.2; position:relative; }
+
+.ap-foot__jc-sub{ font-size:11px; color:var(--ink-3); position:relative; }
+/* Blanket link color for the entire footer — covers :link, :visited states */
+.ap-foot a,
+.ap-foot a:link,
+.ap-foot a:visited{
+  color:inherit;
+  text-decoration:none;
+}
+
+.ap-foot a:hover,
+.ap-foot a:focus,
+.ap-foot a:active{
+  text-decoration:none;
+}
+/* Sacramento HQ pill */
+.ap-foot__hq{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px;
+  border:1px solid var(--line-2);
+  border-radius:100px;
+  font-family:var(--f-mono); font-size:11px;
+  color:var(--ink-2); letter-spacing:.1em; text-transform:uppercase;
+  margin-bottom:24px;
+  background:rgba(255,255,255,.02);
+  transition:border-color .3s var(--e), color .3s var(--e);
+}
+
+.ap-foot__hq:hover{ border-color:var(--orange); color:var(--orange); }
+
+.ap-foot__hq svg{ width:12px; height:12px; color:var(--orange); }
+
+.ap-foot__phones{
+  font-family:var(--f-mono); font-size:12px; color:var(--ink-2); margin-bottom:24px;
+  display:flex; flex-direction:column; gap:6px;
+}
+
+.ap-foot__phones a{ color:var(--ink-2); transition:color .25s var(--e); }
+
+.ap-foot__phones a:hover{ color:var(--orange); }
+
+.ap-foot__social{ display:flex; gap:10px; }
+
+.ap-foot__social a{
+  width:38px; height:38px; border:1px solid var(--line-2); border-radius:10px;
+  display:grid; place-items:center; color:var(--ink-2);
+  transition:background .3s var(--e),border-color .3s var(--e),color .3s var(--e),transform .3s var(--e-spring);
+}
+
+.ap-foot__social a:hover{
+  background:var(--orange); border-color:var(--orange); color:#fff;
+  transform:translateY(-2px);
+}
+
+.ap-foot__social svg{ width:16px; height:16px; }
+/* Column headers with icons */
+.ap-foot__col-head{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:24px;
+}
+
+.ap-foot__col-icon{
+  width:28px; height:28px;
+  border-radius:8px;
+  background:rgba(239,90,40,.08);
+  border:1px solid rgba(239,90,40,.2);
+  display:grid; place-items:center;
+  color:var(--orange);
+  transition:transform .4s var(--e-spring), background .3s var(--e);
+}
+
+.ap-foot__col:hover .ap-foot__col-icon{
+  transform:scale(1.08) rotate(-4deg);
+  background:rgba(239,90,40,.14);
+}
+
+.ap-foot__col-icon svg{ width:14px; height:14px; }
+
+.ap-foot__col h4{
+  font-family:var(--f-mono); font-size:10px; color:var(--ink-3);
+  letter-spacing:.14em; text-transform:uppercase; margin:0; font-weight:700;
+}
+
+.ap-foot__col ul{ display:flex; flex-direction:column; gap:12px; }
+
+.ap-foot__col a{
+  font-size:13px; color:var(--ink-2);
+  transition:color .25s var(--e), padding-left .25s var(--e);
+  position:relative;
+  padding-left:0;
+  display:inline-block;
+}
+
+.ap-foot__col a:hover{ color:var(--orange); padding-left:8px; }
+
+.ap-foot__col a::before{
+  content:''; position:absolute;
+  left:0; top:50%;
+  width:0; height:1px;
+  background:var(--orange);
+  transform:translateY(-50%);
+  transition:width .25s var(--e);
+}
+
+.ap-foot__col a:hover::before{ width:5px; }
+/* Big decorative wordmark */
+.ap-foot__wordmark{
+  font-size:clamp(80px,18vw,240px);
+  font-weight:900;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.06);
+  letter-spacing:-.05em;
+  line-height:1;
+  text-align:center;
+  margin:32px auto 32px;
+  padding-bottom:.1em;
+  font-family:var(--f);
+  user-select:none;
+  position:relative;
+  z-index:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,transparent 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+
+.ap-foot__bottom{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; color:var(--ink-3);
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  position:relative;
+}
+
+.ap-foot__bottom-links{ display:flex; gap:24px; }
+
+.ap-foot__bottom a{ color:var(--ink-3); transition:color .25s var(--e); }
+
+.ap-foot__bottom a:hover{ color:var(--orange); }
+</style>
+
+<!-- FOOTER — enhanced visual version -->
+<footer class="ap-foot">
+  <div class="ap-foot__inner">
+
+    <div class="ap-foot__grid">
+      <div class="ap-foot__brand">
+        <a href="/" class="ap-foot__logo" aria-label="InSync Consulting Services Home">
+          <img src="https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/691ce4ae6a5d3b97a2a3438e.jpg" alt="InSync Consulting Services" class="ap-foot__logo-img" loading="lazy">
+        </a>
+        <div class="ap-foot__tag">Staffing <span class="accent">evolved.</span><br>Results guaranteed.</div>
+        <p class="ap-foot__blurb">
+          Connecting the right talent to the right opportunity in Healthcare, IT, Commercial Staffing, and beyond.
+        </p>
+        <a href="#" class="ap-foot__hq">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Sacramento, CA HQ
+        </a>
+        <div class="ap-foot__jc">
+          <div class="ap-foot__jc-badge">&#10003;</div>
+          <div>
+            <div class="ap-foot__jc-title">Joint Commission Certified</div>
+            <div class="ap-foot__jc-sub">Healthcare Staffing Services Certification</div>
+          </div>
+        </div>
+        <div class="ap-foot__phones">
+          <a href="tel:8886413444">(888) 641-3444</a>
+          <a href="tel:9162442085">(916) 244-2085</a>
+          <a href="mailto:info@insynconline.net">info@insynconline.net</a>
+        </div>
+        <div class="ap-foot__social">
+          <a href="https://www.linkedin.com/company/insync-consulting-services-llc/" aria-label="LinkedIn" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+          </a>
+          <a href="https://www.facebook.com/insync.consulting.services" aria-label="Facebook" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684v-2.86a22.529 22.529 0 00-2.462-.126c-2.437 0-4.106 1.488-4.106 4.221v2.36H7.332v3.209h2.769v8.203h3.296z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="ap-foot__col">
+        <div class="ap-foot__col-head">
+          <div class="ap-foot__col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <h4>Services</h4>
+        </div>
+        <ul>
+          <li><a href="/education-staffing/">Educational Staffing</a></li>
+          <li><a href="/healthcare-staffing/">Healthcare Staffing</a></li>
+          <li><a href="/employer-of-record/">Employer of Record</a></li>
+          <li><a href="/commercial-staffing/">Commercial Staffing</a></li>
+          <li><a href="/contact-us/">Request Staffing</a></li>
+          <li><a href="/joint-commission/">Joint Commission</a></li>
+        </ul>
+      </div>
+
+      <div class="ap-foot__col">
+        <div class="ap-foot__col-head">
+          <div class="ap-foot__col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          </div>
+          <h4>Job Seekers</h4>
+        </div>
+        <ul>
+          <li><a href="https://nexus-leap.laboredge.com/insync/quicksignup">Quick Apply &#8599;</a></li>
+          <li><a href="https://leap.laboredge.com/agencyjobboard/insync">Job Board &#8599;</a></li>
+          <li><a href="/strike-work-updates/">Strike Work &amp; Updates</a></li>
+          <li><a href="/apply-now/">Apply Now</a></li>
+        </ul>
+      </div>
+
+      <div class="ap-foot__col">
+        <div class="ap-foot__col-head">
+          <div class="ap-foot__col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          </div>
+          <h4>Employees</h4>
+        </div>
+        <ul>
+          <li><a href="/employee-portal/">Employee Info</a></li>
+          <li><a href="https://leap.laboredge.com/signin/insync">Employee Portal &#8599;</a></li>
+          <li><a href="/employee-documents/">Employee Documents</a></li>
+          <li><a href="/employee-benefits/">Employee Benefits</a></li>
+        </ul>
+      </div>
+
+      <div class="ap-foot__col">
+        <div class="ap-foot__col-head">
+          <div class="ap-foot__col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1 .9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <h4>Contact</h4>
+        </div>
+        <ul>
+          <li><a href="tel:8886413444">(888) 641-3444</a></li>
+          <li><a href="tel:9162442085">(916) 244-2085</a></li>
+          <li><a href="mailto:info@insynconline.net">info@insynconline.net</a></li>
+          <li><a href="/contact-us/">Send us a message &rarr;</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Big decorative wordmark -->
+    <div class="ap-foot__wordmark" aria-hidden="true">InSync</div>
+
+    <div class="ap-foot__bottom">
+      <span>&copy; 2026 InSync Consulting Services &mdash; All rights reserved. Service-Disabled Veteran-Owned Small Business (SDVOSB).</span>
+      <div class="ap-foot__bottom-links">
+        <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>

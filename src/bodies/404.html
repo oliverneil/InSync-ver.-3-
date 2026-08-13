@@ -1,0 +1,109 @@
+<!-- InSync Consulting Services — 404 page body.
+     Uses the tokens the nav/footer partials define, with literal fallbacks so
+     it still renders correctly if those partials are ever changed. -->
+
+<style>
+.ins404{
+  --o:#ef5a28; --o2:#ff7a4d;
+  --ink:#fff; --ink2:rgba(255,255,255,.66); --ink3:rgba(255,255,255,.4);
+  --line:rgba(255,255,255,.14);
+  min-height:78svh;
+  display:flex; align-items:center; justify-content:center;
+  padding:clamp(96px,14vh,180px) clamp(20px,5vw,64px) clamp(72px,10vh,120px);
+  background:#000; color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  position:relative; overflow:clip; isolation:isolate;
+}
+.ins404__glow{
+  position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
+  width:min(760px,120vw); aspect-ratio:1; border-radius:50%; z-index:-1;
+  background:radial-gradient(circle,rgba(239,90,40,.16) 0%,rgba(239,90,40,.04) 42%,transparent 70%);
+  filter:blur(24px); pointer-events:none;
+}
+.ins404__grid{
+  position:absolute; inset:0; z-index:-2; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 45%,#000 25%,transparent 80%);
+          mask-image:radial-gradient(ellipse 70% 70% at 50% 45%,#000 25%,transparent 80%);
+}
+.ins404__in{ max-width:680px; text-align:center; }
+.ins404__eyebrow{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--o); margin:0 0 22px;
+}
+.ins404__eyebrow::before{ content:'— '; }
+.ins404__code{
+  font-size:clamp(72px,14vw,168px); font-weight:800; letter-spacing:-.05em;
+  line-height:.9; margin:0 0 20px; padding-bottom:.08em;
+  color:transparent; -webkit-text-stroke:1.5px rgba(239,90,40,.55);
+  font-variant-numeric:tabular-nums;
+}
+.ins404__title{
+  font-size:clamp(28px,4.4vw,52px); font-weight:800; letter-spacing:-.035em;
+  line-height:1.06; margin:0 0 18px; padding-bottom:.09em;
+}
+.ins404__title span{ color:var(--o); }
+.ins404__sub{
+  font-size:clamp(15px,1.4vw,18px); color:var(--ink2); line-height:1.6;
+  margin:0 auto 40px; max-width:52ch;
+}
+.ins404__ctas{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:52px; }
+.ins404__btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 26px; border-radius:100px; min-height:48px;
+  font-size:15px; font-weight:600; letter-spacing:-.005em; text-decoration:none;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s,border-color .3s,color .3s;
+}
+.ins404__btn--primary{
+  background:var(--o); color:#fff; border:1px solid var(--o);
+  box-shadow:0 6px 24px -8px rgba(239,90,40,.4);
+}
+.ins404__btn--primary:hover{ background:var(--o2); border-color:var(--o2); transform:translateY(-2px); }
+.ins404__btn--ghost{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+.ins404__btn--ghost:hover{ border-color:var(--ink); background:rgba(255,255,255,.04); }
+.ins404__links{
+  border-top:1px solid rgba(255,255,255,.08); padding-top:28px;
+  display:flex; gap:10px 26px; justify-content:center; flex-wrap:wrap;
+}
+.ins404__links a{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink3); text-decoration:none; transition:color .3s;
+}
+.ins404__links a:hover{ color:var(--o2); }
+@media (max-width:520px){
+  .ins404__ctas{ flex-direction:column; align-items:stretch; }
+  .ins404__btn{ justify-content:center; }
+}
+@media (prefers-reduced-motion:reduce){
+  .ins404__btn{ transition:none; }
+}
+</style>
+
+<section class="ins404">
+  <div class="ins404__grid" aria-hidden="true"></div>
+  <div class="ins404__glow" aria-hidden="true"></div>
+  <div class="ins404__in">
+    <p class="ins404__eyebrow">Error 404</p>
+    <div class="ins404__code" aria-hidden="true">404</div>
+    <h1 class="ins404__title">This page isn't <span>where you left it.</span></h1>
+    <p class="ins404__sub">The link may be out of date, or the page may have moved. Let's get you back on track &mdash; whether you're hiring or looking for your next role.</p>
+    <div class="ins404__ctas">
+      <a href="/" class="ins404__btn ins404__btn--primary">
+        Back to Home
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/contact-us/" class="ins404__btn ins404__btn--ghost">Contact Us</a>
+    </div>
+    <nav class="ins404__links" aria-label="Popular pages">
+      <a href="/healthcare-staffing/">Healthcare Staffing</a>
+      <a href="/education-staffing/">Educational Staffing</a>
+      <a href="/employer-of-record/">Employer of Record</a>
+      <a href="/apply-now/">Apply Now</a>
+    </nav>
+  </div>
+</section>
