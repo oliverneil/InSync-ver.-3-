@@ -35,7 +35,7 @@ DEFAULT_TITLE = "InSync Consulting Services"
 # z 98 keeps the edges overlay above all page content (which tops out at 40)
 # but below the fixed nav (99-101), so it can't wash over the logo or the CTAs.
 HOLO_HERO = '<script src="/js/holo-hero.js" defer></script>'
-HOLO_EDGES = '<script src="/js/holo-edges.js" data-z="98" data-intensity="0.65" defer></script>'
+HOLO_EDGES = '<script src="/js/holo-edges.js" data-z="98" defer></script>'
 HOLO_TOKEN = "<!--HOLO-->"
 
 FONTS = (

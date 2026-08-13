@@ -44,6 +44,11 @@ holo script are attached automatically.
 The homepage gets `holo-hero.js`; every other page gets `holo-edges.js`. The
 build picks based on the slug, so there is nothing to set per page.
 
+The edges overlay (v2.0, engine v5) fades out as you scroll, so it reads on the
+hero and is gone by the next section — it no longer paints over the footer. Set
+`data-fade-viewports="0"` on the edges tag in `build.py` for the old always-on
+behaviour.
+
 Two escape hatches:
 
 - Skip it on one page — add `data-holo="off"` to that page's wrapper element.
@@ -122,11 +127,6 @@ Source files are never modified — normalization happens on the way into `dist/
   script keeps the layer usable if playback is refused.
 - **Homepage not yet in the repo.** Add it as `src/bodies/index.html` and it
   will pick up `holo-hero.js` automatically.
-- **Overlay intensity over the footer.** The edges overlay is a fixed
-  full-viewport layer, so it paints at the same strength over the footer as over
-  the hero. It reads well on the hero; over the footer's contact column it is
-  busier. Add `data-intensity="0.65"` to the edges tag in `build.py` to calm it
-  globally.
 - **Sandbox QA caveat.** Google Fonts and the media CDN are unreachable from the
   build sandbox, so fonts, the nav logo, and video could not be verified
   locally. Check them on the Vercel preview.
