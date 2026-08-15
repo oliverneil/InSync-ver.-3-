@@ -1131,9 +1131,11 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
 .eor-thanks span{ font-size:14.5px; color:var(--ink-2); }
 
 /* ============================================================
-   FIXED BACKGROUND-VIDEO BAND (starts at Certifications)
+   FIXED BACKGROUND-VIDEO BAND (Apex v2 Layer 2)
+   Starts where the scrub span ends (Solutions) and runs to Contact.
    A single position:fixed video sits behind the band sections;
-   content scrolls over it. Desktop/fine-pointer only.
+   content scrolls over it. Runs on DESKTOP AND MOBILE — only
+   reduced-motion drops it back to solid surfaces.
    ============================================================ */
 .eor-band{ position:relative; z-index:1; }
 .eor-bandvid{ position:fixed; inset:0; z-index:0; opacity:0; pointer-events:none; transition:opacity .6s ease; }
@@ -1143,10 +1145,58 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
 .eor-bandvid__shade{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.74) 30%,rgba(0,0,0,.76) 70%,rgba(0,0,0,.86) 100%); }
 /* band sections go transparent so the fixed video shows through */
 .eor-band > .eor-sec{ background:transparent !important; }
-@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+/* Frosted glass over the band footage — same recipe as the span. Card CHILDREN
+   only; the .eor-band wrapper itself never takes a filter (a filtered ancestor
+   would break the manual position:fixed pin in the Solutions section). */
+.eor-band .eor-pcard,
+.eor-band .eor-card,
+.eor-band .eor-note,
+.eor-band .eor-fconsole{
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid var(--line-2) !important;
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.eor-band .eor-pcard, .eor-band .eor-card, .eor-band .eor-fconsole{ box-shadow:0 30px 60px -18px rgba(0,0,0,.7); }
+.eor-band .eor-pcard:hover,
+.eor-band .eor-card:hover{ background:rgba(255,255,255,.075) !important; border-color:rgba(239,90,40,.4) !important; }
+/* inputs sit on the glass, not on their own solid panel */
+.eor-band .eor-fld input,
+.eor-band .eor-fld select,
+.eor-band .eor-fld textarea{ background:rgba(255,255,255,.04) !important; }
+@media (prefers-reduced-motion:reduce){
   .eor-bandvid{ display:none !important; }
   .eor-band > .eor-sec{ background:var(--bg) !important; }
   .eor-band > .eor-sec.eor-sec--alt{ background:var(--bg-1) !important; }
+  /* no video here -> restore the solid surfaces for contrast + perf */
+  .eor-band .eor-pcard{ background:rgba(255,255,255,.024) !important; border-color:var(--line) !important; }
+  .eor-band .eor-card{ background:rgba(255,255,255,.022) !important; border-color:var(--line) !important; }
+  .eor-band .eor-note{ background:linear-gradient(180deg,rgba(255,255,255,.024),rgba(255,255,255,.008)) !important; border-color:var(--line) !important; }
+  .eor-band .eor-fconsole{ background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)) !important; border-color:var(--line-2) !important; }
+  .eor-band .eor-pcard, .eor-band .eor-card, .eor-band .eor-note, .eor-band .eor-fconsole{
+    box-shadow:none;
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
+  .eor-band .eor-fld input, .eor-band .eor-fld select, .eor-band .eor-fld textarea{ background:var(--bg-2) !important; }
+}
+/* ---------- MOBILE / TOUCH: the band layer STAYS ----------
+   Same architecture as desktop — fixed looping footage, same dark overlay,
+   same glass on the sections above it — tuned for small screens: the video
+   is cropped harder, the shade sits a touch heavier (small screens are used
+   in bright light and the type runs edge to edge), and the blur is lighter
+   so a mid-range phone isn't compositing a heavy filter per card. */
+@media (max-width:1024px) and (prefers-reduced-motion:no-preference),
+       (pointer:coarse) and (prefers-reduced-motion:no-preference){
+  .eor-bandvid__media video{ filter:brightness(.58); }
+  .eor-bandvid__shade{
+    background:linear-gradient(180deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.8) 30%,rgba(0,0,0,.82) 70%,rgba(0,0,0,.9) 100%);
+  }
+  .eor-band .eor-pcard, .eor-band .eor-card,
+  .eor-band .eor-note, .eor-band .eor-fconsole{
+    -webkit-backdrop-filter:blur(6px) saturate(1.05);
+            backdrop-filter:blur(6px) saturate(1.05);
+    box-shadow:0 18px 40px -16px rgba(0,0,0,.72);
+  }
 }
 
 /* ============================================================
@@ -1652,6 +1702,15 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   </div>
 </section>
 
+<!-- ═══════════ VIDEO BAND — opens where the scrub span ends (bottom of
+     Challenges) and runs to Contact, so every section below Challenges sits
+     on the looping footage instead of a solid floor ═══════════ -->
+<div class="eor-band" id="eorBand">
+  <div class="eor-bandvid" id="eorBandVid" aria-hidden="true">
+    <div class="eor-bandvid__media" id="eorBandVidMedia"></div>
+    <div class="eor-bandvid__shade"></div>
+  </div>
+
 <!-- ═══════════ SOLUTIONS — pinned horizontal scroll ═══════════ -->
 <section class="eor-sec eor-sec--alt eor-place" id="eorPlace" aria-label="InSync Solutions to Employer of Records">
   <div class="eor-place__outer" id="eorPinOuter">
@@ -1834,12 +1893,7 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   </div>
 </section>
 
-<!-- ═══════════ VIDEO BAND — spans Certifications → Contact ═══════════ -->
-<div class="eor-band" id="eorBand">
-  <div class="eor-bandvid" id="eorBandVid" aria-hidden="true">
-    <div class="eor-bandvid__media" id="eorBandVidMedia"></div>
-    <div class="eor-bandvid__shade"></div>
-  </div>
+<!-- ═══════════ (band video wrapper opens above, right after Challenges) ═══════════ -->
 
 <!-- ═══════════ CREDENTIALS ═══════════ -->
 <section class="eor-sec eor-sec--alt">
@@ -2176,14 +2230,50 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   var media = document.getElementById('eorBandVidMedia');
   var band = document.getElementById('eorBand');
   if(!wrap || !media || !band) return;
-  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
-  if(mqOff.matches) return;
+  /* The band layer runs on MOBILE TOO — only reduced-motion opts out. (The
+     scrubbed hero layer stays desktop-only; scrubbing currentTime is what
+     mobile can't do smoothly, looping a muted background clip is fine.) */
+  var reduceOff = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduceOff.matches) return;
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  /* iOS/Android: some GHL ancestors break position:fixed. Walk up for a
+     transformed/filtered ancestor and, if found, fall back to an absolutely
+     positioned backdrop that covers the whole band (no parallax, but the
+     footage still reads). Never position:sticky — GHL's overflow ancestors
+     kill it silently. */
+  if(coarse){
+    var a = wrap.parentNode, broken = false;
+    while(a && a.nodeType === 1){
+      var cs = getComputedStyle(a);
+      if((cs.transform && cs.transform !== 'none') ||
+         (cs.filter && cs.filter !== 'none') ||
+         (cs.perspective && cs.perspective !== 'none') ||
+         cs.willChange === 'transform'){ broken = true; break; }
+      a = a.parentNode;
+    }
+    if(broken){ wrap.style.position = 'absolute'; wrap.style.inset = '0'; }
+  }
   if(BAND2_VIDEO_URL.indexOf('http') === 0){
     var v = document.createElement('video');
     v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-    v.setAttribute('playsinline',''); v.preload = 'auto'; v.src = BAND2_VIDEO_URL;
+    v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+    v.setAttribute('muted',''); v.setAttribute('autoplay','');
+    /* metadata-only preload on touch so a phone doesn't pull the whole clip
+       before the visitor ever scrolls to it */
+    v.preload = coarse ? 'metadata' : 'auto';
+    v.src = BAND2_VIDEO_URL;
     media.appendChild(v);
     var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
+    /* iOS won't always honour autoplay until the element is on screen */
+    if(coarse){
+      var kick = function(){
+        if(wrap.classList.contains('on') && v.paused){
+          var p2 = v.play(); if(p2 && p2.catch) p2.catch(function(){});
+        }
+      };
+      window.addEventListener('scroll', kick, { passive:true });
+      document.addEventListener('touchstart', kick, { passive:true, once:true });
+    }
   }
   var raf = 0;
   function bandRange(){
@@ -2368,7 +2458,7 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
 
   /* Page-specific scrub asset for the hero -> Challenges span. Stored as a JS
      constant so GHL can't corrupt a src attribute. */
-  var EOR_SCRUB_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7ca0d7692706e149b0ca20.mp4';
+  var EOR_SCRUB_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7de251a6a03cda06f4acdd.mp4';
   vid.src = EOR_SCRUB_VIDEO_URL;
 
   var shade = wrap.querySelector('.eor-scrub__shade');

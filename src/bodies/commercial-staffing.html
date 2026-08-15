@@ -1,0 +1,1636 @@
+<div class="csap" id="csap">
+<script>
+/* PRE-PAINT: flag the wrapper as JS-driven before anything renders. Without
+   this the reveal rules (.csap.js .cs-rv{opacity:0}) only bind once the
+   bottom-of-page script runs, so the page paints fully visible and then
+   snaps blank - the "loads, then disappears" flash. */
+(function(){ var w=document.getElementById('csap'); if(w) w.classList.add('js'); })();
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ============================================================
+   TOKENS  (scoped to .csap; never :root, so nothing leaks into
+   the global nav/footer blocks or sibling GHL sections)
+   ============================================================ */
+.csap{
+  --bg:#000; --bg-1:#0a0a0a; --bg-card:#0e0e0e; --bg-elev:#171717;
+  --ink:#fff; --ink-2:rgba(255,255,255,.72); --ink-3:rgba(255,255,255,.5); --ink-4:rgba(255,255,255,.3);
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28; --orange-2:#ff7a4d; --orange-3:#ff9060;
+  --navy:#20335a; --navy-2:#16223f;
+  --f:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gutter:24px; --max-w:1440px;
+  --r:18px; --r-lg:24px;
+  --e:cubic-bezier(.4,0,.2,1); --e-out:cubic-bezier(.16,1,.3,1);
+
+  position:relative; background:var(--bg); color:var(--ink-2);
+  font-family:var(--f); font-size:16px; line-height:1.6; letter-spacing:-.005em;
+  overflow:clip; isolation:isolate;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility;
+}
+.csap *,.csap *::before,.csap *::after{ box-sizing:border-box; margin:0; padding:0; }
+.csap ::selection{ background:rgba(239,90,40,.28); color:#fff; }
+.csap img,.csap svg{ display:block; max-width:100%; }
+.csap a{ color:inherit; text-decoration:none; }
+.csap h1,.csap h2,.csap h3,.csap h4,.csap p{ margin:0; }
+@media (max-width:640px){ .csap{ --gutter:16px; } }
+@media (max-width:400px){ .csap{ --gutter:14px; } }
+
+/* ============================================================
+   CURSOR  -  always keep a visible cursor within this page, even
+   if the global site layer hides the native cursor. Scoped + !important.
+   ============================================================ */
+.csap, .csap *{ cursor:auto !important; }
+.csap a[href], .csap button, .csap .cs-btn, .csap label[for], .csap [role="button"]{ cursor:pointer !important; }
+.csap input, .csap textarea, .csap select{ cursor:text !important; }
+.csap input[type="checkbox"], .csap input[type="radio"]{ cursor:pointer !important; }
+
+/* ============================================================
+   LAYOUT + SHARED BACKDROPS
+   ============================================================ */
+.csap .cs-sec{ padding:140px 0; position:relative; overflow:hidden; }
+.csap .cs-sec--alt{ background:var(--bg-1); }
+.csap .cs-wrap{ max-width:var(--max-w); margin:0 auto; padding:0 var(--gutter); position:relative; z-index:2; }
+.csap .cs-grid-bg{ position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:58px 58px;
+  -webkit-mask-image:radial-gradient(ellipse 72% 62% at 50% 40%,#000,transparent 80%);
+  mask-image:radial-gradient(ellipse 72% 62% at 50% 40%,#000,transparent 80%); opacity:.7; }
+
+/* ============================================================
+   MONO EYEBROWS  (label + leading dash; hero/contact orange,
+   mid-page section eyebrows muted; never numbered)
+   ============================================================ */
+.csap .cs-ey{ display:inline-flex; align-items:center; gap:10px; font-family:var(--f-mono); font-size:11.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--orange); }
+.csap .cs-ey::before{ content:''; width:26px; height:1px; background:var(--orange); opacity:.7; }
+.csap .cs-ey--muted{ color:var(--ink-3); }
+.csap .cs-ey--muted::before{ background:var(--ink-3); }
+
+/* ============================================================
+   SECTION HEAD
+   ============================================================ */
+.csap .cs-head{ max-width:760px; margin:0 auto 72px; text-align:center; position:relative; z-index:2; }
+.csap .cs-head .cs-ey{ margin-bottom:20px; }
+.csap .cs-head h2{ font-size:clamp(32px,4.6vw,60px); line-height:1.04; letter-spacing:-.03em; font-weight:800; color:var(--ink); padding-bottom:.09em; }
+.csap .cs-head h2 .o{ color:var(--orange); }
+.csap .cs-head p{ font-size:clamp(15px,1.4vw,18px); color:var(--ink-3); line-height:1.6; max-width:600px; margin:20px auto 0; }
+
+/* ============================================================
+   BUTTONS  (Apex reference recipe)
+   ============================================================ */
+.csap .cs-btn{ display:inline-flex; align-items:center; gap:10px; font-family:var(--f); font-weight:600; font-size:15px; letter-spacing:-.01em; padding:15px 26px; border-radius:100px; border:1px solid transparent; white-space:nowrap; transition:transform .4s var(--e), background .3s var(--e), border-color .3s var(--e), color .3s var(--e); }
+.csap .cs-btn svg{ width:17px; height:17px; transition:transform .4s var(--e); }
+.csap .cs-btn--pri{ background:var(--orange); color:#fff; }
+.csap .cs-btn--pri:hover{ transform:translateY(-2px); background:var(--orange-2); box-shadow:0 16px 40px -12px rgba(239,90,40,.6); }
+.csap .cs-btn--pri:hover svg{ transform:translateX(4px); }
+.csap .cs-btn--ghost{ background:transparent; color:var(--ink); border-color:var(--line-2); }
+.csap .cs-btn--ghost:hover{ transform:translateY(-2px); border-color:rgba(239,90,40,.5); color:#fff; }
+
+/* ============================================================
+   REVEALS  (only active once JS marks the wrapper .js; a no-JS
+   visit sees everything, fully resolved)
+   ============================================================ */
+.csap.js .cs-rv{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--e-out), transform .9s var(--e-out); }
+.csap.js .cs-rv.in{ opacity:1; transform:none; }
+.csap.js .cs-rv.d1{ transition-delay:.08s; }
+.csap.js .cs-rv.d2{ transition-delay:.16s; }
+.csap.js .cs-rv.d3{ transition-delay:.24s; }
+.csap.js .cs-rv.d4{ transition-delay:.32s; }
+
+/* kinetic clip-wipe on headings (left to right) */
+.csap.js .cs-head h2, .csap.js .cs-hero__title, .csap.js .cs-contact__copy h2, .csap.js .cs-cta h2{ clip-path:inset(0 105% 0 0); transition:clip-path 1.05s var(--e-out); }
+.csap.js .cs-head.in h2, .csap.js .cs-hero__title.in, .csap.js .cs-contact__copy.in h2, .csap.js .cs-cta.in h2{ clip-path:inset(0 0 0 0); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.csap .cs-hero{ position:relative; padding:clamp(120px,16vh,180px) 0 clamp(90px,12vh,130px); overflow:hidden; }
+.csap .cs-hero__grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:48px; align-items:center; position:relative; z-index:2; }
+.csap .cs-hero__copy .cs-ey{ margin-bottom:24px; }
+.csap .cs-hero__title{ font-size:clamp(40px,6.6vw,94px); line-height:.96; letter-spacing:-.04em; font-weight:900; color:var(--ink); padding-bottom:.16em; }
+.csap .cs-hero__title .o{ color:var(--orange); }
+.csap .cs-hero__sub{ font-size:clamp(15px,1.5vw,19px); color:var(--ink-2); line-height:1.6; max-width:600px; margin:20px 0 34px; }
+.csap .cs-hero__ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+.csap .cs-hero__meta{ display:flex; gap:22px; flex-wrap:wrap; margin-top:34px; font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); }
+
+/* 3D placement-card stage (hero visual) */
+.csap .cs-stage{ position:relative; perspective:1500px; min-height:420px; }
+.csap .cs-stage__inner{ position:relative; transform-style:preserve-3d; }
+.csap .cs-stage__net{ position:absolute; inset:-6% -4%; z-index:0; opacity:.5; pointer-events:none; }
+.csap .cs-net__n{ fill:var(--orange); }
+.csap .cs-net__halo{ fill:none; stroke:var(--orange); stroke-width:1.4; opacity:0; }
+/* the bright trace lines only exist to carry the travelling signal; without
+   JS motion they stay invisible so the static net reads exactly as before */
+.csap .cs-net__l{ stroke-dasharray:0 400; opacity:.9; }
+.csap .cs-cards{ position:relative; z-index:2; transform-style:preserve-3d; transform:rotateY(-14deg) rotateX(7deg); transition:transform 1s var(--e-out); display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.csap .cs-stage:hover .cs-cards{ transform:rotateY(-6deg) rotateX(3deg); }
+.csap .cs-fcard{ position:relative; }
+.csap .cs-fcard:nth-child(1){ transform:translateZ(50px) translateY(-12px); }
+.csap .cs-fcard:nth-child(2){ transform:translateZ(20px) translateY(14px); }
+.csap .cs-fcard:nth-child(3){ transform:translateZ(30px) translateY(-4px); }
+.csap .cs-fcard:nth-child(4){ transform:translateZ(64px) translateY(20px); }
+.csap .cs-fcard__in{ position:relative; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16); border-radius:var(--r); padding:22px;
+  -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
+  box-shadow:0 46px 90px -26px rgba(0,0,0,.9), 0 2px 12px -4px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05);
+  overflow:hidden; transition:border-color .5s var(--e), box-shadow .5s var(--e), background .5s var(--e); }
+/* glass specular: a soft light pooled at the top-left corner, no orange */
+.csap .cs-fcard__in::before{ content:''; position:absolute; left:-30%; top:-70%; width:120%; height:150%; pointer-events:none; z-index:0;
+  background:linear-gradient(150deg,rgba(255,255,255,.16),rgba(255,255,255,.03) 42%,transparent 62%); }
+/* travelling sheen wipe across the pane */
+.csap .cs-fcard__in::after{ content:''; position:absolute; top:-60%; left:-140%; width:60%; height:220%; pointer-events:none; z-index:1;
+  transform:rotate(18deg); background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent); }
+.csap .cs-fcard__top, .csap .cs-fcard__meter, .csap .cs-fcard__status{ position:relative; z-index:2; }
+.csap .cs-fcard.on .cs-fcard__in{ background:rgba(255,255,255,.09); border-color:rgba(239,90,40,.55); box-shadow:0 46px 90px -26px rgba(0,0,0,.9), 0 22px 52px -8px rgba(239,90,40,.28), inset 0 1px 0 rgba(255,255,255,.3); }
+.csap .cs-fcard__top{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.csap .cs-av{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 6px 16px -6px rgba(0,0,0,.8); }
+.csap .cs-av--a{ background:linear-gradient(135deg,var(--orange-3),var(--orange)); }
+.csap .cs-av--b{ background:linear-gradient(135deg,var(--navy),var(--navy-2)); }
+.csap .cs-av--c{ background:linear-gradient(135deg,#3a3a3a,#1c1c1c); }
+.csap .cs-av--d{ background:linear-gradient(135deg,var(--navy-2),var(--navy)); }
+.csap .cs-fcard__role{ font-size:14px; font-weight:700; color:var(--ink); line-height:1.25; }
+.csap .cs-fcard__sector{ display:block; font-family:var(--f-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin-top:3px; }
+.csap .cs-fcard__meter{ position:relative; height:5px; border-radius:50px; background:rgba(255,255,255,.12); overflow:hidden; margin-bottom:12px; box-shadow:inset 0 1px 2px rgba(0,0,0,.45); }
+.csap .cs-fcard__meter::after{ content:''; position:absolute; inset:0; left:-60%; width:45%; pointer-events:none; background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent); }
+.csap .cs-fcard__meter i{ display:block; height:100%; border-radius:50px; background:linear-gradient(90deg,var(--orange-3),var(--orange)); width:88%; transform-origin:left; }
+.csap .cs-fcard:nth-child(2) .cs-fcard__meter i{ width:72%; }
+.csap .cs-fcard:nth-child(3) .cs-fcard__meter i{ width:94%; }
+.csap .cs-fcard:nth-child(4) .cs-fcard__meter i{ width:66%; }
+.csap .cs-fcard__status{ display:inline-flex; align-items:center; gap:7px; font-family:var(--f-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--orange-2); }
+.csap .cs-dot{ width:7px; height:7px; border-radius:50%; background:var(--orange); }
+
+/* ============================================================
+   CREDENTIALS TICKER
+   ============================================================ */
+.csap .cs-ticker{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--bg-1); overflow:hidden; padding:20px 0; }
+.csap .cs-ticker__track{ display:flex; width:max-content; }
+.csap .cs-ticker__item{ display:flex; align-items:center; gap:11px; padding:0 34px; font-family:var(--f-mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); white-space:nowrap; }
+.csap .cs-ticker__item svg{ width:16px; height:16px; color:var(--orange); }
+.csap:not(.js) .cs-ticker__item[aria-hidden]{ display:none; }
+
+/* ============================================================
+   CHALLENGES  -  pinned horizontal card track (GHL-safe manual pin)
+   ============================================================ */
+.csap .cs-px{ --card-w:340px; --px-pad:clamp(26px,4.4vh,50px); --nav-h:72px; padding:0 !important; overflow:clip; }
+.csap .cs-px__spacer{ position:relative; height:auto; }
+/* JS drives position (absolute -> fixed -> absolute) and height inline */
+.csap .cs-px__stage{ position:relative; left:0; width:100%; display:flex; flex-direction:column; justify-content:center; }
+.csap .cs-px .cs-head{ flex:0 0 auto; max-width:1400px; margin:0 auto 0; padding:calc(var(--px-pad) - 8px) var(--gutter) clamp(14px,2vh,22px); }
+.csap .cs-px .cs-head h2{ font-size:clamp(28px,4.6vw,66px); }
+.csap .cs-px .cs-head p{ max-width:900px; margin-top:14px; }
+/* the track already eats the vertical budget, so keep the heading on one line */
+@media (min-width:1025px){ .csap .cs-px .cs-head h2{ white-space:nowrap; } }
+.csap .cs-px__viewport{ flex:0 1 auto; display:flex; align-items:center;
+  overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory; scrollbar-width:none; }
+.csap .cs-px__viewport::-webkit-scrollbar{ display:none; }
+.csap .cs-px__track{ display:flex; align-items:stretch; gap:clamp(16px,2vw,26px); padding:20px var(--gutter); will-change:transform; }
+
+/* ---- card: glass, since it sits over the scrubbed video ---- */
+.csap .cs-px__card{ position:relative; flex:0 0 var(--card-w); width:var(--card-w); scroll-snap-align:center;
+  display:flex; flex-direction:column; min-height:0; padding:26px 26px 22px; border-radius:var(--r); overflow:hidden;
+  background:rgba(255,255,255,.075); border:1px solid rgba(255,255,255,.18);
+  -webkit-backdrop-filter:blur(13px) saturate(1.14); backdrop-filter:blur(13px) saturate(1.14);
+  box-shadow:0 30px 60px -18px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.16);
+  opacity:.66; transform:scale(.94);
+  transition:opacity .5s var(--e-out), transform .5s var(--e-out), border-color .45s var(--e), box-shadow .45s var(--e), background .45s var(--e); }
+.csap .cs-px__card::before{ content:''; position:absolute; left:0; right:0; top:0; height:2px; z-index:2;
+  background:linear-gradient(90deg,var(--orange-3),var(--orange)); transform:scaleX(0); transform-origin:left; transition:transform .6s var(--e-out); }
+.csap .cs-px__card.is-active{ opacity:1; transform:scale(1); background:rgba(255,255,255,.115); border-color:rgba(239,90,40,.5);
+  box-shadow:0 0 0 1px rgba(239,90,40,.28), 0 40px 80px -30px rgba(239,90,40,.32), 0 20px 50px -24px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.24); }
+.csap .cs-px__card.is-active::before{ transform:scaleX(1); }
+.csap .cs-px__sheen{ position:absolute; top:-60%; left:-140%; width:45%; height:220%; pointer-events:none; z-index:1;
+  transform:rotate(18deg); background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent); }
+.csap .cs-px__cardtop{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.csap .cs-px__card .cs-challenge__icon{ width:54px; height:54px; border-radius:14px; flex-shrink:0; }
+.csap .cs-px__card .cs-challenge__icon svg{ width:26px; height:26px; }
+.csap .cs-px__card .cs-challenge__side-label,
+.csap .cs-px__card .cs-challenge__label,
+.csap .cs-px__card .cs-challenge__title,
+.csap .cs-px__card .cs-challenge__desc{ position:relative; z-index:2; }
+.csap .cs-px__card .cs-challenge__label{ margin-top:4px; }
+.csap .cs-px__card .cs-challenge__title{ font-size:20px; margin:14px 0 10px; }
+.csap .cs-px__card .cs-challenge__desc{ font-size:14px; }
+.csap .cs-px__card.is-active .cs-challenge__icon{ background:var(--orange); border-color:var(--orange); color:#fff; }
+/* equalizer that keeps running while the section is live */
+.csap .cs-px__bars{ display:flex; align-items:flex-end; gap:4px; height:26px; }
+.csap .cs-px__bars span{ width:5px; border-radius:2px; background:rgba(239,90,40,.32); transform-origin:bottom; transition:background .4s var(--e); }
+.csap .cs-px__bars span:nth-child(1){ height:38%; }
+.csap .cs-px__bars span:nth-child(2){ height:62%; }
+.csap .cs-px__bars span:nth-child(3){ height:88%; }
+.csap .cs-px__bars span:nth-child(4){ height:52%; }
+.csap .cs-px__card.is-active .cs-px__bars span{ background:var(--orange); }
+
+/* ---- shared card atoms carried over from the row layout ---- */
+.csap .cs-challenge__icon{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(239,90,40,.1); border:1px solid rgba(239,90,40,.24); color:var(--orange-2); transition:all .4s var(--e); }
+.csap .cs-challenge__icon svg{ width:22px; height:22px; }
+.csap .cs-challenge__side-label{ font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--orange); }
+.csap .cs-challenge__label{ font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+.csap .cs-challenge__title{ font-size:21px; font-weight:800; letter-spacing:-.02em; color:var(--ink); margin-bottom:9px; }
+.csap .cs-challenge__desc{ font-size:15px; color:var(--ink-2); line-height:1.6; }
+
+/* ---- themed micro-visuals: one per challenge (Apex .hc-mv pattern) ---- */
+.csap .cs-mv{ position:relative; z-index:2; height:42px; margin-top:2px; display:flex; align-items:flex-end; gap:5px; }
+.csap .cs-px__card .cs-mv{ height:60px; gap:6px; }
+.csap .cs-mv svg{ width:42px; height:42px; overflow:visible; }
+.csap .cs-px__card .cs-mv svg{ width:60px; height:60px; }
+/* 01 retention - churn loop spinning */
+.csap .cs-mv--cycle svg .ring{ transform-origin:20px 20px; }
+/* 02 quality - gauge needle sweeping the arc */
+.csap .cs-mv--gauge svg .ndl{ transform-origin:20px 30px; transform:rotate(-52deg); }
+.csap .cs-mv--gauge svg .arc{ stroke-dasharray:44; stroke-dashoffset:44; }
+/* 03 demand - volume bars with two spiking */
+.csap .cs-mv--supply i{ width:6px; border-radius:2px 2px 0 0; background:var(--line-2); }
+.csap .cs-px__card .cs-mv--supply i{ width:8px; }
+.csap .cs-mv--supply i:nth-child(1){ height:58%; }
+.csap .cs-mv--supply i:nth-child(2){ height:86%; }
+.csap .cs-mv--supply i:nth-child(3){ height:36%; background:var(--orange); }
+.csap .cs-mv--supply i:nth-child(4){ height:100%; }
+.csap .cs-mv--supply i:nth-child(5){ height:46%; background:var(--orange); }
+/* 04 scheduling - shift week filling left to right */
+.csap .cs-mv--week{ gap:4px; width:100%; max-width:120px; }
+.csap .cs-px__card .cs-mv--week{ max-width:150px; gap:5px; }
+.csap .cs-mv--week i{ flex:1; height:58%; align-self:center; border-radius:2px; background:var(--line-2); }
+/* 05 skills - target locking on */
+.csap .cs-mv--match svg .dot, .csap .cs-mv--match svg .r1{ transform-origin:20px 20px; }
+/* 06 training - ramp climbing step by step */
+.csap .cs-mv--steps{ gap:5px; align-items:flex-end; }
+.csap .cs-mv--steps i{ width:12px; border-radius:2px 2px 0 0; background:var(--line-2); transform-origin:bottom; }
+.csap .cs-px__card .cs-mv--steps i{ width:17px; }
+.csap .cs-mv--steps i:nth-child(1){ height:38%; }
+.csap .cs-mv--steps i:nth-child(2){ height:66%; }
+.csap .cs-mv--steps i:nth-child(3){ height:96%; }
+/* connector pulse travelling down the active card's left rail */
+.csap .cs-chal__pulse{ position:absolute; left:0; top:0; width:2px; height:26%; z-index:2; opacity:0; pointer-events:none;
+  background:linear-gradient(180deg,transparent,var(--orange-2),transparent); }
+
+/* ---- step dots + progress rail under the track ---- */
+.csap .cs-px__nav{ flex:0 0 auto; display:flex; align-items:center; gap:18px; justify-content:center; padding:clamp(22px,3.4vh,40px) var(--gutter) var(--px-pad); }
+.csap .cs-px__dots{ display:flex; gap:8px; }
+.csap .cs-px__dot{ height:3px; width:22px; border-radius:3px; background:var(--line-2); transition:background .4s var(--e), width .4s var(--e); }
+.csap .cs-px__dot.on{ background:var(--orange); width:38px; }
+.csap .cs-px__rail{ position:relative; width:min(220px,26vw); height:2px; border-radius:2px; background:var(--line); overflow:clip; }
+.csap .cs-px__rail i{ position:absolute; inset:0; border-radius:2px; background:linear-gradient(90deg,var(--orange),var(--orange-3));
+  transform:scaleX(0); transform-origin:left; transition:transform .12s linear; }
+
+/* ---- scroll hint (pin mode only) ---- */
+.csap .cs-px__hint{ position:absolute; left:0; right:0; bottom:10px; display:none; align-items:center; justify-content:center; gap:9px; padding:0 var(--gutter);
+  font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); transition:opacity .4s ease; pointer-events:none; }
+.csap .cs-px--pinned .cs-px__hint{ display:flex; }
+@media (max-height:680px){ .csap .cs-px--pinned .cs-px__hint{ display:none; } }
+.csap .cs-px__hint svg{ width:15px; height:15px; }
+.csap .cs-px__hint-track{ position:relative; width:46px; height:2px; border-radius:2px; background:var(--line-2); overflow:clip; }
+.csap .cs-px__hint-track::after{ content:''; position:absolute; inset:0; width:40%; border-radius:2px; background:var(--orange);
+  transform:translateX(var(--cs-hint,0%)); transition:transform .1s linear; }
+
+/* short desktop viewports: the pinned stage is exactly one screen tall, so
+   compress the header and cards rather than letting the track clip */
+@media (min-width:1025px) and (max-height:780px){
+  .csap .cs-px{ --px-pad:clamp(18px,2.8vh,30px); }
+  .csap .cs-px .cs-head{ padding-bottom:12px; }
+  .csap .cs-px .cs-head h2{ font-size:clamp(26px,3.6vw,50px); }
+  .csap .cs-px .cs-head p{ font-size:14px; margin-top:10px; }
+  .csap .cs-px .cs-head .cs-ey{ margin-bottom:12px; }
+  .csap .cs-px__track{ padding-top:12px; padding-bottom:12px; }
+  .csap .cs-px__card{ padding:20px 22px 18px; }
+  .csap .cs-px__card .cs-mv{ height:48px; }
+  .csap .cs-px__card .cs-mv svg{ width:48px; height:48px; }
+  .csap .cs-px__card .cs-challenge__icon{ width:46px; height:46px; }
+  .csap .cs-px__card .cs-challenge__title{ font-size:18px; margin:12px 0 8px; }
+  .csap .cs-px__card .cs-challenge__desc{ font-size:13.5px; }
+  .csap .cs-px__nav{ padding-top:clamp(16px,2.4vh,26px); }
+}
+
+/* ---- PIN MODE: JS adds .cs-px--pinned and drives stage position inline ---- */
+.csap .cs-px--pinned .cs-px__viewport{ overflow:hidden; scroll-snap-type:none; }
+.csap .cs-px--pinned .cs-px__stage{ overflow:clip; box-sizing:border-box; padding-top:var(--nav-h); }
+.csap .cs-px--pinned .cs-px__spacer{ position:relative; }
+
+/* ---- NATIVE MODE: real horizontal swipe, no inflated spacer, no gap ---- */
+.csap .cs-px--native .cs-px__stage{ position:relative !important; height:auto !important; padding-bottom:clamp(40px,7vw,72px); }
+.csap .cs-px--native .cs-px__viewport{ padding-bottom:8px; }
+.csap .cs-px--native .cs-px__card{ opacity:1; transform:none; }
+
+/* ============================================================
+   SOLUTION TILES/* ============================================================
+   SOLUTION TILES
+   ============================================================ */
+.csap .cs-tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; position:relative; z-index:2; }
+.csap .cs-tile{ position:relative; padding:32px 30px 30px; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:border-color .4s var(--e), background .4s var(--e), transform .4s var(--e); }
+.csap .cs-tile::before{ content:''; position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg,var(--orange-3),var(--orange)); transform:scaleX(0); transform-origin:left; transition:transform .5s var(--e); }
+.csap .cs-tile:hover::before, .csap .cs-tile.on::before{ transform:scaleX(1); }
+.csap .cs-tile:hover{ border-color:rgba(239,90,40,.35); background:var(--bg-elev); transform:translateY(-5px); }
+.csap .cs-tile.on{ border-color:rgba(239,90,40,.35); }
+.csap .cs-tile__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.csap .cs-tile__ic{ width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:rgba(239,90,40,.1); border:1px solid rgba(239,90,40,.24); color:var(--orange-2); transition:all .4s var(--e); }
+.csap .cs-tile:hover .cs-tile__ic, .csap .cs-tile.on .cs-tile__ic{ background:var(--orange); border-color:var(--orange); color:#fff; }
+.csap .cs-tile__ic svg{ width:23px; height:23px; }
+.csap .cs-tile__num{ font-family:var(--f-mono); font-size:13px; font-weight:600; letter-spacing:.1em; color:var(--ink-3); transition:color .4s var(--e); }
+.csap .cs-tile.on .cs-tile__num{ color:var(--orange); }
+.csap .cs-tile__title{ font-size:19px; font-weight:800; letter-spacing:-.02em; color:var(--ink); margin-bottom:10px; line-height:1.2; }
+.csap .cs-tile__desc{ font-size:14.5px; color:var(--ink-2); line-height:1.6; }
+
+/* ============================================================
+   TESTIMONIAL
+   ============================================================ */
+.csap .cs-story{ position:relative; max-width:940px; margin:0 auto; padding:56px; background:linear-gradient(135deg,var(--bg-elev),var(--bg-card)); border:1px solid var(--line-2); border-radius:var(--r-lg); text-align:center; overflow:hidden; z-index:2; }
+.csap .cs-story::after{ content:''; position:absolute; top:0; bottom:0; left:-90px; width:90px; background:linear-gradient(90deg,transparent,rgba(239,90,40,.09),transparent); pointer-events:none; z-index:1; }
+.csap .cs-story__wm{ position:absolute; top:-30px; left:20px; font-size:280px; line-height:1; font-weight:900; color:rgba(239,90,40,.06); pointer-events:none; font-family:var(--f); }
+.csap .cs-story__corner{ position:absolute; width:34px; height:34px; border:2px solid rgba(239,90,40,.5); }
+.csap .cs-story__corner--tl{ top:22px; left:22px; border-right:0; border-bottom:0; border-radius:6px 0 0 0; }
+.csap .cs-story__corner--br{ bottom:22px; right:22px; border-left:0; border-top:0; border-radius:0 0 6px 0; }
+.csap .cs-story__chip{ position:relative; display:inline-flex; align-items:center; gap:8px; font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--orange-2); padding:6px 14px; border:1px solid rgba(239,90,40,.28); border-radius:50px; background:rgba(239,90,40,.06); margin-bottom:26px; z-index:2; }
+.csap .cs-story__quote{ position:relative; font-size:clamp(20px,2.4vw,29px); line-height:1.44; font-weight:600; letter-spacing:-.01em; color:var(--ink); z-index:2; }
+.csap .cs-story__attr{ position:relative; display:inline-flex; align-items:center; gap:14px; margin-top:34px; z-index:2; }
+.csap .cs-story__av{ position:relative; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--orange-3),var(--orange)); box-shadow:0 10px 26px -8px rgba(239,90,40,.6); }
+.csap .cs-story__av::after{ content:''; position:absolute; inset:-2px; border-radius:50%; border:1.5px solid var(--orange); opacity:0; }
+.csap .cs-story__name{ text-align:left; }
+.csap .cs-story__name strong{ display:block; font-size:15px; font-weight:700; color:var(--ink); }
+.csap .cs-story__name span{ font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+
+/* ============================================================
+   CONTACT  (copy + live pipeline mockup | form)
+   ============================================================ */
+.csap .cs-contact__grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; position:relative; z-index:2; }
+.csap .cs-contact__copy .cs-ey{ margin-bottom:20px; }
+.csap .cs-contact__copy h2{ font-size:clamp(30px,3.8vw,50px); line-height:1.04; letter-spacing:-.03em; font-weight:800; color:var(--ink); margin:0 0 16px; padding-bottom:.09em; }
+.csap .cs-contact__copy h2 .o{ color:var(--orange); }
+.csap .cs-contact__copy>p{ font-size:15px; color:var(--ink-2); line-height:1.6; max-width:440px; margin-bottom:26px; }
+.csap .cs-contact__lines{ display:grid; gap:13px; margin-bottom:34px; }
+.csap .cs-contact__line{ display:flex; align-items:center; gap:12px; font-size:15px; color:var(--ink); }
+.csap .cs-contact__line svg{ width:19px; height:19px; color:var(--orange); flex-shrink:0; }
+
+/* 3D pipeline mockup */
+.csap .cs-mock{ perspective:1300px; }
+.csap .cs-mock__inner{ transform-style:preserve-3d; transform:rotateY(14deg) rotateX(5deg); transition:transform .9s var(--e-out);
+  background:linear-gradient(135deg,var(--bg-elev),var(--bg-1)); border:1px solid var(--line-2); border-radius:var(--r); overflow:hidden;
+  box-shadow:0 46px 90px -24px rgba(0,0,0,.95),0 22px 44px -10px rgba(239,90,40,.15); }
+.csap .cs-mock:hover .cs-mock__inner{ transform:rotateY(7deg) rotateX(2deg); }
+.csap .cs-mock__bar{ display:flex; align-items:center; gap:8px; padding:15px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.02); }
+.csap .cs-mock__dots{ display:flex; gap:6px; }
+.csap .cs-mock__dots i{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.16); }
+.csap .cs-mock__dots i:first-child{ background:rgba(239,90,40,.7); }
+.csap .cs-mock__ttl{ font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); }
+.csap .cs-mock__live{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-family:var(--f-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--orange-2); }
+.csap .cs-mock__live i{ width:6px; height:6px; border-radius:50%; background:var(--orange); }
+.csap .cs-mock__rows{ padding:14px; }
+.csap .cs-mrow{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; transition:background .35s var(--e), transform .35s var(--e); }
+.csap .cs-mrow+.cs-mrow{ margin-top:6px; }
+.csap .cs-mrow:hover, .csap .cs-mrow.on{ background:rgba(255,255,255,.03); }
+.csap .cs-mrow.on{ transform:translateX(3px); }
+.csap .cs-mrow .cs-av{ width:34px; height:34px; font-size:12px; }
+.csap .cs-mrow__meta{ flex:1; min-width:0; }
+.csap .cs-mrow__name{ font-size:13px; font-weight:700; color:var(--ink); line-height:1.2; }
+.csap .cs-mrow__role{ font-family:var(--f-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-top:2px; }
+.csap .cs-mrow__pill{ font-family:var(--f-mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:50px; white-space:nowrap; transition:box-shadow .35s var(--e); }
+.csap .cs-mrow__pill--placed{ color:var(--orange-2); background:rgba(239,90,40,.12); border:1px solid rgba(239,90,40,.3); }
+.csap .cs-mrow__pill--match{ color:rgba(255,255,255,.7); background:rgba(255,255,255,.06); border:1px solid var(--line-2); }
+.csap .cs-mrow.on .cs-mrow__pill{ box-shadow:0 0 0 3px rgba(239,90,40,.14); }
+.csap .cs-mock__foot{ display:flex; gap:8px; padding:14px 18px 18px; }
+.csap .cs-mock__foot span{ flex:1; height:6px; border-radius:50px; background:rgba(255,255,255,.06); overflow:hidden; }
+.csap .cs-mock__foot span i{ display:block; height:100%; border-radius:50px; background:linear-gradient(90deg,var(--orange-3),var(--orange)); transform-origin:left; }
+.csap .cs-mock__foot span:nth-child(1) i{ width:82%; }
+.csap .cs-mock__foot span:nth-child(2) i{ width:64%; }
+.csap .cs-mock__foot span:nth-child(3) i{ width:91%; }
+
+/* form */
+.csap .cs-form{ background:var(--bg-card); border:1px solid var(--line-2); border-radius:22px; padding:38px; }
+.csap .cs-form__grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.csap .cs-fld{ margin-bottom:16px; }
+.csap .cs-fld.full{ grid-column:1/-1; }
+.csap .cs-fld label{ display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin-bottom:8px; }
+.csap .cs-fld input, .csap .cs-fld textarea{ width:100%; background:var(--bg); border:1px solid var(--line-2); border-radius:11px; padding:13px 15px; color:var(--ink); font-family:var(--f); font-size:15px; transition:border-color .3s var(--e), box-shadow .3s var(--e); }
+.csap .cs-fld textarea{ resize:vertical; min-height:116px; line-height:1.6; }
+.csap .cs-fld input:focus, .csap .cs-fld textarea:focus{ outline:none; border-color:var(--orange); box-shadow:0 0 0 3px rgba(239,90,40,.18); }
+.csap .cs-form .cs-btn--pri{ width:100%; justify-content:center; margin-top:6px; }
+.csap .cs-consent{ display:flex; gap:10px; align-items:flex-start; margin-top:16px; }
+.csap .cs-consent input{ width:16px; height:16px; margin-top:2px; flex-shrink:0; accent-color:var(--orange); }
+.csap .cs-consent label{ font-size:11.5px; color:var(--ink-3); line-height:1.6; }
+.csap .cs-consent a{ color:var(--orange-2); font-weight:600; }
+
+/* ============================================================
+   CLOSING CTA
+   ============================================================ */
+.csap .cs-cta{ position:relative; text-align:center; max-width:760px; margin:0 auto; z-index:2; }
+.csap .cs-cta .cs-ey{ margin-bottom:20px; }
+.csap .cs-cta h2{ font-size:clamp(32px,4.4vw,58px); line-height:1.02; letter-spacing:-.03em; font-weight:800; color:var(--ink); margin-bottom:16px; padding-bottom:.09em; }
+.csap .cs-cta h2 .o{ color:var(--orange); }
+.csap .cs-cta p{ font-size:15px; color:var(--ink-2); max-width:520px; margin:0 auto 32px; }
+
+/* ---------- animated element bases (resolved/invisible without motion) */
+/* sheen wipe reused across every glass card below the hero */
+.csap .cs-tile::after, .csap .cs-story::before{
+  content:''; position:absolute; top:-60%; left:-140%; width:45%; height:220%; pointer-events:none; z-index:1;
+  transform:rotate(18deg); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); }
+.csap .cs-tile__head, .csap .cs-tile__title, .csap .cs-tile__desc{ position:relative; z-index:2; }
+/* underline that fills beneath each solution index number */
+.csap .cs-tile__num{ position:relative; padding-bottom:5px; }
+.csap .cs-tile__num::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:1.5px; border-radius:2px;
+  background:linear-gradient(90deg,var(--orange-3),var(--orange)); transform:scaleX(0); transform-origin:left; transition:transform .55s var(--e-out); }
+.csap .cs-tile.on .cs-tile__num::after, .csap .cs-tile:hover .cs-tile__num::after{ transform:scaleX(1); }
+/* halo ring off an active solution icon */
+.csap .cs-tile__ic{ position:relative; }
+.csap .cs-tile__ic::after{ content:''; position:absolute; inset:-3px; border-radius:16px; border:1.5px solid var(--orange); opacity:0; pointer-events:none; }
+/* scan line travelling down the pipeline console */
+.csap .cs-mock__scan{ position:absolute; left:0; right:0; top:-12%; height:14%; z-index:3; pointer-events:none; opacity:0;
+  background:linear-gradient(180deg,transparent,rgba(239,90,40,.16),transparent); }
+/* light rail above the closing CTA */
+.csap .cs-cta__rail{ display:block; width:min(320px,60%); height:1px; margin:0 auto 30px; position:relative; overflow:clip; background:var(--line-2); }
+.csap .cs-cta__rail i{ position:absolute; top:0; bottom:0; left:-35%; width:35%; background:linear-gradient(90deg,transparent,var(--orange),transparent); }
+
+/* ============================================================
+   MOTION PASS  -  every loop is (a) gated on .csap.js, (b) gated
+   on a .live class an IntersectionObserver toggles on scroll-in
+   and REMOVES on scroll-out (idle off-screen), and (c) disabled
+   under prefers-reduced-motion with a resolved static end-state.
+   ============================================================ */
+@keyframes cs-pulse{ 0%{ box-shadow:0 0 0 0 rgba(239,90,40,.5); } 70%{ box-shadow:0 0 0 10px rgba(239,90,40,0); } 100%{ box-shadow:0 0 0 0 rgba(239,90,40,0); } }
+@keyframes cs-blink{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+@keyframes cs-float{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-9px); } }
+@keyframes cs-ticker{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+@keyframes cs-refill{ from{ transform:scaleX(.35); } to{ transform:scaleX(1); } }
+@keyframes cs-sweep{ 0%{ left:-90px; } 100%{ left:100%; } }
+@keyframes cs-rings{ 0%{ transform:scale(1); opacity:.7; } 100%{ transform:scale(1.75); opacity:0; } }
+@keyframes cs-osc{ 0%,100%{ transform:scaleX(1); } 50%{ transform:scaleX(.82); } }
+@keyframes cs-ping{ 0%,100%{ opacity:.45; } 50%{ opacity:1; } }
+@keyframes cs-sheen{ 0%{ left:-140%; } 55%,100%{ left:160%; } }
+@keyframes cs-mshine{ 0%{ left:-60%; } 60%,100%{ left:120%; } }
+@keyframes cs-trace{ 0%{ stroke-dashoffset:190; } 100%{ stroke-dashoffset:-190; } }
+@keyframes cs-drift{ 0%,100%{ transform:translate3d(0,0,0) scale(1); } 50%{ transform:translate3d(0,-10px,0) scale(1.03); } }
+@keyframes cs-halo{ 0%{ transform:scale(.85); opacity:.55; } 100%{ transform:scale(2.1); opacity:0; } }
+@keyframes cs-ringout{ 0%{ transform:scale(.9); opacity:.8; } 100%{ transform:scale(1.5); opacity:0; } }
+@keyframes cs-scan{ 0%{ top:-14%; opacity:0; } 8%{ opacity:1; } 92%{ opacity:1; } 100%{ top:100%; opacity:0; } }
+@keyframes cs-rail{ 0%{ left:-35%; } 100%{ left:100%; } }
+@keyframes cs-cornerpulse{ 0%,100%{ opacity:.4; transform:translate(0,0); } 50%{ opacity:1; transform:translate(2px,2px); } }
+@keyframes cs-wmfloat{ 0%,100%{ transform:translateY(0) rotate(0deg); opacity:.9; } 50%{ transform:translateY(-14px) rotate(-3deg); opacity:1; } }
+@keyframes cs-iconlift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+@keyframes cs-spin{ to{ transform:rotate(360deg); } }
+@keyframes cs-gap{ 0%,100%{ transform:scaleY(.66); opacity:.5; } 50%{ transform:scaleY(1); opacity:1; } }
+@keyframes cs-fill{ 0%,72%,100%{ background:var(--line-2); } 16%,44%{ background:var(--orange); } }
+@keyframes cs-lock{ 0%{ transform:translate(9px,-8px) scale(.55); opacity:.4; } 45%,62%{ transform:translate(0,0) scale(1); opacity:1; } 100%{ transform:translate(-8px,7px) scale(.55); opacity:.4; } }
+@keyframes cs-needle{ 0%,100%{ transform:rotate(-52deg); } 50%{ transform:rotate(52deg); } }
+@keyframes cs-arcfill{ 0%,100%{ stroke-dashoffset:44; } 50%{ stroke-dashoffset:4; } }
+@keyframes cs-stepup{ 0%,100%{ transform:scaleY(.6); background:var(--line-2); } 45%,60%{ transform:scaleY(1); background:var(--orange); } }
+@keyframes cs-travel{ 0%{ top:-26%; opacity:0; } 15%{ opacity:1; } 85%{ opacity:1; } 100%{ top:100%; opacity:0; } }
+
+.csap.js .cs-hero.live .cs-dot{ animation:cs-pulse 2.4s infinite; }
+.csap.js .cs-hero.live .cs-fcard{ animation:cs-float 6s ease-in-out infinite; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(2){ animation-delay:1.4s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(3){ animation-delay:2.8s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(4){ animation-delay:4.2s; }
+.csap.js .cs-hero.live .cs-fcard.on .cs-fcard__meter i{ animation:cs-refill .9s var(--e-out); }
+.csap.js .cs-hero.live .cs-net__n{ animation:cs-ping 3.2s ease-in-out infinite; }
+.csap.js .cs-hero.live .cs-net__n:nth-child(2){ animation-delay:.5s; }
+.csap.js .cs-hero.live .cs-net__n:nth-child(3){ animation-delay:1s; }
+.csap.js .cs-hero.live .cs-net__n:nth-child(4){ animation-delay:1.5s; }
+.csap.js .cs-hero.live .cs-net__n:nth-child(5){ animation-delay:2s; }
+/* glass sheen wipes across each pane, staggered so one card is always lit */
+.csap.js .cs-hero.live .cs-fcard__in::after{ animation:cs-sheen 7s var(--e) infinite; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(2) .cs-fcard__in::after{ animation-delay:1.75s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(3) .cs-fcard__in::after{ animation-delay:3.5s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(4) .cs-fcard__in::after{ animation-delay:5.25s; }
+/* light runs along the fill of each match meter */
+.csap.js .cs-hero.live .cs-fcard__meter::after{ animation:cs-mshine 4.4s var(--e) infinite; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(2) .cs-fcard__meter::after{ animation-delay:1.1s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(3) .cs-fcard__meter::after{ animation-delay:2.2s; }
+.csap.js .cs-hero.live .cs-fcard:nth-child(4) .cs-fcard__meter::after{ animation-delay:3.3s; }
+/* signal travelling along the connector lines behind the stack */
+.csap.js .cs-hero.live .cs-net__l{ stroke-dasharray:26 164; animation:cs-trace 5.6s linear infinite; }
+.csap.js .cs-hero.live .cs-net__l:nth-child(2){ animation-delay:1.1s; }
+.csap.js .cs-hero.live .cs-net__l:nth-child(3){ animation-delay:2.2s; }
+.csap.js .cs-hero.live .cs-net__l:nth-child(4){ animation-delay:3.3s; }
+.csap.js .cs-hero.live .cs-net__l:nth-child(5){ animation-delay:4.4s; }
+/* the whole net breathes so the stack never sits perfectly still */
+.csap.js .cs-hero.live .cs-stage__net{ animation:cs-drift 11s ease-in-out infinite; }
+/* halo expanding off the hub node */
+.csap.js .cs-hero.live .cs-net__halo{ transform-box:fill-box; transform-origin:50% 50%; animation:cs-halo 3.4s var(--e-out) infinite; }
+
+.csap.js .cs-sec--sol.live .cs-tile::after{ animation:cs-sheen 8s var(--e) infinite; }
+.csap.js .cs-sec--sol.live .cs-tile:nth-child(2)::after{ animation-delay:1.3s; }
+.csap.js .cs-sec--sol.live .cs-tile:nth-child(3)::after{ animation-delay:2.6s; }
+.csap.js .cs-sec--sol.live .cs-tile:nth-child(4)::after{ animation-delay:3.9s; }
+.csap.js .cs-sec--sol.live .cs-tile:nth-child(5)::after{ animation-delay:5.2s; }
+.csap.js .cs-sec--sol.live .cs-tile:nth-child(6)::after{ animation-delay:6.5s; }
+/* the active tile throws a ring off its icon and lifts it */
+.csap.js .cs-sec--sol.live .cs-tile.on .cs-tile__ic::after{ animation:cs-ringout 1.5s var(--e-out); }
+.csap.js .cs-sec--sol.live .cs-tile.on .cs-tile__ic{ animation:cs-iconlift 1.8s ease-in-out; }
+
+.csap.js .cs-ticker.live .cs-ticker__track{ animation:cs-ticker 30s linear infinite; }
+.csap.js .cs-ticker.live:hover .cs-ticker__track{ animation-play-state:paused; }
+
+/* each challenge runs its own themed loop while the section is on screen */
+.csap.js .cs-sec--chal.live .cs-mv--cycle svg .ring{ animation:cs-spin 2.6s linear infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--gauge svg .ndl{ animation:cs-needle 3.2s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--gauge svg .arc{ animation:cs-arcfill 3.2s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--supply i:nth-child(3){ animation:cs-gap 1.8s var(--e) infinite; transform-origin:bottom; }
+.csap.js .cs-sec--chal.live .cs-mv--supply i:nth-child(5){ animation:cs-gap 1.8s var(--e) .3s infinite; transform-origin:bottom; }
+.csap.js .cs-sec--chal.live .cs-mv--week i{ animation:cs-fill 3.4s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(2){ animation-delay:.11s; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(3){ animation-delay:.22s; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(4){ animation-delay:.33s; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(5){ animation-delay:.44s; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(6){ animation-delay:.55s; }
+.csap.js .cs-sec--chal.live .cs-mv--week i:nth-child(7){ animation-delay:.66s; }
+.csap.js .cs-sec--chal.live .cs-mv--match svg .dot{ animation:cs-lock 2.4s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--match svg .r1{ animation:cs-ping 2.4s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--steps i{ animation:cs-stepup 2.8s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-mv--steps i:nth-child(2){ animation-delay:.26s; }
+.csap.js .cs-sec--chal.live .cs-mv--steps i:nth-child(3){ animation-delay:.52s; }
+/* connector pulse runs the rail of whichever row is active */
+.csap.js .cs-sec--chal.live .cs-px__card.is-active .cs-chal__pulse{ animation:cs-travel 2.2s var(--e-out) infinite; }
+/* rows light up one at a time, mirroring the solution tiles below */
+.csap.js .cs-sec--chal.live .cs-px__card.is-active .cs-mv--supply i, .csap.js .cs-sec--chal.live .cs-px__card.is-active .cs-mv--steps i{ background:var(--orange); }
+/* sheen wipes across each card, staggered so the track reads as scanning */
+.csap.js .cs-sec--chal.live .cs-px__sheen{ animation:cs-sheen 8s var(--e) infinite; }
+.csap.js .cs-sec--chal.live .cs-px__card:nth-child(2) .cs-px__sheen{ animation-delay:1.3s; }
+.csap.js .cs-sec--chal.live .cs-px__card:nth-child(3) .cs-px__sheen{ animation-delay:2.6s; }
+.csap.js .cs-sec--chal.live .cs-px__card:nth-child(4) .cs-px__sheen{ animation-delay:3.9s; }
+.csap.js .cs-sec--chal.live .cs-px__card:nth-child(5) .cs-px__sheen{ animation-delay:5.2s; }
+.csap.js .cs-sec--chal.live .cs-px__card:nth-child(6) .cs-px__sheen{ animation-delay:6.5s; }
+
+
+.csap.js .cs-sec--story.live .cs-story::after{ animation:cs-sweep 5.5s linear infinite; }
+.csap.js .cs-sec--story.live .cs-story__av::after{ animation:cs-rings 2.9s var(--e-out) infinite; }
+.csap.js .cs-sec--story.live .cs-story::before{ animation:cs-sheen 9s var(--e) infinite; animation-delay:2s; }
+.csap.js .cs-sec--story.live .cs-story__wm{ animation:cs-wmfloat 9s ease-in-out infinite; }
+.csap.js .cs-sec--story.live .cs-story__corner{ animation:cs-cornerpulse 4.2s ease-in-out infinite; }
+.csap.js .cs-sec--story.live .cs-story__corner--br{ animation-delay:2.1s; }
+
+.csap.js .cs-sec--contact.live .cs-mock__live i{ animation:cs-blink 1.6s infinite; }
+.csap.js .cs-sec--contact.live .cs-mock__foot span i{ animation:cs-osc 3.2s ease-in-out infinite; }
+.csap.js .cs-sec--contact.live .cs-mock__foot span:nth-child(2) i{ animation-delay:.5s; }
+.csap.js .cs-sec--contact.live .cs-mock__foot span:nth-child(3) i{ animation-delay:1s; }
+/* a scan sweeps the console top to bottom, like a queue refresh */
+.csap.js .cs-sec--contact.live .cs-mock__scan{ animation:cs-scan 6s linear infinite; }
+/* contact detail icons pulse in sequence */
+.csap.js .cs-sec--contact.live .cs-contact__line svg{ animation:cs-iconlift 3.2s ease-in-out infinite; }
+.csap.js .cs-sec--contact.live .cs-contact__line:nth-child(2) svg{ animation-delay:.4s; }
+.csap.js .cs-sec--contact.live .cs-contact__line:nth-child(3) svg{ animation-delay:.8s; }
+.csap.js .cs-sec--contact.live .cs-contact__line:nth-child(4) svg{ animation-delay:1.2s; }
+
+.csap.js .cs-sec--cta.live .cs-cta__rail i{ animation:cs-rail 4.6s var(--e) infinite; }
+.csap.js .cs-sec--cta.live .cs-cta .cs-btn--pri{ animation:cs-pulse 3.4s infinite; }
+
+/* ============================================================
+   VIDEO ARCHITECTURE - two independent fixed layers.
+   Layer 1: scroll-SCRUBBED span behind the hero + ticker + Challenges.
+   Layer 2: looping BAND video behind Solutions through the closing CTA.
+   Different mechanisms; they never overlap and never hand off to a loop
+   inside the span.
+   ============================================================ */
+
+/* ---------- Layer 1: scroll-scrubbed span (fixed, behind the span) */
+.csap .cs-scrub{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; opacity:0; transition:opacity .5s ease; }
+.csap .cs-scrub.is-on{ opacity:1; }
+.csap .cs-scrub__par{ position:absolute; inset:0; will-change:transform; }
+/* Framing: top-anchored subject with bleed on every edge as parallax room. */
+.csap .cs-scrub__vid{ position:absolute; left:-7%; top:-2%; width:114%; height:118%;
+  object-fit:cover; object-position:50% 0; will-change:transform; }
+/* constant left-dark fade so the hero copy stays readable over the footage */
+.csap .cs-scrub__grad{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.8) 22%, rgba(0,0,0,.58) 46%, rgba(0,0,0,.42) 70%, rgba(0,0,0,.34) 88%, rgba(0,0,0,.34) 100%); }
+/* full dark overlay ramping in across the last 45vh of the hero, so it is at
+   full strength the moment Challenges begins and holds there */
+.csap .cs-scrub__shade{ position:absolute; inset:0; opacity:0; background:rgba(0,0,0,.58); }
+
+/* SCRUB SPAN members go transparent so the fixed video shows through, and sit
+   above it in the stacking order. Every section BELOW keeps its own rules. */
+.csap .cs-hero,
+.csap .cs-ticker,
+.csap .cs-sec--chal{ background:transparent !important; position:relative; z-index:1; }
+
+/* cards inside the span take the frosted-glass recipe so they read as glass
+   over moving footage instead of solid panels that hide it */
+.csap .cs-px__card:hover{
+  background:rgba(255,255,255,.105);
+  border-color:rgba(239,90,40,.4);
+}
+
+/* ---------- Layer 2: looping band video */
+.csap .cs-band{ position:relative; z-index:1; }
+.csap .cs-bandvid{ position:fixed; inset:0; z-index:0; opacity:0; pointer-events:none; transition:opacity .6s ease; }
+.csap .cs-bandvid.on{ opacity:1; }
+.csap .cs-bandvid__media{ position:absolute; inset:0; overflow:hidden; }
+.csap .cs-bandvid__media video{
+  position:absolute; left:50%; top:50%; width:100%; height:100%;
+  transform:translate(-50%,-50%); object-fit:cover;
+  filter:brightness(.68);
+}
+.csap .cs-bandvid__shade{ position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.83) 0%, rgba(0,0,0,.76) 30%, rgba(0,0,0,.78) 70%, rgba(0,0,0,.86) 100%); }
+
+/* band sections transparent so the fixed video shows through */
+.csap .cs-band > section{ background:transparent !important; }
+
+/* frosted glass over the band video */
+.csap .cs-band .cs-tile,
+.csap .cs-band .cs-story,
+.csap .cs-band .cs-form,
+.csap .cs-band .cs-mock__inner{
+  background:rgba(255,255,255,.055) !important;
+  border:1px solid var(--line-2) !important;
+  -webkit-backdrop-filter:blur(10px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.csap .cs-band .cs-tile,
+.csap .cs-band .cs-story,
+.csap .cs-band .cs-form{ box-shadow:0 30px 60px -18px rgba(0,0,0,.7); }
+.csap .cs-band .cs-mock__inner{ box-shadow:0 46px 90px -24px rgba(0,0,0,.95),0 22px 44px -10px rgba(239,90,40,.15); }
+.csap .cs-band .cs-tile:hover{
+  background:rgba(255,255,255,.075) !important;
+  border-color:rgba(239,90,40,.35) !important;
+}
+/* rows read stronger over moving footage */
+.csap .cs-band .cs-mrow:hover, .csap .cs-band .cs-mrow.on{ background:rgba(255,255,255,.06); }
+/* inputs sit on the glass, not on their own solid fill */
+.csap .cs-band .cs-fld input,
+.csap .cs-band .cs-fld textarea{ background:rgba(255,255,255,.04) !important; }
+
+/* ---------- no video: restore every solid surface for contrast + perf.
+   Both video layers now run on mobile too, so this is no longer a width
+   media query - it is keyed on .cs-novid, which the JS sets whenever the
+   video genuinely cannot play (reduced motion, decode failure, blocked
+   autoplay, or the user's data-saver is on). That way a phone that can
+   play the video gets the full treatment, and one that cannot falls back
+   to clean solid surfaces instead of an empty black band. */
+@media (prefers-reduced-motion:reduce){
+  .csap .cs-bandvid{ display:none !important; }
+}
+.csap.cs-novid .cs-bandvid{ display:none !important; }
+@media (prefers-reduced-motion:reduce){ .csap .cs-scrub{ display:none !important; } }
+
+.csap.cs-novid .cs-ticker{ background:var(--bg-1) !important; }
+.csap.cs-novid .cs-px__card{
+  background:var(--bg-card) !important; border:1px solid var(--line) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; box-shadow:none;
+}
+.csap.cs-novid .cs-band > section{ background:var(--bg) !important; }
+.csap.cs-novid .cs-band > section.cs-sec--alt{ background:var(--bg-1) !important; }
+.csap.cs-novid .cs-band .cs-tile{
+  background:var(--bg-card) !important; border:1px solid var(--line) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; box-shadow:none;
+}
+.csap.cs-novid .cs-band .cs-story{ background:linear-gradient(135deg,var(--bg-elev),var(--bg-card)) !important; box-shadow:none; }
+.csap.cs-novid .cs-band .cs-form{ background:var(--bg-card) !important; box-shadow:none; }
+.csap.cs-novid .cs-band .cs-mock__inner{
+  background:linear-gradient(135deg,var(--bg-elev),var(--bg-1)) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+.csap.cs-novid .cs-band .cs-fld input,
+.csap.cs-novid .cs-band .cs-fld textarea{ background:var(--bg) !important; }
+
+/* ---------- mobile video tuning ----------
+   Same architecture and the same dark overlay as desktop, with three phone
+   concessions: a lighter blur (backdrop-filter over moving video is the
+   single most expensive thing on a mobile GPU), a slightly stronger shade
+   so text holds up in daylight. The layer stays position:fixed exactly as on
+   desktop - never sticky, which GHL's overflow wrappers break silently. */
+@media (max-width:1024px), (pointer:coarse){
+  .csap .cs-band .cs-tile,
+  .csap .cs-band .cs-story,
+  .csap .cs-band .cs-form,
+  .csap .cs-band .cs-mock__inner,
+  .csap .cs-px__card{
+    -webkit-backdrop-filter:blur(7px) saturate(1.06) !important;
+            backdrop-filter:blur(7px) saturate(1.06) !important;
+  }
+  .csap .cs-bandvid__media video{ filter:brightness(.62); }
+  .csap .cs-bandvid__shade{
+    background:linear-gradient(180deg, rgba(0,0,0,.87) 0%, rgba(0,0,0,.81) 30%, rgba(0,0,0,.83) 70%, rgba(0,0,0,.89) 100%); }
+  /* iOS collapses its URL bar mid-scroll, which resizes the visual viewport;
+     pin the layer to the large viewport so the video does not jump. */
+  .csap .cs-bandvid{ height:100lvh; }
+}
+
+/* hero parallax layers: JS moves these; CSS preps + kills off-desktop */
+.csap .cs-hero__copy, .csap .cs-stage__inner{ will-change:transform; }
+@media (max-width:960px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  .csap .cs-hero__copy, .csap .cs-stage__inner{ transform:none !important; }
+}
+
+/* ============================================================
+   RESPONSIVE  (mobile pass: tighter sections, compact cards,
+   48px+ tap targets)
+   ============================================================ */
+@media (max-width:1200px){ .csap .cs-tiles{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:960px){
+  .csap .cs-sec{ padding:80px 0; }
+  .csap .cs-hero__grid{ grid-template-columns:1fr; gap:52px; }
+  .csap .cs-hero__copy{ text-align:center; }
+  .csap .cs-hero__copy .cs-ey{ justify-content:center; }
+  .csap .cs-hero__sub{ margin-left:auto; margin-right:auto; }
+  .csap .cs-hero__ctas{ justify-content:center; }
+  .csap .cs-hero__meta{ justify-content:center; }
+  .csap .cs-stage{ max-width:480px; margin:0 auto; min-height:0; }
+  .csap .cs-cards{ transform:rotateY(-8deg) rotateX(4deg); }
+  .csap .cs-contact__grid{ grid-template-columns:1fr; gap:44px; }
+  .csap .cs-px{ --card-w:300px; }
+  .csap .cs-px__card{ padding:24px 22px 20px; }
+  .csap .cs-story{ padding:44px 32px; }
+}
+@media (max-width:640px){
+  .csap .cs-sec{ padding:64px 0; }
+  .csap .cs-tiles, .csap .cs-form__grid{ grid-template-columns:1fr; }
+  .csap .cs-cards{ grid-template-columns:1fr; transform:none; }
+  .csap .cs-stage{ perspective:none; }
+  .csap .cs-fcard{ transform:none !important; animation:none !important; }
+  .csap .cs-fcard:nth-child(2), .csap .cs-fcard:nth-child(3){ display:none; }
+  .csap .cs-stage__net{ display:none; }
+  .csap .cs-hero__ctas{ flex-direction:column; align-items:stretch; }
+  .csap .cs-hero__ctas .cs-btn{ width:100%; justify-content:center; }
+  .csap .cs-btn{ min-height:48px; }
+  .csap .cs-mock__inner{ transform:none; }
+  .csap .cs-form{ padding:26px; }
+  .csap .cs-consent input{ width:20px; height:20px; }
+  .csap .cs-story{ padding:34px 22px; }
+  .csap .cs-story__wm{ font-size:180px; }
+}
+@media (max-width:400px){ .csap .cs-sec{ padding:56px 0; } }
+
+/* ============================================================
+   MOTION OFF  -  resolved static end-states
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  .csap *, .csap *::before, .csap *::after{ animation:none !important; transition-duration:.01ms !important; }
+  .csap.js .cs-rv{ opacity:1 !important; transform:none !important; }
+  .csap.js .cs-head h2, .csap.js .cs-hero__title, .csap.js .cs-contact__copy h2, .csap.js .cs-cta h2{ clip-path:none !important; }
+  .csap .cs-cards{ transform:rotateY(-8deg) rotateX(4deg); }
+  .csap .cs-story__av::after{ opacity:0 !important; }
+  .csap .cs-net__halo{ opacity:0 !important; }
+  .csap .cs-net__l{ stroke-dasharray:0 400 !important; }
+  .csap .cs-fcard__in::after, .csap .cs-fcard__meter::after{ opacity:0 !important; }
+  .csap .cs-tile::after, .csap .cs-story::before{ opacity:0 !important; }
+  .csap .cs-tile__ic::after, .csap .cs-mock__scan{ opacity:0 !important; }
+  .csap .cs-cta__rail i{ opacity:0 !important; }
+  .csap .cs-chal__pulse{ opacity:0 !important; }
+  .csap .cs-mv--match svg .dot{ transform:none !important; }
+  .csap .cs-mv--gauge svg .ndl{ transform:rotate(0deg) !important; }
+  .csap .cs-mv--gauge svg .arc{ stroke-dashoffset:22 !important; }
+  .csap .cs-mv--steps i, .csap .cs-mv--supply i{ transform:none !important; }
+  .csap .cs-story__corner{ opacity:.7 !important; transform:none !important; }
+  .csap .cs-story__wm{ transform:none !important; }
+}
+</style>
+
+<!-- =========== SCROLL-SCRUBBED BACKGROUND VIDEO (layer 1) ===========
+     Spans the hero + credentials ticker + Challenges. currentTime is driven
+     by scroll position; src is set from a JS constant so GHL cannot corrupt
+     the attribute. ================================================== -->
+<div class="cs-scrub" id="csScrub" aria-hidden="true">
+  <div class="cs-scrub__par">
+    <video class="cs-scrub__vid" id="csScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="cs-scrub__grad" aria-hidden="true"></div>
+  <div class="cs-scrub__shade" id="csScrubShade"></div>
+</div>
+
+<!-- =========== HERO =========== -->
+<header class="cs-hero" id="commercial-staffing" data-cslive>
+  <div class="cs-grid-bg" aria-hidden="true"></div>
+  <div class="cs-wrap">
+    <div class="cs-hero__grid">
+      <div class="cs-hero__copy">
+        <span class="cs-ey cs-rv">Commercial Staffing &amp; Support</span>
+        <h1 class="cs-hero__title cs-rv d1">Commercial <span class="o">Staffing</span> &amp; Support</h1>
+        <p class="cs-hero__sub cs-rv d2">InSync's Commercial Staffing &amp; Support services provide comprehensive solutions for organizations seeking highly skilled and customer-focused commercial professionals — tailored staffing, targeted recruitment, and performance management that optimize your operations and customer satisfaction.</p>
+        <div class="cs-hero__ctas cs-rv d3">
+          <a class="cs-btn cs-btn--pri" href="/contact-us/">Schedule a Consultation
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a class="cs-btn cs-btn--ghost" href="https://leap.laboredge.com/agencyjobboard/insync" target="_blank" rel="noopener">Browse Jobs</a>
+        </div>
+        <div class="cs-hero__meta cs-rv d4"><span>Est. Sacramento</span><span>Serving Nationwide</span><span>SDVOSB</span></div>
+      </div>
+      <div class="cs-stage cs-rv d2" aria-hidden="true">
+        <div class="cs-stage__inner">
+          <svg class="cs-stage__net" viewBox="0 0 400 400" fill="none" preserveAspectRatio="xMidYMid slice">
+            <g stroke="rgba(239,90,40,.28)" stroke-width="1" stroke-linecap="round">
+              <line x1="60" y1="70" x2="200" y2="150"/><line x1="200" y1="150" x2="330" y2="90"/>
+              <line x1="200" y1="150" x2="120" y2="300"/><line x1="200" y1="150" x2="320" y2="280"/>
+              <line x1="120" y1="300" x2="320" y2="280"/>
+            </g>
+            <g stroke="var(--orange)" stroke-width="1.6" stroke-linecap="round">
+              <line class="cs-net__l" x1="60" y1="70" x2="200" y2="150"/><line class="cs-net__l" x1="200" y1="150" x2="330" y2="90"/>
+              <line class="cs-net__l" x1="200" y1="150" x2="120" y2="300"/><line class="cs-net__l" x1="200" y1="150" x2="320" y2="280"/>
+              <line class="cs-net__l" x1="120" y1="300" x2="320" y2="280"/>
+            </g>
+            <g>
+              <circle class="cs-net__halo" cx="200" cy="150" r="9"/>
+              <circle class="cs-net__n" cx="60" cy="70" r="4"/><circle class="cs-net__n" cx="330" cy="90" r="4"/><circle class="cs-net__n" cx="200" cy="150" r="5.5"/>
+              <circle class="cs-net__n" cx="120" cy="300" r="4"/><circle class="cs-net__n" cx="320" cy="280" r="4"/>
+            </g>
+          </svg>
+          <div class="cs-cards" id="csCards">
+            <div class="cs-fcard">
+              <div class="cs-fcard__in">
+                <div class="cs-fcard__top"><span class="cs-av cs-av--a">CA</span><span><span class="cs-fcard__role">Call Center Agent</span><span class="cs-fcard__sector">Commercial</span></span></div>
+                <div class="cs-fcard__meter"><i></i></div>
+                <span class="cs-fcard__status"><span class="cs-dot"></span>Placed</span>
+              </div>
+            </div>
+            <div class="cs-fcard">
+              <div class="cs-fcard__in">
+                <div class="cs-fcard__top"><span class="cs-av cs-av--b">CS</span><span><span class="cs-fcard__role">Customer Support Lead</span><span class="cs-fcard__sector">Support</span></span></div>
+                <div class="cs-fcard__meter"><i></i></div>
+                <span class="cs-fcard__status"><span class="cs-dot"></span>Placed</span>
+              </div>
+            </div>
+            <div class="cs-fcard">
+              <div class="cs-fcard__in">
+                <div class="cs-fcard__top"><span class="cs-av cs-av--c">OC</span><span><span class="cs-fcard__role">Operations Coordinator</span><span class="cs-fcard__sector">Commercial</span></span></div>
+                <div class="cs-fcard__meter"><i></i></div>
+                <span class="cs-fcard__status"><span class="cs-dot"></span>Placed</span>
+              </div>
+            </div>
+            <div class="cs-fcard">
+              <div class="cs-fcard__in">
+                <div class="cs-fcard__top"><span class="cs-av cs-av--d">WA</span><span><span class="cs-fcard__role">Workforce Analyst</span><span class="cs-fcard__sector">Support</span></span></div>
+                <div class="cs-fcard__meter"><i></i></div>
+                <span class="cs-fcard__status"><span class="cs-dot"></span>Placed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- =========== CREDENTIALS TICKER =========== -->
+<div class="cs-ticker" aria-label="InSync credentials" data-cslive>
+  <div class="cs-ticker__track">
+    <div class="cs-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Joint Commission Certified</div>
+    <div class="cs-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21 8 14 2 9.4h7.6z"/></svg>SDVOSB</div>
+    <div class="cs-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg>DVBE Certified</div>
+    <div class="cs-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Valid CMAS Contract</div>
+    <div class="cs-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Nationwide Staffing Network</div>
+    <div class="cs-ticker__item" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Joint Commission Certified</div>
+    <div class="cs-ticker__item" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21 8 14 2 9.4h7.6z"/></svg>SDVOSB</div>
+    <div class="cs-ticker__item" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg>DVBE Certified</div>
+    <div class="cs-ticker__item" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Valid CMAS Contract</div>
+    <div class="cs-ticker__item" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Nationwide Staffing Network</div>
+  </div>
+</div>
+
+<!-- =========== CHALLENGES - pinned horizontal track =========== -->
+<!-- GHL-safe pin: manual fixed/absolute driven by JS (position:sticky is
+     silently broken by GHL's overflow:hidden wrappers). The spacer is
+     inflated to one viewport + the horizontal travel, so the gap after the
+     section is exactly 0. Touch / reduced-motion / transformed-ancestor all
+     fall back to native horizontal swipe with NO inflated spacer. -->
+<section class="cs-sec cs-sec--chal cs-px" id="challenges" data-cslive>
+  <div class="cs-px__spacer" id="csPxSpacer">
+    <div class="cs-px__stage" id="csPxStage">
+
+      <div class="cs-head cs-rv">
+      <span class="cs-ey cs-ey--muted">The Challenge</span>
+      <h2>Challenges in Commercial <span class="o">Staffing</span></h2>
+      <p>Commercial and call center operations carry unique pressures — from high turnover to fluctuating seasonal demand. Naming them clearly is the first step to solving them.</p>
+    </div>
+
+      <div class="cs-px__viewport cs-rv" id="csPxViewport">
+        <div class="cs-px__track" id="csPxTrack">
+            <article class="cs-px__card cs-rv" data-i="0">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5m0-5-5 5"/></svg></div>
+                <div class="cs-mv cs-mv--cycle" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path class="ring" d="M20 5a15 15 0 1 1-10.6 4.4" stroke="var(--orange)" stroke-width="3" stroke-linecap="round"/><path class="ring" d="M9.4 9.4l-3.6-.8 .7 3.7" stroke="var(--orange)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="20" r="3" fill="var(--orange-2)"/></svg></div>
+              </div>
+              <div class="cs-challenge__side-label">Retention</div>
+              <div class="cs-challenge__label">Challenge 01</div>
+              <h3 class="cs-challenge__title">High Turnover Rates</h3>
+              <p class="cs-challenge__desc">Call centers often face high turnover rates due to the demanding nature of the job and employee burnout. This challenge can impact productivity and customer service quality.</p>
+            </article>
+            <article class="cs-px__card cs-rv" data-i="1">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <div class="cs-mv cs-mv--gauge" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M6 30a15 15 0 0 1 28 0" stroke="var(--line-2)" stroke-width="3" stroke-linecap="round"/><path class="arc" d="M6 30a15 15 0 0 1 28 0" stroke="var(--orange)" stroke-width="3" stroke-linecap="round"/><line class="ndl" x1="20" y1="30" x2="20" y2="16" stroke="var(--orange-2)" stroke-width="2.2" stroke-linecap="round"/><circle cx="20" cy="30" r="2.6" fill="var(--orange)"/></svg></div>
+              </div>
+              <div class="cs-challenge__side-label">Quality</div>
+              <div class="cs-challenge__label">Challenge 02</div>
+              <h3 class="cs-challenge__title">Performance and Quality Monitoring</h3>
+              <p class="cs-challenge__desc">Call centers need to monitor agent performance and ensure quality standards are met. Tracking metrics, conducting performance evaluations, and implementing improvement plans require time and resources.</p>
+            </article>
+            <article class="cs-px__card cs-rv" data-i="2">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+                <div class="cs-mv cs-mv--supply" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="cs-challenge__side-label">Demand</div>
+              <div class="cs-challenge__label">Challenge 03</div>
+              <h3 class="cs-challenge__title">Seasonal Demand</h3>
+              <p class="cs-challenge__desc">Many call centers experience fluctuating call volumes based on seasonal demands or specific business cycles. Managing staffing levels to meet peak periods while avoiding overstaffing during slower periods can be a challenge.</p>
+            </article>
+            <article class="cs-px__card cs-rv" data-i="3">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                <div class="cs-mv cs-mv--week" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="cs-challenge__side-label">Scheduling</div>
+              <div class="cs-challenge__label">Challenge 04</div>
+              <h3 class="cs-challenge__title">Scheduling and Shift Management</h3>
+              <p class="cs-challenge__desc">Call centers typically operate 24/7 or have varying shifts to cover different time zones. Managing employee schedules, shift rotations, and ensuring proper staffing levels at all times can be complex.</p>
+            </article>
+            <article class="cs-px__card cs-rv" data-i="4">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg></div>
+                <div class="cs-mv cs-mv--match" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><circle class="r1" cx="20" cy="20" r="15" stroke="var(--line-2)" stroke-width="2"/><circle class="r2" cx="20" cy="20" r="9" stroke="var(--line-2)" stroke-width="2"/><circle class="dot" cx="20" cy="20" r="3.6" fill="var(--orange)"/></svg></div>
+              </div>
+              <div class="cs-challenge__side-label">Skills</div>
+              <div class="cs-challenge__label">Challenge 05</div>
+              <h3 class="cs-challenge__title">Specific Skill Requirements</h3>
+              <p class="cs-challenge__desc">Call center agents require specific skills such as excellent communication, problem-solving, and customer service abilities. Finding candidates with the right skill set and experience can be challenging, especially for specialized operations.</p>
+            </article>
+            <article class="cs-px__card cs-rv" data-i="5">
+              <span class="cs-px__sheen" aria-hidden="true"></span>
+              <span class="cs-chal__pulse" aria-hidden="true"></span>
+              <div class="cs-px__cardtop">
+                <div class="cs-challenge__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                <div class="cs-mv cs-mv--steps" aria-hidden="true"><i></i><i></i><i></i></div>
+              </div>
+              <div class="cs-challenge__side-label">Training</div>
+              <div class="cs-challenge__label">Challenge 06</div>
+              <h3 class="cs-challenge__title">Training and Onboarding</h3>
+              <p class="cs-challenge__desc">Call center staff need to be trained on company products, systems, and customer service protocols. Effective training and onboarding processes are crucial to ensure agents are well-prepared to handle customer inquiries.</p>
+            </article>
+        </div>
+      </div>
+
+      <div class="cs-px__nav" aria-hidden="true">
+        <div class="cs-px__dots" id="csPxDots"><span class="cs-px__dot"></span><span class="cs-px__dot"></span><span class="cs-px__dot"></span><span class="cs-px__dot"></span><span class="cs-px__dot"></span><span class="cs-px__dot"></span></div>
+        <div class="cs-px__rail"><i id="csPxBar"></i></div>
+      </div>
+
+      <div class="cs-px__hint" id="csPxHint" aria-hidden="true">
+        <span class="cs-px__hint-track"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Keep scrolling
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========== LOOPING BAND VIDEO (layer 2) ===========
+     A second, independent fixed video behind every section from Solutions
+     to the closing CTA. Plain looping playback, toggled by a viewport-centre
+     probe against the band's range. Desktop / fine-pointer only.
+     ================================================================== -->
+<div class="cs-bandvid" id="csBandVid">
+  <div class="cs-bandvid__media" id="csBandVidMedia" aria-hidden="true"></div>
+  <div class="cs-bandvid__shade" aria-hidden="true"></div>
+</div>
+
+<div class="cs-band" id="csBand">
+
+<!-- =========== SOLUTIONS =========== -->
+<section class="cs-sec cs-sec--alt cs-sec--sol" id="solutions" data-cslive>
+  <div class="cs-grid-bg" aria-hidden="true"></div>
+  <div class="cs-wrap">
+    <div class="cs-head cs-rv">
+      <span class="cs-ey cs-ey--muted">Our Response</span>
+      <h2>InSync <span class="o">Solutions</span> to Every Challenge</h2>
+      <p>We don't just name the problem. Each pressure gets a dedicated strategy, backed by years of experience and a commitment to client satisfaction.</p>
+    </div>
+    <div class="cs-tiles" id="csTiles">
+      <div class="cs-tile cs-rv">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg></span><span class="cs-tile__num">01</span></div>
+        <h3 class="cs-tile__title">Employee Engagement and Retention Programs</h3><p class="cs-tile__desc">InSync focuses on creating a positive work environment, providing ongoing training and development opportunities, and implementing employee engagement initiatives to improve retention rates. We prioritize the well-being and job satisfaction of call center staff to reduce turnover.</p>
+      </div>
+      <div class="cs-tile cs-rv d1">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="cs-tile__num">02</span></div>
+        <h3 class="cs-tile__title">Customized Training and Onboarding</h3><p class="cs-tile__desc">InSync provides customized training and onboarding programs to ensure that call center agents are well-equipped to handle their roles effectively. We collaborate with clients to develop training modules tailored to their specific industry, products, and customer service requirements.</p>
+      </div>
+      <div class="cs-tile cs-rv d2">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span><span class="cs-tile__num">03</span></div>
+        <h3 class="cs-tile__title">Scalable Staffing Solutions</h3><p class="cs-tile__desc">InSync offers flexible staffing solutions that can adapt to fluctuating call volumes. Our experience in call center staffing allows us to quickly scale up or down the workforce based on demand, ensuring optimal staffing levels without compromising customer service.</p>
+      </div>
+      <div class="cs-tile cs-rv">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span><span class="cs-tile__num">04</span></div>
+        <h3 class="cs-tile__title">Performance Management and Quality Assurance</h3><p class="cs-tile__desc">InSync implements performance management systems and quality assurance processes to monitor agent performance and ensure adherence to service level agreements. We regularly assess performance metrics, provide feedback and coaching, and implement improvement plans to enhance overall call center performance.</p>
+      </div>
+      <div class="cs-tile cs-rv d1">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="cs-tile__num">05</span></div>
+        <h3 class="cs-tile__title">Extensive Talent Pool and Targeted Recruitment</h3><p class="cs-tile__desc">InSync maintains an extensive talent pool of qualified call center professionals. Our targeted recruitment strategies, including comprehensive screening and assessment processes, enable us to identify candidates with the right skills and experience for specific call center operations.</p>
+      </div>
+      <div class="cs-tile cs-rv d2">
+        <div class="cs-tile__head"><span class="cs-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span class="cs-tile__num">06</span></div>
+        <h3 class="cs-tile__title">Efficient Scheduling and Shift Management</h3><p class="cs-tile__desc">InSync utilizes advanced workforce management systems to optimize scheduling and shift management in call centers. We ensure appropriate staffing levels based on call volume forecasts, employee availability, and customer service needs, minimizing scheduling conflicts and maximizing operational efficiency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== TESTIMONIAL =========== -->
+<section class="cs-sec cs-sec--story" id="story" data-cslive>
+  <div class="cs-wrap">
+    <div class="cs-story cs-rv">
+      <span class="cs-story__wm" aria-hidden="true">&ldquo;</span>
+      <span class="cs-story__corner cs-story__corner--tl" aria-hidden="true"></span>
+      <span class="cs-story__corner cs-story__corner--br" aria-hidden="true"></span>
+      <span class="cs-story__chip"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Trusted Partner · 2+ Years</span>
+      <p class="cs-story__quote">InSync is a key partner to us at TalentWave and we are grateful for the ongoing alliance that we've had with them for over two years. We've seen over and over again, InSync's ability to be flexible and creative when supporting our mutual clients. They are highly responsive, fully transparent and keep clear and dependable lines of communication open with us at all times. The trust that we've established between our two businesses reinforces the value we see in our relationship, each day, with InSync.</p>
+      <span class="cs-story__attr">
+        <span class="cs-story__av" aria-hidden="true">N</span>
+        <span class="cs-story__name"><strong>Neal B.</strong><span>TalentWave</span></span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CONTACT =========== -->
+<section class="cs-sec cs-sec--alt cs-sec--contact" id="contact" data-cslive>
+  <div class="cs-wrap">
+    <div class="cs-contact__grid">
+      <div class="cs-contact__copy cs-rv">
+        <span class="cs-ey">Get in Touch</span>
+        <h2>Let's Talk <span class="o">Staffing</span></h2>
+        <p>Not all problems are the same, and not all agencies are created equal. Tell us what you need and our team will get back to you.</p>
+        <div class="cs-contact__lines">
+          <div class="cs-contact__line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>(888) 641-3444</span></div>
+          <div class="cs-contact__line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>info@insynconline.net</span></div>
+        </div>
+        <div class="cs-mock" aria-hidden="true">
+          <div class="cs-mock__inner">
+            <span class="cs-mock__scan" aria-hidden="true"></span>
+              <div class="cs-mock__bar">
+              <span class="cs-mock__dots"><i></i><i></i><i></i></span>
+              <span class="cs-mock__ttl">Candidate Pipeline</span>
+              <span class="cs-mock__live"><i></i>Live</span>
+            </div>
+            <div class="cs-mock__rows" id="csMrows">
+              <div class="cs-mrow"><span class="cs-av cs-av--a">CA</span><span class="cs-mrow__meta"><span class="cs-mrow__name">Call Center Agent</span><span class="cs-mrow__role">Commercial</span></span><span class="cs-mrow__pill cs-mrow__pill--placed">Placed</span></div>
+              <div class="cs-mrow"><span class="cs-av cs-av--b">CS</span><span class="cs-mrow__meta"><span class="cs-mrow__name">Customer Support Lead</span><span class="cs-mrow__role">Support</span></span><span class="cs-mrow__pill cs-mrow__pill--placed">Placed</span></div>
+              <div class="cs-mrow"><span class="cs-av cs-av--c">OC</span><span class="cs-mrow__meta"><span class="cs-mrow__name">Operations Coordinator</span><span class="cs-mrow__role">Commercial</span></span><span class="cs-mrow__pill cs-mrow__pill--match">Matched</span></div>
+              <div class="cs-mrow"><span class="cs-av cs-av--d">WA</span><span class="cs-mrow__meta"><span class="cs-mrow__name">Workforce Analyst</span><span class="cs-mrow__role">Support</span></span><span class="cs-mrow__pill cs-mrow__pill--match">Matched</span></div>
+            </div>
+            <div class="cs-mock__foot"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+          </div>
+        </div>
+      </div>
+      <!-- NOTE: styled placeholder - wire fields to a real GHL form/CRM workflow before publishing -->
+      <form class="cs-form cs-rv d1" onsubmit="return false">
+        <div class="cs-form__grid">
+          <div class="cs-fld"><label for="csFn">First Name *</label><input id="csFn" type="text" name="first_name" autocomplete="given-name" required></div>
+          <div class="cs-fld"><label for="csLn">Last Name *</label><input id="csLn" type="text" name="last_name" autocomplete="family-name" required></div>
+          <div class="cs-fld full"><label for="csEm">Email *</label><input id="csEm" type="email" name="email" autocomplete="email" required></div>
+          <div class="cs-fld full"><label for="csPh">Phone *</label><input id="csPh" type="tel" name="phone" autocomplete="tel" required></div>
+          <div class="cs-fld full"><label for="csMsg">Message *</label><textarea id="csMsg" name="message" required></textarea></div>
+        </div>
+        <button type="submit" class="cs-btn cs-btn--pri">Submit
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="cs-consent">
+          <input id="csConsent" type="checkbox" required>
+          <label for="csConsent">I agree to receive communications by text message from InSync Consulting Services regarding updates, hiring, and support. Reply STOP to opt out or HELP for help. Message frequency varies; message and data rates may apply. See our <a href="/privacy-policy/">Privacy Policy</a>.</label>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CLOSING CTA =========== -->
+<section class="cs-sec cs-sec--cta" id="get-started" data-cslive>
+  <div class="cs-grid-bg" aria-hidden="true"></div>
+  <div class="cs-wrap">
+    <div class="cs-cta cs-rv">
+      <span class="cs-cta__rail" aria-hidden="true"><i></i></span>
+      <span class="cs-ey">Get Started</span>
+      <h2>Commercial Talent That <span class="o">Delivers</span></h2>
+      <p>Tell us your requirements and we'll connect you with skilled, vetted commercial professionals ready to optimize your operations.</p>
+      <a class="cs-btn cs-btn--pri" href="/contact-us/">Schedule a Consultation
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /.cs-band -->
+
+</div><!-- /csap -->
+
+<script>
+(function(){
+  'use strict';
+  var root = document.getElementById('csap');
+  if(!root) return;
+  /* the wrapper is already flagged .js by the pre-paint script at the top of
+     the block; this is an idempotent fallback if that one is ever stripped */
+  root.classList.add('js');
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---------- scroll reveals: v2 contract ---------- */
+  var revs = root.querySelectorAll('.cs-rv');
+
+  /* Stagger siblings in JS so card grids and row groups cascade instead of
+     popping as a slab. Skip anything already carrying an explicit d1-d4. */
+  if(!reduce){
+    var groups = [];
+    revs.forEach(function(el){
+      var p = el.parentElement;
+      if(p && groups.indexOf(p) < 0) groups.push(p);
+    });
+    groups.forEach(function(p){
+      var kids = [], i;
+      for(i = 0; i < p.children.length; i++){
+        var c = p.children[i];
+        if(c.classList.contains('cs-rv') && !/\bd[1234]\b/.test(c.className)) kids.push(c);
+      }
+      if(kids.length < 2) return;
+      for(i = 0; i < kids.length; i++){
+        kids[i].style.transitionDelay = Math.min(i * 0.07, 0.35).toFixed(2) + 's';
+      }
+    });
+  }
+
+  if('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        e.target.classList.add('in');
+        /* cards parked off to the RIGHT inside the pinned track never
+           intersect on their own, so they would stay blank until scrolled to
+           and then pop. Reveal a track's cards with its container. */
+        var tr = e.target.querySelectorAll ? e.target.querySelectorAll('.cs-px__track > .cs-rv') : null;
+        if(tr) for(var ti = 0; ti < tr.length; ti++){ tr[ti].classList.add('in'); io.unobserve(tr[ti]); }
+        io.unobserve(e.target);
+      });
+    }, { threshold:0, rootMargin:'0px 0px -12% 0px' });
+    /* threshold 0 + a bottom offset fires when an element's top crosses ~88%
+       of the viewport. A ratio-based threshold starves on blocks taller than
+       the viewport (they can never reach the ratio) and leaves them stuck
+       invisible - the long challenge rows and story panel are that tall. */
+    revs.forEach(function(el){ io.observe(el); });
+  } else {
+    revs.forEach(function(el){ el.classList.add('in'); });
+  }
+  /* first frame: release anything already on screen so the hero never waits */
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){ if(el.getBoundingClientRect().top < window.innerHeight*0.94) el.classList.add('in'); });
+  });
+  /* Safety net for ABOVE-THE-FOLD content only. This must NOT touch elements
+     further down the page - blanket-revealing everything is what kills the
+     scroll entrances below the fold. */
+  setTimeout(function(){
+    revs.forEach(function(el){
+      if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  }, 2500);
+
+  /* ---------- live gating: loops run only while a section is on screen ---------- */
+  function cycler(getItems, ms){
+    var t = null, i = -1;
+    return {
+      start:function(){
+        if(t || reduce) return;
+        var items = getItems(); if(!items.length) return;
+        t = setInterval(function(){
+          if(i > -1 && items[i]) items[i].classList.remove('on');
+          i = (i + 1) % items.length;
+          items[i].classList.add('on');
+        }, ms);
+      },
+      stop:function(){
+        if(t){ clearInterval(t); t = null; }
+        var items = getItems();
+        for(var k = 0; k < items.length; k++) items[k].classList.remove('on');
+        i = -1;
+      }
+    };
+  }
+  var cycles = {};
+  var cardsEl = document.getElementById('csCards');
+  if(cardsEl) cycles['commercial-staffing'] = cycler(function(){ return cardsEl.querySelectorAll('.cs-fcard'); }, 2400);
+  var tilesEl = document.getElementById('csTiles');
+  if(tilesEl) cycles['solutions'] = cycler(function(){ return tilesEl.querySelectorAll('.cs-tile'); }, 1800);
+  var mrowsEl = document.getElementById('csMrows');
+  if(mrowsEl) cycles['contact'] = cycler(function(){ return mrowsEl.querySelectorAll('.cs-mrow'); }, 2000);
+
+  var liveSecs = root.querySelectorAll('[data-cslive]');
+  function setLive(el, on){
+    el.classList.toggle('live', on);
+    var c = cycles[el.id];
+    if(c){ on ? c.start() : c.stop(); }
+  }
+  if('IntersectionObserver' in window){
+    var lio = new IntersectionObserver(function(es){
+      es.forEach(function(e){ setLive(e.target, e.isIntersecting); });
+    }, { threshold:0.15 });
+    liveSecs.forEach(function(el){ lio.observe(el); });
+  } else {
+    liveSecs.forEach(function(el){ setLive(el, true); });
+  }
+})();
+</script>
+
+<script>
+/* Hero: mouse-driven parallax on hover. Desktop + fine pointer only,
+   motion-safe, rides layers that are NOT reveal targets so it never
+   fights the reveal or clip-wipe. Movements stay small and are
+   clipped by the wrapper's overflow:clip (zero added overflow). */
+(function(){
+  'use strict';
+  var hero = document.getElementById('commercial-staffing');
+  if(!hero) return;
+  if(!(window.matchMedia && window.matchMedia('(pointer:fine)').matches)) return;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var copy = hero.querySelector('.cs-hero__copy');
+  var stage = hero.querySelector('.cs-stage__inner');
+  var tx = 0, ty = 0, cx = 0, cy = 0, running = false;
+  function render(){
+    cx += (tx - cx) * 0.09; cy += (ty - cy) * 0.09;
+    if(copy)  copy.style.transform  = 'translate3d(' + (cx * 8).toFixed(2)  + 'px,' + (cy * 6).toFixed(2)   + 'px,0)';
+    if(stage) stage.style.transform = 'translate3d(' + (cx * 22).toFixed(2) + 'px,' + (cy * 16).toFixed(2)  + 'px,0) rotateY(' + (cx * 4).toFixed(2) + 'deg) rotateX(' + (cy * -4).toFixed(2) + 'deg)';
+    if(Math.abs(tx - cx) > 0.0005 || Math.abs(ty - cy) > 0.0005){ requestAnimationFrame(render); }
+    else { running = false; }
+  }
+  function kick(){ if(!running){ running = true; requestAnimationFrame(render); } }
+  hero.addEventListener('pointermove', function(e){
+    var r = hero.getBoundingClientRect();
+    tx = ((e.clientX - r.left) / r.width  - .5) * 2;
+    ty = ((e.clientY - r.top ) / r.height - .5) * 2;
+    kick();
+  });
+  hero.addEventListener('pointerleave', function(){ tx = 0; ty = 0; kick(); });
+})();
+</script>
+
+<script>
+/* ============================================================
+   LAYER 1 - SCROLL-SCRUBBED SPAN VIDEO
+   currentTime is driven by scroll position across the span (top of page
+   to the BOTTOM of Challenges), eased each rAF to kill micro-stutter.
+   No loop handoff inside the span. Mobile/touch: muted autoplay loop for
+   the hero, paused past the span. Reduced-motion: freeze on frame 1.
+   Media URL is a JS runtime constant, immune to GHL attribute corruption.
+   ============================================================ */
+(function(){
+  'use strict';
+  var wrap = document.getElementById('csScrub');
+  var vid  = document.getElementById('csScrubVid');
+  if (!wrap || !vid) return;
+
+  var CS_SCRUB_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7de89479dbc24f683cb77c.mp4';
+  vid.src = CS_SCRUB_VIDEO_URL;
+
+  var shade = wrap.querySelector('.cs-scrub__shade');
+
+  /* the span runs scrollY 0 to the BOTTOM of Challenges: frame 1 at the top
+     of the page, last frame at the end of that section */
+  function scrubEnd(){
+    var sec = document.getElementById('challenges');
+    if (sec){
+      var r = sec.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* start of the spanned section: the bottom of the in-flow hero */
+  function sectionTop(){
+    var h = document.getElementById('commercial-staffing');
+    if (h){
+      var hr = h.getBoundingClientRect();
+      if (hr.height > 0) return hr.top + window.scrollY + hr.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* the hero shows the video clean apart from the constant left fade; the
+     full dark overlay ramps in across the last 45vh of the hero so it is at
+     full strength by the time Challenges begins */
+  function updateShade(){
+    if (!shade) return;
+    var vh = window.innerHeight;
+    var y  = window.scrollY;
+    var endY = sectionTop(), startY = endY - vh * 0.45;
+    var o = (y - startY) / (endY - startY);
+    if (o < 0) o = 0; if (o > 1) o = 1;
+    shade.style.opacity = String(o);
+  }
+  window.addEventListener('scroll', updateShade, { passive:true });
+  window.addEventListener('resize', updateShade);
+  updateShade();
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine    = window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch   = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  var canScrub = fine && !touch && !reduced;
+
+  /* ---- non-scrub fallbacks ---- */
+  if (!canScrub){
+    wrap.classList.add('is-on');
+    if (reduced){
+      vid.removeAttribute('autoplay'); vid.pause();
+      var freeze = function(){ try{ vid.currentTime = 0; }catch(e){} vid.pause(); };
+      vid.addEventListener('loadeddata', freeze);
+    } else {
+      vid.loop = true; vid.autoplay = true; vid.muted = true; vid.setAttribute('autoplay','');
+      var pl = function(){ var p = vid.play(); if (p && p.catch) p.catch(function(){}); };
+      vid.addEventListener('loadeddata', pl); pl();
+      /* drop the layer and stop playback past the span so the loop costs
+         nothing for the rest of the page */
+      var gate = function(){
+        var past = window.scrollY > scrubEnd() + 4;
+        if (past){ wrap.classList.remove('is-on'); if(!vid.paused) vid.pause(); }
+        else { wrap.classList.add('is-on'); if(vid.paused) pl(); }
+      };
+      window.addEventListener('scroll', gate, { passive:true });
+      window.addEventListener('resize', gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- desktop: scrub currentTime from scroll ---- */
+  vid.loop = false; vid.autoplay = false; vid.pause();
+
+  var dur = 0, ready = false, target = 0, raf = 0;
+
+  function onMeta(){ dur = vid.duration || 0; ready = dur > 0; wrap.classList.add('is-on'); tick(); }
+  vid.addEventListener('loadedmetadata', onMeta);
+  vid.addEventListener('loadeddata', function(){ if(!ready) onMeta(); });
+  /* if the container or codec is refused, leave the layer off for good */
+  vid.addEventListener('error', function(){ ready = false; wrap.classList.remove('is-on'); });
+
+  function computeTarget(){
+    var end = scrubEnd();
+    var y = window.scrollY;
+    var p = end > 0 ? (y / end) : 0;
+    if (p < 0) p = 0; if (p > 1) p = 1;
+    /* switch the layer off past the span; it cross-fades out over .5s and
+       every section below carries the band video instead */
+    if (y > end + 4) wrap.classList.remove('is-on'); else wrap.classList.add('is-on');
+    return p * dur;
+  }
+
+  function tick(){
+    raf = 0;
+    if (ready){
+      target = computeTarget();
+      var cur = vid.currentTime || 0;
+      var diff = target - cur;
+      if (Math.abs(diff) < 0.008) { /* settled */ }
+      else {
+        var next = cur + diff * 0.28;
+        try { vid.currentTime = next; } catch(e){}
+      }
+      if (Math.abs(target - (vid.currentTime||0)) > 0.008) schedule();
+    }
+  }
+  function schedule(){ if(!raf) raf = requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('resize', schedule);
+  schedule();
+})();
+</script>
+
+<script>
+/* ============================================================
+   LAYER 2 - LOOPING BAND VIDEO
+   Plain looping playback behind Solutions through the closing CTA,
+   toggled by a viewport-centre probe against the band's absolute range.
+   Built in JS from a URL constant. Runs on MOBILE as well as desktop, with
+   the same dark overlay; it only stands down when the video genuinely
+   cannot play - reduced motion, data-saver, decode failure, or an autoplay
+   block - in which case .cs-novid restores solid surfaces so the band never
+   sits on empty black.
+   ============================================================ */
+(function(){
+  var CS_BAND_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7dedd179dbc24f6843b84c.mp4';
+  var wrap  = document.getElementById('csBandVid');
+  var media = document.getElementById('csBandVidMedia');
+  var band  = document.getElementById('csBand');
+  if (!wrap || !media || !band) return;
+  var root = document.getElementById('csap');
+  function standDown(){
+    vidOk = false;
+    wrap.classList.remove('on');
+    if (root) root.classList.add('cs-novid');   /* restores every solid surface */
+  }
+
+  var vidOk = true;
+  /* reduced motion is the one hard stop; it is an accessibility preference,
+     not a capability, so it is never overridden */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){ standDown(); return; }
+  /* respect an explicit data-saver request rather than pushing video at a
+     metered phone connection */
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && conn.saveData){ standDown(); return; }
+
+  if (CS_BAND_VIDEO_URL.indexOf('http') !== 0){ standDown(); return; }
+
+  var v = document.createElement('video');
+  v.muted = true; v.defaultMuted = true; v.loop = true; v.autoplay = true;
+  v.playsInline = true; v.setAttribute('playsinline','');
+  v.setAttribute('webkit-playsinline','');            /* older iOS */
+  v.setAttribute('muted','');                          /* iOS wants the attribute, not just the property */
+  v.setAttribute('disablepictureinpicture','');
+  /* metadata only on mobile: the phone should not pull the whole file before
+     the visitor has scrolled anywhere near the band */
+  v.preload = (window.innerWidth <= 1024 || (navigator.maxTouchPoints > 0)) ? 'metadata' : 'auto';
+  v.src = CS_BAND_VIDEO_URL;
+  /* decode guard: if the container or codec is refused, stand down entirely */
+  v.addEventListener('error', standDown);
+  media.appendChild(v);
+
+  /* autoplay guard: iOS low-power mode and some Android browsers reject the
+     play() promise. Without this the layer would fade in over a frozen black
+     frame, so treat a rejection exactly like a decode failure. A second
+     attempt is made on first touch, since by then we have a user gesture. */
+  function tryPlay(){
+    var pr = v.play();
+    if (pr && pr.catch) return pr.catch(function(){ return false; });
+    return null;
+  }
+  var pr0 = tryPlay();
+  if (pr0 && pr0.then){
+    pr0.then(function(res){
+      if (res !== false) return;
+      /* a rejection usually just means we lack a gesture, so try once more on
+         the first touch or click rather than giving up immediately */
+      var retry = function(){
+        document.removeEventListener('touchstart', retry);
+        document.removeEventListener('click', retry);
+        var p2 = v.play();
+        if (p2 && p2.catch) p2.catch(function(){});
+      };
+      document.addEventListener('touchstart', retry, { once:true, passive:true });
+      document.addEventListener('click', retry, { once:true });
+    });
+  }
+  /* Single source of truth for "is it actually running": the autoplay
+     ATTRIBUTE can start playback without going through play(), and play()
+     can resolve on a stalled element, so neither promise is reliable on its
+     own. Six seconds in, if the element is still not playing, stand down. */
+  setTimeout(function(){
+    if (v.paused || v.readyState < 2) standDown();
+  }, 6000);
+
+  var raf = 0;
+  function bandRange(){
+    var r = band.getBoundingClientRect();
+    var top = r.top + window.scrollY;
+    return { top: top, bottom: top + r.height };
+  }
+  function update(){
+    raf = 0;
+    var vh = window.innerHeight;
+    var y = window.scrollY + vh * 0.5;
+    var r = bandRange();
+    wrap.classList.toggle('on', vidOk && y > r.top + 60 && y < r.bottom);
+  }
+  function onScroll(){ if (!raf) raf = requestAnimationFrame(update); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+
+<script>
+/* ============================================================
+   PINNED HORIZONTAL TRACK  (Challenges)
+   GHL-safe: position:sticky is silently broken by GHL's overflow:hidden
+   wrappers, so the pin is driven manually - absolute (before) -> fixed
+   (during) -> absolute (after) inside a relative spacer inflated to one
+   viewport + the horizontal travel, which keeps the gap after the section
+   at exactly 0. Touch, reduced-motion, or any ancestor whose transform /
+   filter / contain would make it the containing block for fixed children
+   all fall back to native horizontal swipe with NO inflated spacer.
+   ============================================================ */
+(function(){
+  'use strict';
+  var root     = document.getElementById('challenges');
+  var spacer   = document.getElementById('csPxSpacer');
+  var stage    = document.getElementById('csPxStage');
+  var viewport = document.getElementById('csPxViewport');
+  var track    = document.getElementById('csPxTrack');
+  var hint     = document.getElementById('csPxHint');
+  var bar      = document.getElementById('csPxBar');
+  var dotsWrap = document.getElementById('csPxDots');
+  if(!root || !spacer || !stage || !viewport || !track) return;
+
+  var cards = [].slice.call(track.querySelectorAll('.cs-px__card'));
+  var dots  = dotsWrap ? [].slice.call(dotsWrap.querySelectorAll('.cs-px__dot')) : [];
+  var N = cards.length;
+  if(!N) return;
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine    = window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch   = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  /* an ancestor with transform/filter/contain becomes the containing block
+     for fixed descendants, which would put the pin in the wrong place */
+  function ancestorBreaksFixed(){
+    var el = root.parentElement;
+    while(el && el !== document.documentElement && el !== document.body){
+      var cs = window.getComputedStyle(el);
+      if((cs.transform && cs.transform !== 'none') ||
+         (cs.perspective && cs.perspective !== 'none') ||
+         (cs.filter && cs.filter !== 'none') ||
+         (cs.backdropFilter && cs.backdropFilter !== 'none') ||
+         (cs.willChange && /transform|perspective|filter/i.test(cs.willChange)) ||
+         (cs.contain && /(^|\s)(paint|layout|strict|content)(\s|$)/i.test(cs.contain))){
+        return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  var canPin = fine && !touch && !reduced && !ancestorBreaksFixed();
+
+  function setActive(i){
+    for(var k = 0; k < N; k++) cards[k].classList.toggle('is-active', k === i);
+    for(var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === i);
+  }
+
+  /* ---------- NATIVE fallback: real swipe, no inflated spacer ---------- */
+  function nativeActive(){
+    var mid = viewport.scrollLeft + viewport.clientWidth / 2, best = 0, bd = Infinity;
+    for(var i = 0; i < N; i++){
+      var c = cards[i], cc = c.offsetLeft + c.offsetWidth / 2, d = Math.abs(cc - mid);
+      if(d < bd){ bd = d; best = i; }
+    }
+    setActive(best);
+    if(bar) bar.style.transform = 'scaleX(' + (N > 1 ? (best / (N - 1)) : 1).toFixed(3) + ')';
+  }
+
+  if(!canPin){
+    root.classList.add('cs-px--native');
+    var nraf = 0;
+    viewport.addEventListener('scroll', function(){
+      if(!nraf) nraf = requestAnimationFrame(function(){ nraf = 0; nativeActive(); });
+    }, { passive:true });
+    nativeActive();
+    if(!track.querySelector('.is-active')) setActive(0);
+    return;
+  }
+
+  /* ---------- PIN mode ---------- */
+  root.classList.add('cs-px--pinned');
+
+  var travel = 0, vh = 0, raf = 0;
+
+  function measure(){
+    var vw = viewport.clientWidth;
+    var cardW = cards[0].getBoundingClientRect().width;
+    var pad = Math.max(0, (vw - cardW) / 2);          /* centre first + last card */
+    track.style.paddingLeft  = pad + 'px';
+    track.style.paddingRight = pad + 'px';
+    track.style.transform = 'none';                    /* measure untransformed */
+    travel = Math.max(0, track.scrollWidth - vw);
+    vh = window.innerHeight;
+    stage.style.height  = vh + 'px';                   /* stage fills the viewport */
+    spacer.style.height = (vh + travel) + 'px';        /* one screen + travel = zero gap */
+  }
+
+  function paint(){
+    raf = 0;
+    var y = window.scrollY;
+    var rectTop = spacer.getBoundingClientRect().top + y;   /* live, never stale */
+    var start = rectTop, end = rectTop + travel;
+    var progress, pos;
+
+    if(y < start){ progress = 0; pos = 'before'; }
+    else if(y >= end){ progress = 1; pos = 'after'; }
+    else { progress = travel > 0 ? (y - start) / travel : 0; pos = 'pinned'; }
+
+    if(pos === 'pinned'){ stage.style.position = 'fixed'; stage.style.top = '0'; stage.style.bottom = ''; }
+    else if(pos === 'before'){ stage.style.position = 'absolute'; stage.style.top = '0'; stage.style.bottom = ''; }
+    else { stage.style.position = 'absolute'; stage.style.top = ''; stage.style.bottom = '0'; }
+    stage.style.left = '0'; stage.style.width = '100%';
+
+    track.style.transform = 'translate3d(' + (-(progress * travel)).toFixed(2) + 'px,0,0)';
+
+    setActive(Math.round(progress * (N - 1)));
+    if(bar) bar.style.transform = 'scaleX(' + progress.toFixed(3) + ')';
+    if(hint){
+      hint.style.setProperty('--cs-hint', (progress * 150).toFixed(0) + '%');
+      hint.style.opacity = String(Math.max(0, 1 - progress * 3));
+    }
+  }
+
+  function onScroll(){ if(!raf) raf = requestAnimationFrame(paint); }
+
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', function(){ measure(); paint(); });
+  window.addEventListener('load', function(){ measure(); paint(); });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ measure(); paint(); }); }
+
+  measure();
+  paint();
+})();
+</script>

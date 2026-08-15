@@ -517,10 +517,12 @@
 /* section tint (kept on sections OUTSIDE the scrub span) */
 .ed-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)); }
 
-/* mobile / reduced-motion: video is hero-only, so give the risen content a
-   solid floor (edu sections carry no background of their own) */
-@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
-  .ed-below{ background:var(--bg); }
+/* Off-desktop the scrub video loops instead of scrubbing, but it still spans
+   the hero AND the section that shares its span — the shade (rgba(0,0,0,.66)
+   at full opacity) is what holds contrast there, not a solid floor. Only
+   reduced-motion, which kills the video, needs one. */
+@media (prefers-reduced-motion:reduce){
+  .ed-below, #roles{ background:var(--bg) !important; }
 }
 
 /* ============================================================
@@ -528,7 +530,8 @@
    scrub span. Darkened + gradient-shaded so text stays readable;
    band sections go transparent so the video shows through, and
    band cards take the frosted-glass recipe. Fades in/out as the
-   band enters/leaves. Desktop / fine-pointer only.
+   band enters/leaves. Runs on mobile as well as desktop — only
+   reduced-motion drops it.
    ============================================================ */
 .ed-band{ position:relative; z-index:1; }
 .ed-bandvid{ position:fixed; inset:0; z-index:0; opacity:0; pointer-events:none; transition:opacity .6s ease; }
@@ -569,16 +572,18 @@
 .ed-band .ed-fld select,
 .ed-band .ed-fld textarea{ background:rgba(255,255,255,.04) !important; }
 
-@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
-  /* no band video here -> restore solid surfaces for contrast + perf */
+@media (prefers-reduced-motion:reduce){
+  /* no band video here -> restore solid surfaces */
   .ed-bandvid{ display:none !important; }
   .ed-band > section{ background:var(--bg) !important; }
   .ed-band > section.ed-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)) !important; }
   .ed-band .ed-pcard{
     background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012)) !important;
     box-shadow:none;
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
   }
-  .ed-band .ed-form{ background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)) !important; box-shadow:none; }
+  .ed-band .ed-form{ background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)) !important; box-shadow:none;
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
   .ed-band .ed-chip, .ed-band .ed-step__ic{
     background:var(--bg-2) !important;
     -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
@@ -1144,7 +1149,8 @@
   var media = document.getElementById('edBandVidMedia');
   var band  = document.getElementById('edBand');
   if (!wrap || !media || !band) return;
-  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  /* The band runs on mobile too — only reduced-motion opts out. */
+  var mqOff = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (mqOff.matches) return;
 
   var vidOk = true;
@@ -1156,7 +1162,17 @@
        off entirely so the band sections sit on clean black, not a stray wash */
     v.addEventListener('error', function(){ vidOk = false; wrap.classList.remove('on'); });
     media.appendChild(v);
-    var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+    var tryPlay = function(){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); };
+    v.addEventListener('loadeddata', tryPlay); tryPlay();
+    /* iOS/Android can defer autoplay until the page is interacted with; retry
+       once on the first gesture so the band isn't a frozen frame. */
+    var kick = function(){
+      if (v.paused) tryPlay();
+      window.removeEventListener('touchstart', kick);
+      window.removeEventListener('scroll', kick);
+    };
+    window.addEventListener('touchstart', kick, { passive:true, once:true });
+    window.addEventListener('scroll', kick, { passive:true, once:true });
   }
 
   /* Toggle the layer on while the viewport centre sits inside the band's

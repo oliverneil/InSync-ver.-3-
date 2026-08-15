@@ -12,6 +12,7 @@ src/
     index.html            -> /
     about.html
     apply-now.html
+    commercial-staffing.html
     contact-us.html
     continuing-education-links.html
     education-staffing.html
@@ -93,14 +94,14 @@ matches your source.
 
 ## Known open items
 
-- **Band videos are `.mov`.** Healthcare and Educational both point their band
-  video at a `.mov` file. Chrome refuses that container, so the band will render
+- **Band videos are `.mov`** on Healthcare, Educational, and Continuing
+  Education. Each points its band video at a `.mov` file. Chrome refuses that container, so the band will render
   as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
   MP4 re-encode. The Educational page already has a comment noting this, and its
   script keeps the layer usable if playback is refused.
-- **4 internal links have no destination yet**: `/commercial-staffing/` (4
-  references), `/privacy-policy/` (4), `/terms-and-conditions/` (5), and
-  `/blog/` (2). They land on the 404 page until those pages are added.
+- **3 internal links have no destination yet**: `/terms-and-conditions/` (5
+  references), `/privacy-policy/` (5), and `/blog/` (2). They land on the 404
+  page until those pages are added.
 - **Two links omit the trailing slash** — `/joint-commission-policy-statement`
   and `/continuing-education-links`, both on the Joint Commission page. They
   work, but Vercel issues a 308 redirect first. Adding the slash removes the
@@ -144,8 +145,8 @@ Source files are never modified — normalization happens on the way into `dist/
 
 ## Known open items
 
-- **Band videos are `.mov`.** Healthcare and Educational both point their band
-  video at a `.mov` file. Chrome refuses that container, so the band will render
+- **Band videos are `.mov`** on Healthcare, Educational, and Continuing
+  Education. Each points its band video at a `.mov` file. Chrome refuses that container, so the band will render
   as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
   MP4 re-encode. The Educational page already has a comment noting this, and its
   script keeps the layer usable if playback is refused.
