@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://insynconline.net/</loc></url>
+  <url><loc>https://insynconline.net/about/</loc></url>
+  <url><loc>https://insynconline.net/apply-now/</loc></url>
+  <url><loc>https://insynconline.net/contact-us/</loc></url>
+  <url><loc>https://insynconline.net/continuing-education-links/</loc></url>
   <url><loc>https://insynconline.net/education-staffing/</loc></url>
+  <url><loc>https://insynconline.net/employee-benefits/</loc></url>
+  <url><loc>https://insynconline.net/employee-documents/</loc></url>
+  <url><loc>https://insynconline.net/employee-hub-login/</loc></url>
+  <url><loc>https://insynconline.net/employee-hub/</loc></url>
+  <url><loc>https://insynconline.net/employee-portal/</loc></url>
   <url><loc>https://insynconline.net/employer-of-record/</loc></url>
   <url><loc>https://insynconline.net/healthcare-staffing/</loc></url>
+  <url><loc>https://insynconline.net/joint-commission-policy-statement/</loc></url>
+  <url><loc>https://insynconline.net/joint-commission/</loc></url>
+  <url><loc>https://insynconline.net/meet-your-insync-team/</loc></url>
+  <url><loc>https://insynconline.net/strike-work-updates/</loc></url>
 </urlset>

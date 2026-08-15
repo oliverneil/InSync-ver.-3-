@@ -1,0 +1,873 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Tokens (scoped to .ap-page — never :root, so nothing leaks) ── */
+.ap-page{
+  --bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+  --ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);--ink-4:rgba(255,255,255,.32);
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+  --navy:#20335a;--navy-2:#16223f;
+  --f:'Inter',system-ui,sans-serif;--f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.4,0,.2,1);--e-out:cubic-bezier(.16,1,.3,1);--e-spring:cubic-bezier(.34,1.56,.64,1);
+  --gutter:24px;--max-w:1200px;
+  background:var(--bg);color:var(--ink);font-family:var(--f);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+  position:relative;overflow:clip;isolation:isolate;
+}
+.ap-page *,.ap-page *::before,.ap-page *::after{box-sizing:border-box;margin:0;padding:0}
+.ap-page img{max-width:100%;display:block}
+.ap-page a{text-decoration:none;color:inherit}
+.ap-page ::selection{background:rgba(239,90,40,.3);color:#fff}
+@media(max-width:640px){.ap-page{--gutter:16px}}
+@media(max-width:400px){.ap-page{--gutter:14px}}
+
+.ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+.ap-section{padding:140px 0;position:relative}
+.ap-section--alt{background:var(--bg-1)}
+@media(max-width:900px){.ap-section{padding:88px 0}}
+@media(max-width:640px){.ap-section{padding:68px 0}}
+@media(max-width:400px){.ap-section{padding:56px 0}}
+
+/* ── Cursor: the global Apex layer hides the native cursor site-wide.
+      Restore a visible one, scoped + !important, for this block.     ── */
+.ap-page,.ap-page *{cursor:auto!important}
+.ap-page a[href],.ap-page button,.ap-page .ap-btn,.ap-page label[for],.ap-page [role="button"]{cursor:pointer!important}
+.ap-page input,.ap-page textarea,.ap-page select{cursor:text!important}
+.ap-page input[type="checkbox"],.ap-page input[type="radio"]{cursor:pointer!important}
+
+/* ── Section head + dash eyebrows (label-only, never numbered) ──── */
+.ap-section__head{max-width:720px;margin:0 auto 72px;text-align:center}
+.ap-section__head--left{margin-left:0;text-align:left}
+.ap-section__label{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--f-mono);font-size:11.5px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+  margin-bottom:20px;
+}
+.ap-section__label::before{content:"";width:24px;height:1px;background:var(--ink-3);opacity:.85;flex:none}
+.ap-section__label--o{color:var(--orange)}
+.ap-section__label--o::before{background:var(--orange);opacity:.75}
+.ap-section__title{font-size:clamp(2.1rem,4.6vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;padding-bottom:.09em}
+.ap-section__title .accent{color:var(--orange)}
+.ap-section__sub{font-size:1.06rem;color:var(--ink-2);margin-top:22px;line-height:1.7}
+@media(max-width:900px){.ap-section__head{margin-bottom:52px}}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;font-family:var(--f);font-weight:600;font-size:.94rem;letter-spacing:-.01em;padding:14px 26px;border-radius:10px;border:1px solid var(--line-2);color:var(--ink);background:transparent;cursor:pointer;transition:all .3s var(--e);position:relative;overflow:hidden}
+.ap-btn svg{width:17px;height:17px;transition:transform .3s var(--e);flex:none}
+.ap-btn:hover svg{transform:translateX(4px)}
+.ap-btn--primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.ap-btn--primary:hover{background:var(--orange-2);border-color:var(--orange-2);box-shadow:0 12px 34px -8px rgba(239,90,40,.5);transform:translateY(-2px)}
+.ap-btn--ghost:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);transform:translateY(-2px)}
+/* slow sheen on the primary CTA (gated) */
+.ap-btn--primary::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:44%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);transform:skewX(-18deg);pointer-events:none;opacity:0}
+.ap-page.js .go .ap-btn--primary::after{opacity:1;animation:apSheen 5.2s var(--e) infinite}
+@keyframes apSheen{0%{left:-60%}55%,100%{left:130%}}
+
+/* ══ SIGNATURE MOTIF · verification scan ═══════════════════════════
+   A hairline rule that a warm scan pulse travels along, echoing the
+   Gold Seal "verification" idea. Used as a section divider and as
+   the sweep across the seal frame + document tiles.               */
+.ap-scan{position:relative;height:1px;background:var(--line);margin:0 auto;max-width:var(--max-w);overflow:hidden}
+.ap-scan::after{content:"";position:absolute;top:0;left:-30%;width:30%;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0}
+.ap-page.js .ap-scan.go::after{opacity:1;animation:apScanRun 4.6s var(--e) infinite}
+@keyframes apScanRun{0%{left:-30%}70%,100%{left:110%}}
+
+/* ══ LAYER 1 · SCROLL-SCRUBBED HERO BACKGROUND VIDEO ═══════════════
+   One fixed video whose currentTime is driven by scroll. The span runs
+   from the top of the page to the BOTTOM of the section after the hero
+   (Our Certification) — the hero shows the clip clean apart from the
+   constant left-fade gradient, and the dark shade ramps 0 -> 1 across
+   the last 45vh of the hero so the spanned section stays readable.
+   No loop handoff inside the span. Layer drops .is-on past the span.  */
+.ap-scrub{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.ap-scrub.is-on{opacity:1}
+.ap-scrub--inline{position:absolute;inset:0}                    /* transformed-ancestor fallback: hero-only, in-flow */
+.ap-scrub__par{position:absolute;inset:0;will-change:transform}
+/* Framing: top-anchored subject, bled on all four edges so parallax
+   drift can never expose a seam. */
+.ap-scrub__vid{position:absolute;left:-7%;top:-2%;width:114%;height:118%;object-fit:cover;object-position:50% 0;will-change:transform}
+.ap-scrub__grad{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.8) 22%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.34) 88%,rgba(0,0,0,.34) 100%)}
+.ap-scrub__shade{position:absolute;inset:0;opacity:0;background:rgba(0,0,0,.66)}
+
+/* Only the spanned sections go transparent, and only once the video is
+   confirmed live (.vidok) — a failed decode leaves every surface solid. */
+.ap-page.vidok .ap-hero,.ap-page.vidok .ap-ticker{background:transparent!important}
+/* Standard: solid black until the video's first frame — never a poster
+   flash of the old still. JS is flagged pre-paint, so the fallback image
+   is hidden before it can paint and only returns if the clip dies. */
+.ap-page.js .ap-hero__bg,.ap-page.js .ap-hero__veil{display:none}
+.ap-page.vidfail .ap-hero__bg,.ap-page.vidfail .ap-hero__veil{display:block}
+/* frosted glass for the cards sitting over the video */
+.ap-page.vidok .ap-float{background:rgba(255,255,255,.045)!important;border-color:var(--line-2)!important;-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+/* the ticker sits at the hero foot where the shade is still ramping — give it
+   its own scrim so the trust items stay legible over any frame */
+.ap-page.vidok .ap-ticker{background:rgba(0,0,0,.5)!important;-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+.ap-page.vidok .ap-ticker::before{background:linear-gradient(90deg,rgba(0,0,0,.85),transparent)}
+.ap-page.vidok .ap-ticker::after{background:linear-gradient(270deg,rgba(0,0,0,.85),transparent)}
+/* fallback layer is hero-only, so the sections below it stay solid */
+.ap-page.vidinline .ap-ticker{background:var(--bg-1)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+.ap-page.vidinline .ap-ticker::before{background:linear-gradient(90deg,var(--bg-1),transparent)}
+.ap-page.vidinline .ap-ticker::after{background:linear-gradient(270deg,var(--bg-1),transparent)}
+/* below desktop the clip is hero-only — restore every solid surface */
+@media(max-width:1024px),(pointer:coarse),(prefers-reduced-motion:reduce){
+  .ap-page.vidok .ap-ticker{background:var(--bg-1)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page.vidok .ap-ticker::before{background:linear-gradient(90deg,var(--bg-1),transparent)}
+  .ap-page.vidok .ap-ticker::after{background:linear-gradient(270deg,var(--bg-1),transparent)}
+  .ap-page.vidok .ap-float{background:linear-gradient(135deg,var(--bg-elev) 0%,var(--bg-card) 100%)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+
+/* ══ LAYER 2 · LOOPING BAND VIDEO (everything after the span) ══════
+   A SECOND fixed video — plain looping playback, not scrubbed — behind
+   the remaining sections. Darkened + gradient-shaded so copy stays
+   readable; band sections go transparent and band cards take the
+   frosted-glass recipe. Desktop / fine-pointer only.                 */
+.ap-band{position:relative;z-index:1}
+.ap-bandvid{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .6s ease}
+.ap-bandvid.on{opacity:1}
+.ap-bandvid__media{position:absolute;inset:0;overflow:hidden}
+.ap-bandvid__media video{position:absolute;left:50%;top:50%;width:100%;height:100%;transform:translate(-50%,-50%);object-fit:cover;filter:brightness(.6)}
+.ap-bandvid__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.87) 0%,rgba(0,0,0,.81) 30%,rgba(0,0,0,.83) 70%,rgba(0,0,0,.9) 100%)}
+/* band sections transparent only once the clip is confirmed live */
+.ap-page.bandok .ap-band>section{background:transparent!important}
+/* glass on real cards only — grid WRAPPERS are never glassed */
+.ap-page.bandok .ap-band .ap-tile,.ap-page.bandok .ap-band .ap-seal-note,.ap-page.bandok .ap-band .ap-seal-frame{background:rgba(255,255,255,.045)!important;border:1px solid var(--line-2)!important;-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+/* the cred card animates its own background, so glass it WITHOUT !important
+   (an !important background would override the keyframe outright) and give
+   the tick loop a glass-tuned variant */
+.ap-page.bandok .ap-band .ap-cred{background:rgba(255,255,255,.045);border:1px solid var(--line-2);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+.ap-page.js.bandok .ap-band .go .ap-cred{animation:apCredCardGlass 8s var(--e) infinite}
+@keyframes apCredCardGlass{0%,4%{border-color:var(--line-2);background:rgba(255,255,255,.045)}12%{border-color:rgba(239,90,40,.45);background:rgba(239,90,40,.1)}30%,100%{border-color:var(--line-2);background:rgba(255,255,255,.045)}}
+.ap-page.bandok .ap-band .ap-tile{box-shadow:0 30px 60px -18px rgba(0,0,0,.7)}
+.ap-page.bandok .ap-band .ap-tile:hover{background:rgba(255,255,255,.075)!important;border-color:rgba(239,90,40,.4)!important}
+@media(max-width:1024px),(pointer:coarse),(prefers-reduced-motion:reduce){
+  .ap-bandvid{display:none!important}
+  .ap-page.bandok .ap-band>section{background:var(--bg)!important}
+  .ap-page.bandok .ap-band>section.ap-section--alt{background:var(--bg-1)!important}
+  .ap-page.bandok .ap-band .ap-tile{background:var(--bg-card)!important;border:1px solid var(--line)!important;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page.bandok .ap-band .ap-seal-note{background:var(--bg-card)!important;border:1px solid var(--line-2)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page.bandok .ap-band .ap-seal-frame{background:linear-gradient(135deg,#171717 0%,#0a0a0a 100%)!important;border:1px solid var(--line-2)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page.bandok .ap-band .ap-cred{background:var(--bg-card);border:1px solid var(--line-2);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page.js.bandok .ap-band .go .ap-cred{animation:apCredCard 8s var(--e) infinite}
+}
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+.ap-hero{position:relative;padding:150px 0 120px;overflow:hidden;background:var(--bg)}
+.ap-hero__bg{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;filter:brightness(.64);opacity:.24;-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 100%);pointer-events:none}
+.ap-hero__veil{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.72) 60%,#000 100%);pointer-events:none}
+.ap-hero__glow{position:absolute;top:-20%;left:50%;margin-left:-450px;width:900px;height:600px;background:radial-gradient(ellipse at center,rgba(239,90,40,.14) 0%,transparent 62%);pointer-events:none;z-index:0;will-change:transform}
+.ap-hero__grid{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.ap-hero__label{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--f-mono);font-size:11.5px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:26px;
+}
+.ap-hero__label::before{content:"";width:24px;height:1px;background:var(--orange);opacity:.75;flex:none}
+.ap-hero h1{font-size:clamp(3rem,8vw,6.6rem);font-weight:900;letter-spacing:-.045em;line-height:.94;padding-bottom:.16em}
+.ap-hero h1 .accent{color:var(--orange)}
+.ap-hero__sub{font-size:1.18rem;color:var(--ink-2);max-width:500px;margin:28px 0 38px;line-height:1.7}
+.ap-hero__ctas{display:flex;gap:14px;flex-wrap:wrap}
+.ap-hero__copy-inner,.ap-hero__floats-inner{will-change:transform}
+.ap-hero__visual{perspective:1100px}
+.ap-hero__floats-inner{transform-style:preserve-3d}
+
+/* Floating credential cards */
+.ap-floats{position:relative;height:440px}
+.ap-float{position:absolute;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--bg-elev) 0%,var(--bg-card) 100%);border:1px solid var(--line-2);border-radius:16px;padding:18px 22px;box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 12px 28px -10px rgba(239,90,40,.18)}
+.ap-page.js .ap-float{animation:apFloat 6s var(--e) infinite}
+.ap-float__ic{width:40px;height:40px;min-width:40px;border-radius:11px;background:rgba(239,90,40,.12);border:1px solid rgba(239,90,40,.25);display:flex;align-items:center;justify-content:center;color:var(--orange);position:relative}
+.ap-float__ic svg{width:20px;height:20px}
+.ap-page.js .ap-float__ic::after{content:"";position:absolute;inset:-1px;border:1px solid var(--orange);border-radius:11px;opacity:0;animation:apVerify 5.4s var(--e) infinite}
+.ap-float__name{font-weight:700;font-size:.98rem;letter-spacing:-.01em;color:var(--ink)}
+.ap-float__meta{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.ap-float--1{top:8%;left:2%;animation-delay:0s}
+.ap-float--2{top:34%;right:0;animation-delay:1.1s}
+.ap-float--3{top:60%;left:8%;animation-delay:2.2s}
+.ap-float--4{top:84%;right:6%;animation-delay:3.3s}
+.ap-float--1 .ap-float__ic::after{animation-delay:.2s}
+.ap-float--2 .ap-float__ic::after{animation-delay:1.5s}
+.ap-float--3 .ap-float__ic::after{animation-delay:2.8s}
+.ap-float--4 .ap-float__ic::after{animation-delay:4.1s}
+@keyframes apFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes apVerify{0%{opacity:0;transform:scale(1)}12%{opacity:.85;transform:scale(1)}45%{opacity:0;transform:scale(1.22)}100%{opacity:0;transform:scale(1.22)}}
+
+@media(max-width:900px){
+  .ap-hero{padding:104px 0 84px}
+  .ap-hero__grid{grid-template-columns:1fr;gap:44px}
+  .ap-hero__copy{text-align:center}
+  .ap-hero__label,.ap-hero__ctas{justify-content:center}
+  .ap-hero__sub{margin-left:auto;margin-right:auto}
+  .ap-floats{height:210px;max-width:420px;margin:0 auto}
+  .ap-float--2,.ap-float--3{display:none}
+  .ap-float--1{top:2%;left:0}
+  .ap-float--4{top:52%;right:0}
+}
+@media(max-width:480px){.ap-float{padding:14px 18px}.ap-float__name{font-size:.9rem}}
+
+/* ── Ticker ───────────────────────────────────────────────────── */
+.ap-ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-1);padding:26px 0;overflow:hidden;position:relative}
+.ap-ticker::before,.ap-ticker::after{content:"";position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
+.ap-ticker::before{left:0;background:linear-gradient(90deg,var(--bg-1),transparent)}
+.ap-ticker::after{right:0;background:linear-gradient(270deg,var(--bg-1),transparent)}
+.ap-ticker__track{display:flex;width:max-content}
+.ap-page.js .ap-ticker.go .ap-ticker__track{animation:apTicker 32s linear infinite}
+.ap-ticker:hover .ap-ticker__track{animation-play-state:paused}
+.ap-ticker__set{display:flex;align-items:center}
+.ap-ticker__item{display:flex;align-items:center;gap:12px;font-weight:600;font-size:.96rem;letter-spacing:-.01em;color:var(--ink-2);white-space:nowrap;padding:0 34px}
+.ap-ticker__item svg{width:19px;height:19px;color:var(--orange);flex-shrink:0}
+.ap-ticker__dot{width:5px;height:5px;border-radius:2px;background:var(--orange);opacity:.55}
+@keyframes apTicker{from{transform:translateX(0)}to{transform:translateX(-25%)}}
+@media(max-width:640px){.ap-ticker__item{padding:0 22px;font-size:.88rem}}
+
+/* ── Split (Our Certification) ────────────────────────────────── */
+.ap-split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.ap-split__copy .ap-section__label{margin-bottom:18px}
+.ap-split h2{font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.03em;line-height:1.06;padding-bottom:.09em}
+.ap-split h2 .accent{color:var(--orange)}
+.ap-split__lead{font-size:1.08rem;color:var(--ink-2);margin:22px 0 30px;line-height:1.75}
+.ap-seal-note{display:flex;align-items:center;gap:16px;background:var(--bg-card);border:1px solid var(--line-2);border-radius:16px;padding:18px 22px}
+.ap-seal-note__ic{width:48px;height:48px;min-width:48px;border-radius:12px;background:rgba(239,90,40,.12);border:1px solid rgba(239,90,40,.25);color:var(--orange);display:flex;align-items:center;justify-content:center;position:relative}
+.ap-seal-note__ic svg{width:22px;height:22px}
+.ap-seal-note__ic i{position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange);opacity:.9}
+.ap-page.js .go .ap-seal-note__ic i{animation:apBlink 2.6s ease-in-out infinite}
+@keyframes apBlink{0%,100%{opacity:.95}50%{opacity:.22}}
+.ap-seal-note strong{display:block;font-size:.98rem;font-weight:700;color:var(--ink)}
+.ap-seal-note span{font-size:.85rem;color:var(--ink-3)}
+
+/* 3D seal frame (mockup treatment housing the real Gold Seal) */
+.ap-seal-stage{perspective:1200px;display:flex;justify-content:center}
+.ap-seal-frame{transform-style:preserve-3d;transform:rotateY(-15deg) rotateX(4deg);transition:transform .8s var(--e-out);background:linear-gradient(135deg,#171717 0%,#0a0a0a 100%);border:1px solid var(--line-2);border-radius:22px;padding:44px;box-shadow:0 40px 80px -20px rgba(0,0,0,.9),0 20px 40px -8px rgba(239,90,40,.15);position:relative;overflow:hidden}
+.ap-seal-stage:hover .ap-seal-frame{transform:rotateY(-8deg) rotateX(2deg)}
+.ap-seal-frame::before{content:"";position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.14) 0%,transparent 60%);pointer-events:none;z-index:2}
+/* instrument grid inside the frame */
+.ap-seal-grid{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:34px 34px}
+/* verification scan sweeping down the seal */
+.ap-seal-sweep{position:absolute;left:0;right:0;top:-20%;height:24%;z-index:3;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(239,90,40,.16),transparent);opacity:0}
+.ap-page.js .go .ap-seal-sweep{opacity:1;animation:apSealSweep 5.6s var(--e) infinite}
+@keyframes apSealSweep{0%{top:-24%}62%,100%{top:104%}}
+/* corner brackets lighting in sequence */
+.ap-seal-frame b{position:absolute;width:22px;height:22px;border:1.5px solid var(--orange);opacity:.18;z-index:3;pointer-events:none}
+.ap-seal-frame b:nth-of-type(1){top:16px;left:16px;border-right:0;border-bottom:0;border-radius:4px 0 0 0}
+.ap-seal-frame b:nth-of-type(2){top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 4px 0 0}
+.ap-seal-frame b:nth-of-type(3){bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 4px 0}
+.ap-seal-frame b:nth-of-type(4){bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 4px}
+.ap-page.js .go .ap-seal-frame b{animation:apBracket 5.6s var(--e) infinite}
+.ap-page.js .go .ap-seal-frame b:nth-of-type(2){animation-delay:.22s}
+.ap-page.js .go .ap-seal-frame b:nth-of-type(3){animation-delay:.44s}
+.ap-page.js .go .ap-seal-frame b:nth-of-type(4){animation-delay:.66s}
+@keyframes apBracket{0%,58%{opacity:.18}68%{opacity:.9}88%,100%{opacity:.18}}
+.ap-seal-frame img{width:230px;max-width:56vw;height:auto;position:relative;z-index:1;filter:drop-shadow(0 10px 26px rgba(0,0,0,.5))}
+@media(max-width:900px){.ap-split{grid-template-columns:1fr;gap:48px}.ap-split__visual{order:-1}.ap-seal-frame{padding:34px}}
+
+/* ── Centered statement (Healthcare Staffing Services Certification) ── */
+.ap-statement{max-width:860px;margin:0 auto;text-align:center;position:relative;padding:8px 0 0}
+.ap-statement .ap-section__label{margin-bottom:20px}
+.ap-statement h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.06;padding-bottom:.09em}
+.ap-statement h2 .accent{color:var(--orange)}
+.ap-statement p{font-size:1.14rem;color:var(--ink-2);margin-top:26px;line-height:1.8}
+.ap-statement__rule{display:block;position:relative;height:1px;background:var(--line);margin:44px auto 0;max-width:520px;overflow:hidden;transform:scaleX(.2);transform-origin:center;transition:transform 1.1s var(--e-out)}
+.ap-page.js .rv.in .ap-statement__rule{transform:scaleX(1)}
+.ap-statement__rule::after{content:"";position:absolute;top:0;left:-34%;width:34%;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0}
+.ap-page.js .go .ap-statement__rule::after{opacity:1;animation:apScanRun 4.6s var(--e) infinite}
+
+/* ── Tiles (Important Documents & Links) ──────────────────────── */
+.ap-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.ap-tile{display:block;background:var(--bg-card);border:1px solid var(--line);border-radius:18px;padding:34px;position:relative;overflow:hidden;transition:border-color .35s var(--e),transform .35s var(--e),box-shadow .35s var(--e)}
+.ap-tile::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(239,90,40,.6),transparent);transform:scaleX(0);transition:transform .4s var(--e);z-index:2}
+.ap-tile::before{content:"";position:absolute;top:0;bottom:0;left:-55%;width:40%;background:linear-gradient(90deg,transparent,rgba(239,90,40,.07),transparent);transform:skewX(-16deg);pointer-events:none;opacity:0;z-index:1}
+.ap-page.js .go .ap-tile::before{opacity:1;animation:apTileScan 7s var(--e) infinite}
+.ap-page.js .go .ap-tile:nth-child(2)::before{animation-delay:.5s}
+.ap-page.js .go .ap-tile:nth-child(3)::before{animation-delay:1s}
+.ap-page.js .go .ap-tile:nth-child(4)::before{animation-delay:1.5s}
+@keyframes apTileScan{0%{left:-55%}42%,100%{left:130%}}
+.ap-tile:hover{border-color:var(--line-2);transform:translateY(-4px);box-shadow:0 30px 60px -24px rgba(0,0,0,.8)}
+.ap-tile:hover::after{transform:scaleX(1)}
+.ap-tile>*{position:relative;z-index:2}
+.ap-tile__ic{width:52px;height:52px;border-radius:13px;background:rgba(239,90,40,.1);border:1px solid rgba(239,90,40,.22);color:var(--orange);display:flex;align-items:center;justify-content:center;margin-bottom:22px;transition:background .35s var(--e),color .35s var(--e)}
+.ap-tile:hover .ap-tile__ic{background:var(--orange);color:#fff}
+.ap-tile__ic svg{width:25px;height:25px}
+.ap-tile h3{font-size:1.24rem;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+.ap-tile p{font-size:.92rem;color:var(--ink-3);line-height:1.65;margin-bottom:20px}
+.ap-tile__link{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-family:var(--f-mono);font-size:.76rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);transition:color .3s var(--e)}
+.ap-tile:hover .ap-tile__link{color:var(--orange)}
+.ap-tile__link svg{width:14px;height:14px;transition:transform .3s var(--e)}
+.ap-tile:hover .ap-tile__link svg{transform:translateX(4px)}
+.ap-tile__ext{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.08em;color:var(--orange);border:1px solid rgba(239,90,40,.3);border-radius:5px;padding:2px 6px;margin-left:2px}
+@media(max-width:640px){.ap-tiles{grid-template-columns:1fr}.ap-tile{padding:26px}}
+
+/* ── Credentials band (Our Credentials) ───────────────────────── */
+.ap-creds{max-width:900px;margin:0 auto;text-align:center}
+.ap-creds .ap-section__label{margin-bottom:22px}
+.ap-creds__lead{font-size:1.16rem;color:var(--ink-2);line-height:1.8}
+.ap-creds__lead strong{color:var(--ink);font-weight:700}
+.ap-creds__row{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:40px}
+.ap-cred{display:flex;align-items:center;gap:11px;min-height:48px;background:var(--bg-card);border:1px solid var(--line-2);border-radius:12px;padding:14px 22px;font-weight:600;font-size:.94rem;letter-spacing:-.01em;transition:border-color .4s var(--e),background .4s var(--e)}
+.ap-cred svg{width:18px;height:18px;color:var(--orange);flex-shrink:0;transform-origin:50% 50%}
+/* checks tick off one-by-one on a loop while the section is in view */
+.ap-page.js .go .ap-cred{animation:apCredCard 8s var(--e) infinite}
+.ap-page.js .go .ap-cred svg{animation:apCredTick 8s var(--e) infinite}
+.ap-page.js .go .ap-cred:nth-child(2),.ap-page.js .go .ap-cred:nth-child(2) svg{animation-delay:.55s}
+.ap-page.js .go .ap-cred:nth-child(3),.ap-page.js .go .ap-cred:nth-child(3) svg{animation-delay:1.1s}
+.ap-page.js .go .ap-cred:nth-child(4),.ap-page.js .go .ap-cred:nth-child(4) svg{animation-delay:1.65s}
+@keyframes apCredTick{0%,4%{transform:scale(.72);opacity:.45}12%{transform:scale(1.16);opacity:1}20%,100%{transform:scale(1);opacity:1}}
+@keyframes apCredCard{0%,4%{border-color:var(--line-2);background:var(--bg-card)}12%{border-color:rgba(239,90,40,.45);background:rgba(239,90,40,.07)}30%,100%{border-color:var(--line-2);background:var(--bg-card)}}
+@media(max-width:480px){.ap-cred{width:100%;justify-content:center}}
+
+/* ── CTA ──────────────────────────────────────────────────────── */
+.ap-cta{position:relative;overflow:hidden}
+.ap-cta__glow{position:absolute;bottom:-30%;left:50%;margin-left:-400px;width:800px;height:500px;background:radial-gradient(ellipse at center,rgba(239,90,40,.14) 0%,transparent 62%);pointer-events:none;z-index:0}
+.ap-page.js .go .ap-cta__glow{animation:apBreathe 7.5s ease-in-out infinite}
+@keyframes apBreathe{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+.ap-cta__inner{position:relative;z-index:1;max-width:720px;margin:0 auto;text-align:center}
+.ap-cta__inner .ap-section__label{margin-bottom:22px}
+.ap-cta h2{font-size:clamp(2.3rem,5vw,3.9rem);font-weight:800;letter-spacing:-.035em;line-height:1.04;padding-bottom:.09em}
+.ap-cta h2 .accent{color:var(--orange)}
+.ap-cta p{font-size:1.12rem;color:var(--ink-2);max-width:560px;margin:24px auto 40px;line-height:1.7}
+.ap-cta__btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ── Reveal on scroll (only armed once JS marks the wrapper) ───── */
+.ap-page.js .rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js .rv.in{opacity:1;transform:none}
+.ap-page.js .d1{transition-delay:.1s}.ap-page.js .d2{transition-delay:.2s}.ap-page.js .d3{transition-delay:.3s}.ap-page.js .d4{transition-delay:.4s}.ap-page.js .d5{transition-delay:.5s}
+
+/* kinetic clip-wipe on headings (descender room added above) */
+.ap-page.js .rv .ap-kw{clip-path:inset(0 105% 0 0);transition:clip-path 1.05s var(--e-out)}
+.ap-page.js .rv.in .ap-kw{clip-path:inset(0 0 0 0)}
+
+@media(max-width:640px){
+  .ap-hero__ctas,.ap-cta__btns{flex-direction:column;align-items:stretch}
+  .ap-hero__ctas .ap-btn,.ap-cta__btns .ap-btn{width:100%}
+  .ap-seal-note{padding:16px 18px}
+  .ap-statement p,.ap-creds__lead{font-size:1.02rem}
+}
+@media(max-width:400px){
+  .ap-tile{padding:22px}
+  .ap-seal-frame{padding:26px}
+}
+
+/* ── Reduced motion: resolved static end-states ───────────────── */
+@media(prefers-reduced-motion:reduce){
+  .ap-page *{animation:none!important;transition:none!important}
+  .ap-page.js .rv{opacity:1;transform:none}
+  .ap-page.js .rv .ap-kw{clip-path:none!important}
+  .ap-page.js .rv .ap-statement__rule{transform:scaleX(1)}
+  .ap-ticker__track{width:100%;justify-content:center}
+  .ap-ticker__set:not(:first-child){display:none}
+  .ap-seal-sweep,.ap-tile::before,.ap-btn--primary::after,.ap-scan::after,.ap-statement__rule::after{display:none}
+  .ap-seal-frame b{opacity:.4}
+  .ap-float__ic::after{display:none}
+}
+</style>
+
+<div class="ap-page" id="apPage">
+<script>(function(){var w=document.getElementById('apPage');if(w)w.classList.add('js');})();</script>
+
+  <!-- ══ LAYER 2 · looping band video ══════════════════════════
+       Declared BEFORE the scrub layer on purpose: both are fixed at
+       z-index 0, so DOM order decides paint. The scrub sits on top and
+       cross-fades out at the end of its span, revealing the band
+       underneath — the handoff, instead of the band punching through. -->
+  <div class="ap-bandvid" id="apBandVid" aria-hidden="true">
+    <div class="ap-bandvid__media" id="apBandVidMedia"></div>
+    <div class="ap-bandvid__shade"></div>
+  </div>
+
+  <!-- ══ LAYER 1 · scroll-scrubbed background video (hero span) ══ -->
+  <div class="ap-scrub" id="apScrub" aria-hidden="true">
+    <div class="ap-scrub__par" id="apScrubPar">
+      <video class="ap-scrub__vid" id="apScrubVid" muted playsinline preload="auto"></video>
+    </div>
+    <div class="ap-scrub__grad" aria-hidden="true"></div>
+    <div class="ap-scrub__shade" id="apScrubShade"></div>
+  </div>
+
+  <!-- ══ 01 · HERO ══════════════════════════════════════════════ -->
+  <header class="ap-hero" id="apHero">
+    <div class="ap-hero__bg" id="apHeroBg" aria-hidden="true"></div>
+    <div class="ap-hero__veil" aria-hidden="true"></div>
+    <div class="ap-hero__glow" aria-hidden="true"></div>
+    <div class="ap-wrap">
+      <div class="ap-hero__grid">
+        <div class="ap-hero__copy rv">
+          <div class="ap-hero__copy-inner">
+            <span class="ap-hero__label">Certification &amp; Compliance</span>
+            <h1 class="ap-kw">Joint <span class="accent">Commission</span></h1>
+            <p class="ap-hero__sub">InSync Consulting Services is proud to have earned the Joint Commission's Gold Seal of Approval.</p>
+            <div class="ap-hero__ctas">
+              <a href="/joint-commission-policy-statement" target="_blank" rel="noopener" class="ap-btn ap-btn--primary">
+                View Policy Statement
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="/contact-us/" class="ap-btn ap-btn--ghost">Contact Us</a>
+            </div>
+          </div>
+        </div>
+        <div class="ap-hero__visual rv d2">
+          <div class="ap-hero__floats-inner">
+            <div class="ap-floats">
+              <div class="ap-float ap-float--1">
+                <span class="ap-float__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+                <div><div class="ap-float__name">Gold Seal of Approval</div><div class="ap-float__meta">The Joint Commission</div></div>
+              </div>
+              <div class="ap-float ap-float--2">
+                <span class="ap-float__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div><div class="ap-float__name">SDVOSB</div><div class="ap-float__meta">Veteran-Owned</div></div>
+              </div>
+              <div class="ap-float ap-float--3">
+                <span class="ap-float__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div><div class="ap-float__name">DVBE</div><div class="ap-float__meta">Certified Enterprise</div></div>
+              </div>
+              <div class="ap-float ap-float--4">
+                <span class="ap-float__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                <div><div class="ap-float__name">CMAS</div><div class="ap-float__meta">Valid Contract</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ 02 · CREDENTIALS TICKER ════════════════════════════════ -->
+  <div class="ap-ticker" id="apTicker" aria-label="InSync credentials and accreditations">
+    <div class="ap-ticker__track">
+      <div class="ap-ticker__set">
+        <span class="ap-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Joint Commission Gold Seal</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">SDVOSB</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">DVBE</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Valid CMAS Contract</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Healthcare Staffing Services Certification</span><span class="ap-ticker__dot"></span>
+      </div>
+      <div class="ap-ticker__set" aria-hidden="true">
+        <span class="ap-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Joint Commission Gold Seal</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">SDVOSB</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">DVBE</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Valid CMAS Contract</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Healthcare Staffing Services Certification</span><span class="ap-ticker__dot"></span>
+      </div>
+      <div class="ap-ticker__set" aria-hidden="true">
+        <span class="ap-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Joint Commission Gold Seal</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">SDVOSB</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">DVBE</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Valid CMAS Contract</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Healthcare Staffing Services Certification</span><span class="ap-ticker__dot"></span>
+      </div>
+      <div class="ap-ticker__set" aria-hidden="true">
+        <span class="ap-ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Joint Commission Gold Seal</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">SDVOSB</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">DVBE</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Valid CMAS Contract</span><span class="ap-ticker__dot"></span>
+        <span class="ap-ticker__item">Healthcare Staffing Services Certification</span><span class="ap-ticker__dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ap-band" id="apBand">
+
+  <!-- ══ 03 · OUR CERTIFICATION (split + 3D seal) ═══════════════ -->
+  <section class="ap-section ap-cert" id="apCert">
+    <div class="ap-wrap">
+      <div class="ap-split">
+        <div class="ap-split__copy rv">
+          <span class="ap-section__label">Our Certification</span>
+          <h2 class="ap-kw">Joint Commission <span class="accent">Certification</span></h2>
+          <p class="ap-split__lead">InSync Consulting Services is proud to have earned the Joint Commission's Gold Seal of Approval.</p>
+          <div class="ap-seal-note">
+            <span class="ap-seal-note__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><i aria-hidden="true"></i></span>
+            <div>
+              <strong>Gold Seal of Approval</strong>
+              <span>Healthcare Staffing Services Certification</span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-split__visual rv d2">
+          <div class="ap-seal-stage">
+            <div class="ap-seal-frame">
+              <span class="ap-seal-grid" aria-hidden="true"></span>
+              <span class="ap-seal-sweep" aria-hidden="true"></span>
+              <b aria-hidden="true"></b><b aria-hidden="true"></b><b aria-hidden="true"></b><b aria-hidden="true"></b>
+              <img src="https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6474d89696c72121bd35ef4f.png" alt="InSync Consulting Services Joint Commission certification seal" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ap-scan" aria-hidden="true"></div>
+
+  <!-- ══ 04 · HEALTHCARE STAFFING SERVICES CERTIFICATION ════════ -->
+  <section class="ap-section ap-section--alt">
+    <div class="ap-wrap">
+      <div class="ap-statement rv">
+        <span class="ap-section__label">Healthcare Staffing Services Certification</span>
+        <h2 class="ap-kw">Healthcare Staffing Services <span class="accent">Certification</span></h2>
+        <p>InSync Consulting Services is certified by The Joint Commission through its Healthcare Staffing Services Certification program. The certification acknowledges compliance with The Joint Commission's national set of consensus-based quality standards and demonstrates a commitment to excellence in providing healthcare staffing.</p>
+        <span class="ap-statement__rule" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 · IMPORTANT DOCUMENTS & LINKS (tiles) ══════════════ -->
+  <section class="ap-section">
+    <div class="ap-wrap">
+      <div class="ap-section__head rv">
+        <span class="ap-section__label">Employee Resources</span>
+        <h2 class="ap-section__title ap-kw">Important Documents &amp; <span class="accent">Links</span></h2>
+      </div>
+      <div class="ap-tiles">
+
+        <a href="/joint-commission-policy-statement" target="_blank" rel="noopener" class="ap-tile rv d1">
+          <span class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+          <h3>Joint Commission Policy Statement</h3>
+          <p>View our official Joint Commission policy.</p>
+          <span class="ap-tile__link">View document <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="/continuing-education-links" target="_blank" rel="noopener" class="ap-tile rv d2">
+          <span class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <h3>Continuing Education Links</h3>
+          <p>Access approved continuing education resources.</p>
+          <span class="ap-tile__link">View resources <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="https://filedn.com/lj3PPzr6Tf1uiBGgKhCJEzh/InSync/PDFs/1%20Employee%20Handbook.pdf" target="_blank" rel="noopener" class="ap-tile rv d3">
+          <span class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+          <h3>InSync Consulting Employee Handbook</h3>
+          <p>Download the complete employee handbook.</p>
+          <span class="ap-tile__link">Download PDF <span class="ap-tile__ext">EXT</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="https://app.hellosign.com/s/3174653d" target="_blank" rel="noopener" class="ap-tile rv d4">
+          <span class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+          <h3>Employee Handbook Acknowledgement Form</h3>
+          <p>Sign the handbook acknowledgement electronically.</p>
+          <span class="ap-tile__link">Open form <span class="ap-tile__ext">EXT</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="ap-scan" aria-hidden="true"></div>
+
+  <!-- ══ 06 · OUR CREDENTIALS ═══════════════════════════════════ -->
+  <section class="ap-section ap-section--alt">
+    <div class="ap-wrap">
+      <div class="ap-creds rv">
+        <span class="ap-section__label">Our Credentials</span>
+        <p class="ap-creds__lead">We are proud to be <strong>Joint Commission Certified</strong>, a nationally recognized <strong>Service-Disabled Veteran-Owned Small Business (SDVOSB)</strong> and <strong>Certified Disabled Veteran Business Enterprise (DVBE)</strong>, and we hold a valid <strong>CMAS contract</strong>.</p>
+        <div class="ap-creds__row">
+          <span class="ap-cred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Joint Commission Certified</span>
+          <span class="ap-cred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>SDVOSB</span>
+          <span class="ap-cred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>DVBE</span>
+          <span class="ap-cred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CMAS Contract</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 07 · FINAL CTA ═════════════════════════════════════════ -->
+  <section class="ap-section ap-cta">
+    <div class="ap-cta__glow" aria-hidden="true"></div>
+    <div class="ap-wrap">
+      <div class="ap-cta__inner rv">
+        <span class="ap-section__label ap-section__label--o">Ready to Get Started?</span>
+        <h2 class="ap-kw">Ready to Work With a <span class="accent">Certified</span> Agency?</h2>
+        <p>Partner with a Joint Commission Certified staffing agency committed to quality, compliance, and excellence in healthcare staffing.</p>
+        <div class="ap-cta__btns">
+          <a href="/contact-us/" class="ap-btn ap-btn--primary">
+            Contact Us Today
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/apply-now/" class="ap-btn ap-btn--ghost">Apply Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div><!-- /ap-band -->
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var page=document.getElementById('apPage');
+  if(!page)return;
+  page.classList.add('js');
+
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* Hero still — the fallback shown only if the hero clip fails to
+     decode. It is NOT a poster: the standard is solid black until the
+     video's first frame, so this layer is hidden pre-paint by .js and
+     only returns via .vidfail. URL kept in a JS constant so GHL can't
+     corrupt it inside an inline style attribute. */
+  var AP_JC_POSTER_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a2c598496783b1af58e52e9.jpg';
+  var heroBg=document.getElementById('apHeroBg');
+  if(heroBg){heroBg.style.backgroundImage='url("'+AP_JC_POSTER_URL+'")';}
+
+  /* ── Reveals (v2 scroll-entrance contract) ─────────────────── */
+  var revs=[].slice.call(page.querySelectorAll('.rv'));
+  /* stagger sibling reveals in JS, skipping anything with an explicit delay */
+  [].slice.call(page.querySelectorAll('.ap-tiles,.ap-hero__grid,.ap-creds__row')).forEach(function(par){
+    var kids=[].slice.call(par.children).filter(function(c){
+      return c.classList.contains('rv')&&!/(^|\s)d[1-5](\s|$)/.test(c.className);
+    });
+    kids.forEach(function(c,i){c.style.transitionDelay=Math.min(i*0.07,0.35).toFixed(2)+'s';});
+  });
+  if('IntersectionObserver' in window&&!reduce){
+    /* threshold:0 + bottom rootMargin — a ratio starves on blocks taller
+       than the viewport and they would never reveal. */
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+    },{threshold:0,rootMargin:'0px 0px -12% 0px'});
+    revs.forEach(function(el){io.observe(el);});
+  }else{
+    revs.forEach(function(el){el.classList.add('in');});
+  }
+  /* above-the-fold reveals fire on the first frame (never flash blank) */
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*0.92)el.classList.add('in');});
+  });
+  /* safety net — ON-SCREEN ONLY, so entrances below the fold survive */
+  setTimeout(function(){
+    revs.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight)el.classList.add('in');});
+  },2500);
+
+  /* ── Looping visuals: gated on scroll-in, idle off-screen ──── */
+  var anims=[].slice.call(page.querySelectorAll('.ap-ticker,.ap-split,.ap-statement,.ap-tiles,.ap-creds,.ap-cta,.ap-scan'));
+  if('IntersectionObserver' in window&&!reduce){
+    var io2=new IntersectionObserver(function(es){
+      es.forEach(function(e){e.target.classList.toggle('go',e.isIntersecting);});
+    },{threshold:0,rootMargin:'80px 0px 80px 0px'});
+    anims.forEach(function(el){io2.observe(el);});
+  }else{
+    anims.forEach(function(el){el.classList.add('go');});
+  }
+
+  /* ── Hero mouse-parallax (desktop + fine pointer, motion-safe) ── */
+  var hero=document.getElementById('apHero');
+  var fine=window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  if(hero&&fine&&!reduce&&window.innerWidth>900){
+    var glow=hero.querySelector('.ap-hero__glow'),
+        copy=hero.querySelector('.ap-hero__copy-inner'),
+        panel=hero.querySelector('.ap-hero__floats-inner'),
+        par=document.getElementById('apScrubPar');
+    var tx=0,ty=0,cx=0,cy=0,running=false;
+    var render=function(){
+      cx+=(tx-cx)*.09;cy+=(ty-cy)*.09;
+      /* video layer drifts opposite and least — bleed is 7%/2%, so the
+         frame still covers all four edges at both extremes */
+      if(par)  par.style.transform='translate3d('+(cx*-12).toFixed(2)+'px,'+(cy*-8).toFixed(2)+'px,0)';
+      if(glow) glow.style.transform='translate3d('+(cx*-20).toFixed(2)+'px,'+(cy*-14).toFixed(2)+'px,0)';
+      if(copy) copy.style.transform='translate3d('+(cx*8).toFixed(2)+'px,'+(cy*6).toFixed(2)+'px,0)';
+      if(panel)panel.style.transform='translate3d('+(cx*20).toFixed(2)+'px,'+(cy*14).toFixed(2)+'px,0) rotateY('+(cx*4).toFixed(2)+'deg) rotateX('+(cy*-4).toFixed(2)+'deg)';
+      if(Math.abs(tx-cx)>.0005||Math.abs(ty-cy)>.0005){requestAnimationFrame(render);}else{running=false;}
+    };
+    var kick=function(){if(!running){running=true;requestAnimationFrame(render);}};
+    hero.addEventListener('pointermove',function(ev){
+      var r=hero.getBoundingClientRect();
+      tx=((ev.clientX-r.left)/r.width-.5)*2;
+      ty=((ev.clientY-r.top)/r.height-.5)*2;
+      kick();
+    },{passive:true});
+    hero.addEventListener('pointerleave',function(){tx=0;ty=0;kick();});
+  }
+})();
+</script>
+
+<script>
+/* ══ LAYER 1 · scroll-scrubbed hero background video ═══════════════
+   Desktop/fine-pointer: the playhead is driven by scroll — frame 1 at the
+   top of the page, last frame at the foot of the ticker — eased
+   each rAF to kill micro-stutter. Touch/coarse: muted autoplay loop for
+   the hero only. Reduced-motion: frozen on frame 1. Media URLs are JS
+   runtime constants (immune to GHL attribute corruption). A decode error
+   or a transformed ancestor falls back cleanly — see below.            */
+(function(){
+  'use strict';
+  var page=document.getElementById('apPage');
+  var wrap=document.getElementById('apScrub');
+  var vid=document.getElementById('apScrubVid');
+  var hero=document.getElementById('apHero');
+  if(!page||!wrap||!vid||!hero)return;
+
+  /* ── Media constants ──────────────────────────────────────────────
+     SWAP HERE to change the hero clip. Must be .mp4 (H.264) — Chrome
+     refuses the .mov container — and encoded with dense keyframes
+     (ffmpeg -g 12) or currentTime scrubbing stutters. */
+  var AP_JC_SCRUB_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7e4c5fa6a03cda06e91528.mp4';
+  var AP_JC_POSTER_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a2c598496783b1af58e52e9.jpg';
+
+  vid.src=AP_JC_SCRUB_VIDEO_URL;
+
+  var shade=document.getElementById('apScrubShade');
+
+  /* position:fixed dies inside a transformed/filtered ancestor. Detect it
+     once and fall back to a hero-only in-flow layer rather than shipping a
+     video pinned to the wrong box. */
+  function fixedBroken(el){
+    for(var n=el.parentElement;n&&n!==document.body;n=n.parentElement){
+      var s=window.getComputedStyle(n);
+      if(s.transform!=='none'||s.filter!=='none'||s.perspective!=='none'||
+         (s.willChange||'').indexOf('transform')>-1||(s.contain||'').indexOf('paint')>-1) return true;
+    }
+    return false;
+  }
+  var inline=fixedBroken(wrap);
+  if(inline){
+    wrap.classList.add('ap-scrub--inline');
+    hero.insertBefore(wrap,hero.firstChild);
+    page.classList.add('vidinline');
+  }
+
+  /* decode guard: on error the layer stays off for good, so the spanned
+     sections sit on clean solid surfaces instead of a gradient over nothing */
+  var dead=false;
+  vid.addEventListener('error',function(){
+    dead=true;page.classList.remove('vidok');page.classList.add('vidfail');
+    wrap.classList.remove('is-on');wrap.style.display='none';
+  });
+
+  /* span ends at the BOTTOM of the section after the hero */
+  function scrubEnd(){
+    var sec=document.getElementById('apTicker');
+    if(sec){var r=sec.getBoundingClientRect();if(r.height>0)return r.top+window.scrollY+r.height;}
+    return window.innerHeight;
+  }
+  /* bottom of the hero — where the shade must be at full strength */
+  function heroBottom(){
+    var r=hero.getBoundingClientRect();
+    return r.height>0?r.top+window.scrollY+r.height:window.innerHeight;
+  }
+  /* shade ramps 0 -> 1 across the last 45vh of the hero, then holds */
+  function updateShade(){
+    if(!shade)return;
+    var vh=window.innerHeight,endY=heroBottom(),startY=endY-vh*0.45;
+    var o=(window.scrollY-startY)/(endY-startY);
+    if(o<0)o=0;if(o>1)o=1;
+    shade.style.opacity=String(o);
+  }
+  window.addEventListener('scroll',updateShade,{passive:true});
+  window.addEventListener('resize',updateShade);
+  updateShade();
+
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var fine=window.matchMedia&&window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  var canScrub=fine&&!touch&&!reduced&&!inline;
+
+  function live(){if(!dead)page.classList.add('vidok');}
+
+  /* ── non-scrub fallbacks ──────────────────────────────────────── */
+  if(!canScrub){
+    vid.addEventListener('loadeddata',live);
+    wrap.classList.add('is-on');
+    if(reduced){
+      vid.removeAttribute('autoplay');vid.pause();
+      vid.addEventListener('loadeddata',function(){try{vid.currentTime=0;}catch(e){}vid.pause();});
+    }else{
+      vid.loop=true;vid.muted=true;vid.setAttribute('autoplay','');
+      var pl=function(){var p=vid.play();if(p&&p.catch)p.catch(function(){});};
+      vid.addEventListener('loadeddata',pl);pl();
+      /* hero-only below desktop: drop the layer and stop playback past the
+         hero so the loop costs nothing for the rest of the page */
+      var gate=function(){
+        if(dead)return;
+        if(window.scrollY>heroBottom()+4){wrap.classList.remove('is-on');if(!vid.paused)vid.pause();}
+        else{wrap.classList.add('is-on');if(vid.paused)pl();}
+      };
+      window.addEventListener('scroll',gate,{passive:true});
+      window.addEventListener('resize',gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ── desktop: scrub currentTime from scroll ───────────────────── */
+  vid.loop=false;vid.autoplay=false;vid.pause();
+  var dur=0,ready=false,raf=0;
+
+  function onMeta(){
+    dur=vid.duration||0;ready=dur>0;
+    if(ready){wrap.classList.add('is-on');live();tick();}
+  }
+  vid.addEventListener('loadedmetadata',onMeta);
+  vid.addEventListener('loadeddata',function(){if(!ready)onMeta();});
+
+  function computeTarget(){
+    var end=scrubEnd(),y=window.scrollY;
+    var p=end>0?(y/end):0;
+    if(p<0)p=0;if(p>1)p=1;
+    if(y>end+4)wrap.classList.remove('is-on');else wrap.classList.add('is-on');
+    return p*dur;
+  }
+  function tick(){
+    raf=0;
+    if(!ready||dead)return;
+    var target=computeTarget(),cur=vid.currentTime||0,diff=target-cur;
+    if(Math.abs(diff)>=0.008){try{vid.currentTime=cur+diff*0.28;}catch(e){}}
+    if(Math.abs(target-(vid.currentTime||0))>0.008)schedule();
+  }
+  function schedule(){if(!raf)raf=requestAnimationFrame(tick);}
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  schedule();
+})();
+</script>
+
+<script>
+/* ══ LAYER 2 · looping band video ══════════════════════════════════
+   A second fixed video behind every section after the scrub span.
+   Plain loop (never scrubbed), toggled by a viewport-CENTRE probe
+   against the band's absolute top/bottom — not a per-section observer,
+   which would thrash on a band taller than the viewport. Desktop /
+   fine-pointer only; a decode error leaves the layer off for good so
+   the sections sit on clean solid surfaces.                          */
+(function(){
+  'use strict';
+  var page=document.getElementById('apPage');
+  var wrap=document.getElementById('apBandVid');
+  var media=document.getElementById('apBandVidMedia');
+  var band=document.getElementById('apBand');
+  if(!page||!wrap||!media||!band)return;
+
+  var mqOff=window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  if(mqOff.matches)return;
+
+  /* ── Media constant ──────────────────────────────────────────────
+     SWAP HERE to change the band clip. .mp4 (H.264) only — Chrome
+     refuses the .mov container even when the stream is H.264. */
+  var AP_JC_BAND_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a74e5416da442d0addb3177.mp4';
+
+  var v=document.createElement('video');
+  v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;
+  v.setAttribute('playsinline','');v.setAttribute('muted','');
+  v.preload='auto';v.src=AP_JC_BAND_VIDEO_URL;
+  media.appendChild(v);
+
+  var dead=false;
+  v.addEventListener('error',function(){
+    dead=true;page.classList.remove('bandok');
+    wrap.classList.remove('on');wrap.style.display='none';
+  });
+  v.addEventListener('loadeddata',function(){if(!dead)page.classList.add('bandok');});
+  var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+
+  var raf=0;
+  function update(){
+    raf=0;
+    if(dead)return;
+    var r=band.getBoundingClientRect();
+    var top=r.top+window.scrollY,bottom=top+r.height;
+    var vh=window.innerHeight,probe=window.scrollY+vh*0.5;   /* viewport centre */
+    wrap.classList.toggle('on',probe>top+60&&probe<bottom-vh*0.5);
+  }
+  function onScroll(){if(!raf)raf=requestAnimationFrame(update);}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  update();
+})();
+</script>

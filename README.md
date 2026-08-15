@@ -10,9 +10,22 @@ build.py              assembler — run it to produce dist/
 src/
   bodies/             one file per page; the body block only, no nav/footer
     index.html            -> /
-    healthcare-staffing.html
+    about.html
+    apply-now.html
+    contact-us.html
+    continuing-education-links.html
     education-staffing.html
+    employee-benefits.html
+    employee-documents.html
+    employee-hub.html
+    employee-hub-login.html
+    employee-portal.html
     employer-of-record.html
+    healthcare-staffing.html
+    joint-commission.html
+    joint-commission-policy-statement.html
+    meet-your-insync-team.html
+    strike-work-updates.html
     404.html              -> /404.html
   partials/
     nav.html          global nav, injected at the top of every page
@@ -85,9 +98,20 @@ matches your source.
   as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
   MP4 re-encode. The Educational page already has a comment noting this, and its
   script keeps the layer usable if playback is refused.
-- **14 internal links have no destination yet** — including `/contact-us/`
-  (referenced 19 times) and `/apply-now/` (8). They land on the 404 page until
-  those pages are added.
+- **4 internal links have no destination yet**: `/commercial-staffing/` (4
+  references), `/privacy-policy/` (4), `/terms-and-conditions/` (5), and
+  `/blog/` (2). They land on the 404 page until those pages are added.
+- **Two links omit the trailing slash** — `/joint-commission-policy-statement`
+  and `/continuing-education-links`, both on the Joint Commission page. They
+  work, but Vercel issues a 308 redirect first. Adding the slash removes the
+  extra hop.
+- **Employee Hub is not real authentication.** The login page checks a password
+  hash in client-side JavaScript and stores a 30-day flag in `localStorage`.
+  Anyone can read the hash, and `/employee-hub/` can be opened directly without
+  passing the gate. Treat it as a soft gate, not a security control, and don't
+  put anything sensitive behind it until real auth is in place. The auto-forward
+  is also scoped to `insynconline.net`, so on a `vercel.app` preview URL the
+  redirect between login and hub will not fire.
 - **No favicon.** Drop one in `public/` and add the `<link>` to the shell in
   `build.py`.
 - **Media lives on the GHL CDN.** Every image and video is a remote URL on

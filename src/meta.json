@@ -28,5 +28,83 @@
     "description": "",
     "og_title": "",
     "og_description": ""
+  },
+  "about": {
+    "title": "About InSync \u2014 InSync Consulting Services",
+    "description": "Sacramento-based staffing across healthcare, education, commercial, and EOR & payroll. Service-Disabled Veteran-Owned and Joint Commission certified.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "contact-us": {
+    "title": "Contact Us \u2014 InSync Consulting Services",
+    "description": "Talk to InSync Consulting Services about your staffing needs. Request staffing, ask a question, or start a conversation with our team.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "meet-your-insync-team": {
+    "title": "Meet Your InSync Team \u2014 InSync Consulting Services",
+    "description": "The recruiters and account partners behind every InSync placement.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "joint-commission": {
+    "title": "Joint Commission Certification \u2014 InSync Consulting Services",
+    "description": "InSync Consulting Services holds Joint Commission certification for health care staffing services \u2014 the industry's gold standard for quality and safety.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "joint-commission-policy-statement": {
+    "title": "Joint Commission Policy Statement \u2014 InSync Consulting Services",
+    "description": "Our formal policy statement on Joint Commission standards, complaint reporting, and quality of care.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "strike-work-updates": {
+    "title": "Strike & Crisis Staffing \u2014 InSync Consulting Services",
+    "description": "Rapid-response strike and crisis labor teams mobilized nationwide by the InSync CLS Division.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "apply-now": {
+    "title": "Apply Now \u2014 InSync Consulting Services",
+    "description": "Find your next role with InSync Consulting Services. Travel and local positions nationwide, competitive pay, benefits, and a dedicated recruiter.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "employee-hub": {
+    "title": "Employee Hub \u2014 InSync Consulting Services",
+    "description": "",
+    "og_title": "",
+    "og_description": ""
+  },
+  "employee-hub-login": {
+    "title": "Employee Hub Login \u2014 InSync Consulting Services",
+    "description": "",
+    "og_title": "",
+    "og_description": ""
+  },
+  "employee-portal": {
+    "title": "Employee Info \u2014 InSync Consulting Services",
+    "description": "Your benefits and resources hub \u2014 everything InSync employees need in one place.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "employee-documents": {
+    "title": "Employee Documents \u2014 InSync Consulting Services",
+    "description": "Forms, policies, and documents for InSync Consulting Services employees.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "employee-benefits": {
+    "title": "Employee Benefits \u2014 InSync Consulting Services",
+    "description": "Health coverage, 401k, and the full benefits package available to InSync Consulting Services employees.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "continuing-education-links": {
+    "title": "Continuing Education Resources \u2014 InSync Consulting Services",
+    "description": "Continuing education resources and accredited course links for InSync Consulting Services clinical staff.",
+    "og_title": "",
+    "og_description": ""
   }
 }

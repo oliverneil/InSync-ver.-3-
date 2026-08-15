@@ -1,0 +1,612 @@
+</head>
+<body style="margin:0;background:#000">
+<!-- GHL-PASTE-START ============================================== -->
+<div class="ap-page" id="apPage">
+<script>
+/* PRE-PAINT: flag the wrapper as JS-driven before anything renders. Without
+   this the reveal rules (.ap-page.js .rv{opacity:0}) only bind once the
+   bottom-of-page script runs, so the page paints fully visible and then
+   snaps blank — the "loads, then disappears" flash. */
+(function(){ var w=document.getElementById('apPage'); if(w) w.classList.add('js'); })();
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Scope + tokens (on the wrapper, never the document root) ─── */
+.ap-page *,.ap-page *::before,.ap-page *::after{box-sizing:border-box;margin:0;padding:0}
+.ap-page{
+  --bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+  --ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+  --navy:#20335a;--navy-2:#16223f;--navy-3:#2c4474;
+  --f:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.4,0,.2,1);
+  --e-out:cubic-bezier(.16,1,.3,1);
+  --e-spring:cubic-bezier(.34,1.56,.64,1);
+  --gutter:24px;--max-w:1200px;--nav-h:72px;
+  position:relative;background:var(--bg);color:var(--ink);
+  font-family:var(--f);line-height:1.6;font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  overflow:clip;isolation:isolate;
+}
+@media(max-width:640px){.ap-page{--gutter:16px}}
+@media(max-width:400px){.ap-page{--gutter:14px}}
+
+.ap-page h1,.ap-page h2,.ap-page h3{font-family:var(--f);color:var(--ink);letter-spacing:-.03em;line-height:1.04;font-weight:800}
+.ap-page a{text-decoration:none;color:inherit}
+.ap-page svg{display:block}
+.ap-page .accent{color:var(--orange)}
+.ap-page .ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+
+/* ── Cursor ───────────────────────────────────────────────────────
+   The live site's global Apex layer hides the native cursor. Restore a
+   visible one, scoped + !important so it beats the global hide. The v1
+   custom dot is retired; only the ambient pointer glow is kept. */
+.ap-page,.ap-page *{cursor:auto !important}
+.ap-page a[href],.ap-page button,.ap-page .ap-btn,.ap-page label[for],.ap-page [role="button"]{cursor:pointer !important}
+.ap-page input,.ap-page textarea,.ap-page select{cursor:text !important}
+.ap-page input[type="checkbox"],.ap-page input[type="radio"]{cursor:pointer !important}
+
+.ap-page .ap-cursor-glow{position:fixed;top:0;left:0;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(239,90,40,.15) 0%,transparent 60%);pointer-events:none;z-index:6;transform:translate(-50%,-50%);opacity:0;transition:opacity .4s var(--e),left .15s var(--e-out),top .15s var(--e-out)}
+.ap-page .ap-cursor-glow.on{opacity:1}
+@media(hover:none),(pointer:coarse),(max-width:900px){.ap-page .ap-cursor-glow{display:none}}
+
+/* ══ LAYER 1 — SCROLL-SCRUBBED FIXED VIDEO ════════════════════════
+   One fixed video whose currentTime is driven by scroll position. The
+   span runs from the top of the page to the BOTTOM of the section that
+   follows the hero (#apDocs). On this interim page that is also the last
+   section, so the span is the whole page and there is no Layer 2 band
+   video. The hero shows the footage clean apart from the constant left
+   fade; the full dark shade ramps 0 -> 1 across the last 45vh of the hero
+   so #apDocs copy stays readable, then holds.                            */
+.ap-page .ap-scrub{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.ap-page .ap-scrub.is-on{opacity:1}
+.ap-page .ap-scrub__par{position:absolute;inset:0;will-change:transform}
+/* Framing: the box bleeds past every edge ONLY as far as the parallax needs
+   (max shift is ~16px x / ~10px y, and 3% is 43px/27px at 1440x900), so the
+   frame still covers all four edges at both parallax extremes without
+   over-scaling the footage. A wider box would zoom the subject in: at
+   114%x116% the viewport saw only 78% of the source width; at 106% it sees
+   85%. Centred object-position keeps the whole frame honest. */
+.ap-page .ap-scrub__vid,.ap-page .ap-scrub__photo{position:absolute;left:-3%;top:-3%;width:106%;height:106%;object-fit:cover;object-position:50% 50%;will-change:transform}
+.ap-page .ap-scrub__photo{background-position:center center;background-size:cover;background-repeat:no-repeat;opacity:.55}
+/* constant left-dark fade keeps the hero copy readable over the footage */
+.ap-page .ap-scrub__grad{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.8) 22%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.34) 88%,rgba(0,0,0,.34) 100%)}
+/* full dark overlay, ramped by JS across the last 45vh of the hero */
+.ap-page .ap-scrub__shade{position:absolute;inset:0;opacity:0;background:rgba(0,0,0,.66)}
+
+/* Hero + the spanned section go transparent so the fixed video shows
+   through. Nothing else on the page is made transparent. */
+.ap-page .ap-hero,.ap-page .ap-section{background:transparent !important}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.ap-page .ap-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--f);font-weight:600;font-size:.95rem;letter-spacing:-.01em;padding:14px 26px;border-radius:8px;border:1px solid var(--line-2);color:var(--ink);cursor:pointer;transition:transform .3s var(--e-out),background .3s var(--e),border-color .3s var(--e),box-shadow .3s var(--e)}
+.ap-page .ap-btn svg{width:17px;height:17px;transition:transform .3s var(--e-out)}
+.ap-page .ap-btn:hover svg{transform:translateX(4px)}
+.ap-page .ap-btn--primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.ap-page .ap-btn--primary:hover{transform:translateY(-3px);box-shadow:0 16px 40px -8px rgba(239,90,40,.5)}
+.ap-page .ap-btn--ghost{background:rgba(255,255,255,.04);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+.ap-page .ap-btn--ghost:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.08);transform:translateY(-3px)}
+
+/* ── Section eyebrow (label-only, leading dash — never numbered) ─ */
+.ap-page .ap-label{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+.ap-page .ap-label::before{content:"";width:26px;height:1px;background:var(--orange);opacity:.75}
+.ap-page .ap-section__label{color:var(--ink-3)}
+.ap-page .ap-section__label::before{background:rgba(255,255,255,.3)}
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.ap-page .ap-hero{position:relative;z-index:1;padding:calc(var(--nav-h) + 108px) 0 140px;overflow:hidden}
+.ap-page .ap-hero__glow{position:absolute;top:-160px;right:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(239,90,40,.16) 0%,transparent 62%);z-index:1;pointer-events:none;will-change:transform}
+/* ambient masked grid + rising embers (Apex v2 hero ambience) */
+.ap-page .ap-hero__amb{position:absolute;inset:0;z-index:1;pointer-events:none;will-change:transform;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%);
+          mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%)}
+.ap-page .ap-hero__embers{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ap-page .ap-ember{position:absolute;bottom:-2%;left:var(--x,50%);width:var(--sz,3px);height:var(--sz,3px);border-radius:50%;background:var(--orange-2);box-shadow:0 0 10px rgba(239,90,40,.6);opacity:0;animation:ap-ember var(--dur,11s) linear var(--del,0s) infinite}
+@keyframes ap-ember{0%{transform:translateY(0);opacity:0}12%{opacity:.7}100%{transform:translateY(-88vh);opacity:0}}
+.ap-page .ap-hero .ap-wrap{position:relative;z-index:2}
+.ap-page .ap-hero__grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.ap-page .ap-hero__label{margin-bottom:26px}
+.ap-page .ap-hero h1{font-size:clamp(2.9rem,7vw,5.6rem);font-weight:900;padding-bottom:.16em}
+.ap-page .ap-hero__sub{margin-top:24px;font-size:1.14rem;color:var(--ink-2);max-width:520px;line-height:1.6}
+.ap-page .ap-hero__ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px}
+
+/* hero load entrance — the scene zooms out while the copy and the title
+   wipe release in the SAME frame (one gesture, not two beats) */
+.ap-page.js .ap-hero__scene{transition:transform 1.4s var(--e-out),opacity .9s var(--e);transform-origin:50% 42%}
+.ap-page.js .ap-hero.ap-enter .ap-hero__scene{transform:scale(1.12);opacity:0}
+
+/* Floating document cards (hero visual — the four real categories) */
+.ap-page .ap-cards{position:relative;height:440px}
+.ap-page .ap-cards__inner{position:absolute;inset:0;will-change:transform}
+.ap-page .ap-fcard{position:absolute;width:230px;border-radius:16px;padding:22px;animation:ap-float 6s ease-in-out infinite;
+  background:rgba(255,255,255,.045);border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 12px 30px -8px rgba(239,90,40,.12)}
+.ap-page .ap-fcard__ic{width:44px;height:44px;border-radius:11px;background:rgba(239,90,40,.14);color:var(--orange);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.ap-page .ap-fcard__ic svg{width:22px;height:22px}
+.ap-page .ap-fcard__k{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.ap-page .ap-fcard__t{margin-top:5px;font-size:1.02rem;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.ap-page .ap-fcard--1{top:8px;left:10px;animation-delay:0s}
+.ap-page .ap-fcard--2{top:70px;right:0;animation-delay:1.4s}
+.ap-page .ap-fcard--3{bottom:78px;left:0;animation-delay:.7s}
+.ap-page .ap-fcard--4{bottom:0;right:24px;animation-delay:2.1s}
+@keyframes ap-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* ── Section base ─────────────────────────────────────────────── */
+.ap-page .ap-section{position:relative;z-index:1;padding:140px 0;border-top:1px solid var(--line)}
+.ap-page .ap-section .ap-wrap{position:relative;z-index:1}
+.ap-page .ap-section__grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.ap-page .ap-section h2{font-size:clamp(2.2rem,4.4vw,3.6rem);font-weight:800;padding-bottom:.09em}
+.ap-page .ap-section__label{margin-bottom:24px}
+.ap-page .ap-section__sub{margin-top:22px;font-size:1.1rem;color:var(--ink-2);max-width:460px;line-height:1.7}
+.ap-page .ap-section__ctas{display:flex;flex-direction:column;align-items:flex-start;gap:20px;margin-top:36px}
+.ap-page .ap-call{font-size:.96rem;color:var(--ink-3);font-family:var(--f-mono)}
+.ap-page .ap-call a{color:var(--ink);font-weight:600;transition:color .25s var(--e)}
+.ap-page .ap-call a:hover{color:var(--orange)}
+
+/* ── 3D book mockup (documents metaphor) ──────────────────────── */
+.ap-page .ap-book-wrap{display:flex;justify-content:center;perspective:1400px}
+.ap-page .ap-book{position:relative;width:300px;height:410px;transform-style:preserve-3d;transform:rotateY(-26deg) rotateX(6deg);transition:transform .9s var(--e-out)}
+.ap-page .ap-book-wrap:hover .ap-book{transform:rotateY(-15deg) rotateX(3deg)}
+.ap-page .ap-book__cover{position:absolute;inset:0;border-radius:5px 10px 10px 5px;overflow:hidden;padding:38px 34px 34px 46px;display:flex;flex-direction:column;justify-content:space-between;transform:translateZ(22px);
+  background:rgba(255,255,255,.045);border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08);
+  box-shadow:0 50px 90px -24px rgba(0,0,0,.95),0 24px 48px -10px rgba(239,90,40,.18)}
+.ap-page .ap-book__cover::before{content:"";position:absolute;top:0;right:0;width:64%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.14) 0%,transparent 60%);pointer-events:none}
+.ap-page .ap-book__spine{position:absolute;left:0;top:0;width:22px;height:100%;background:linear-gradient(var(--orange),var(--orange-2));transform:rotateY(90deg) translateZ(11px) translateX(-11px);transform-origin:left center;border-radius:5px 0 0 5px}
+.ap-page .ap-book__pages{position:absolute;right:0;top:7px;height:calc(100% - 14px);width:20px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.86) 0 1px,rgba(255,255,255,.55) 1px 3px);transform:rotateY(90deg);transform-origin:right center;border-radius:0 3px 3px 0}
+.ap-page .ap-book__ic{width:52px;height:52px;border-radius:13px;background:rgba(239,90,40,.14);color:var(--orange);display:flex;align-items:center;justify-content:center}
+.ap-page .ap-book__ic svg{width:26px;height:26px}
+.ap-page .ap-book__k{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);position:relative}
+.ap-page .ap-book__brand{font-size:1.15rem;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.2;position:relative}
+.ap-page .ap-book__brand span{color:var(--orange)}
+
+/* ── Scroll-entrance reveal contract (scoped to .js) ───────────── */
+.ap-page.js .rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js .rv.in{opacity:1;transform:none}
+.ap-page.js .rv.d1{transition-delay:.1s}.ap-page.js .rv.d2{transition-delay:.2s}
+.ap-page.js .rv.d3{transition-delay:.3s}.ap-page.js .rv.d4{transition-delay:.4s}
+/* kinetic clip-wipe on headings (descender room added above) */
+.ap-page.js .ap-hero h1,.ap-page.js .ap-section h2{clip-path:inset(0 105% 0 0);transition:opacity .8s var(--e-out),transform .8s var(--e-out),clip-path 1.05s var(--e-out)}
+.ap-page.js .ap-hero h1.in,.ap-page.js .ap-section h2.in{clip-path:inset(0 0 0 0)}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media(max-width:900px){
+  .ap-page .ap-hero{padding:calc(var(--nav-h) + 60px) 0 96px}
+  .ap-page .ap-hero__grid{grid-template-columns:1fr;gap:48px}
+  .ap-page .ap-hero__copy{text-align:center}
+  .ap-page .ap-hero__label{display:flex;justify-content:center}
+  .ap-page .ap-hero__sub{margin-left:auto;margin-right:auto}
+  .ap-page .ap-hero__ctas{justify-content:center}
+  .ap-page .ap-cards{height:300px;max-width:480px;margin:0 auto;width:100%}
+  .ap-page .ap-section{padding:80px 0}
+  .ap-page .ap-section__grid{grid-template-columns:1fr;gap:56px}
+  .ap-page .ap-section__sub{max-width:none}
+  .ap-page .ap-book-wrap{order:-1}
+}
+@media(max-width:640px){
+  .ap-page .ap-hero{padding:calc(var(--nav-h) + 44px) 0 80px}
+  .ap-page .ap-section{padding:64px 0}
+  .ap-page .ap-hero__ctas{flex-direction:column;align-items:stretch}
+  .ap-page .ap-hero__ctas .ap-btn{width:100%;justify-content:center;min-height:48px}
+  .ap-page .ap-section__ctas .ap-btn{width:100%;justify-content:center;min-height:48px}
+  .ap-page .ap-cards{height:260px}
+  /* Hero cards: 4 → 2 (show only cards 1 and 4) */
+  .ap-page .ap-fcard--2,.ap-page .ap-fcard--3{display:none}
+  .ap-page .ap-fcard--1{top:0;left:0}
+  .ap-page .ap-fcard--4{bottom:0;right:0}
+  .ap-page .ap-fcard{width:210px}
+  .ap-page .ap-book{width:250px;height:342px}
+}
+
+/* ── Off-desktop: kill the video layer, restore solid surfaces ──── */
+@media(max-width:1024px),(pointer:coarse){
+  .ap-page .ap-scrub__vid{display:none !important}
+  .ap-page .ap-hero__embers{display:none}
+  .ap-page .ap-section{background:var(--bg-1) !important}
+  .ap-page .ap-fcard{
+    background:linear-gradient(135deg,var(--bg-elev) 0%,var(--bg-card) 100%);
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page .ap-book__cover{
+    background:linear-gradient(140deg,var(--bg-elev) 0%,#0a0a0a 100%);
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page .ap-btn--ghost{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+
+/* ── Reduced motion: resolved static end-states (video freezes on
+      frame 1 via JS; the shade still resolves) ─────────────────── */
+@media(prefers-reduced-motion:reduce){
+  .ap-page.js .rv{opacity:1;transform:none;transition:none}
+  .ap-page.js .ap-hero h1,.ap-page.js .ap-section h2{clip-path:none;transition:none}
+  .ap-page.js .ap-hero__scene,.ap-page.js .ap-hero.ap-enter .ap-hero__scene{transform:none;opacity:1;transition:none}
+  .ap-page .ap-fcard{animation:none}
+  .ap-page .ap-hero__embers{display:none}
+  .ap-page .ap-book,.ap-page .ap-btn:hover,.ap-page .ap-scrub{transition:none}
+}
+</style>
+
+<!-- ══ LAYER 1 — scroll-scrubbed fixed background video ════════ -->
+<div class="ap-scrub" id="apScrub" aria-hidden="true">
+  <div class="ap-scrub__par" id="apScrubPar">
+    <div class="ap-scrub__photo" id="apScrubPhoto"></div>
+    <video class="ap-scrub__vid" id="apScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="ap-scrub__grad"></div>
+  <div class="ap-scrub__shade" id="apScrubShade"></div>
+</div>
+
+<div class="ap-cursor-glow" id="apGlow" aria-hidden="true"></div>
+
+  <!-- ══ HERO ═══════════════════════════════════════════════════ -->
+  <header class="ap-hero ap-enter" id="apHero">
+    <div class="ap-hero__glow" id="apHeroGlow" aria-hidden="true"></div>
+    <div class="ap-hero__amb" id="apHeroAmb" aria-hidden="true"></div>
+    <div class="ap-hero__embers" id="apHeroEmbers" aria-hidden="true"></div>
+    <div class="ap-hero__scene">
+    <div class="ap-wrap">
+      <div class="ap-hero__grid">
+        <div class="ap-hero__copy" id="apHeroCopy">
+          <div class="ap-label ap-hero__label rv">Employee Resources</div>
+          <h1 class="rv d1">Your <span class="accent">Documents</span>, All in One Place</h1>
+          <p class="ap-hero__sub rv d2">New pay stub, time card, W4, and direct deposit resources are on the way.</p>
+          <div class="ap-hero__ctas rv d3">
+            <a href="https://leap.laboredge.com/signin/insync" class="ap-btn ap-btn--primary">
+              Employee Portal
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/contact-us/" class="ap-btn ap-btn--ghost">Contact Your Recruiter</a>
+          </div>
+        </div>
+
+        <div class="ap-cards rv d2" aria-hidden="true">
+          <div class="ap-cards__inner" id="apCardsInner">
+          <div class="ap-fcard ap-fcard--1">
+            <div class="ap-fcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="ap-fcard__k">Category</div>
+            <div class="ap-fcard__t">Payroll</div>
+          </div>
+          <div class="ap-fcard ap-fcard--2">
+            <div class="ap-fcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="ap-fcard__k">Category</div>
+            <div class="ap-fcard__t">Time Tracking</div>
+          </div>
+          <div class="ap-fcard ap-fcard--3">
+            <div class="ap-fcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <div class="ap-fcard__k">Category</div>
+            <div class="ap-fcard__t">Tax Forms</div>
+          </div>
+          <div class="ap-fcard ap-fcard--4">
+            <div class="ap-fcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div class="ap-fcard__k">Category</div>
+            <div class="ap-fcard__t">Banking</div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </header>
+
+  <!-- ══ COMING SOON (interim — restore the real document sections
+          here once the client clears the documents to return. When
+          they return, wrap everything BELOW this section in .ap-band
+          and add the Layer 2 looping band video.) ═══════════════ -->
+  <section class="ap-section" id="apDocs">
+    <div class="ap-wrap">
+      <div class="ap-section__grid">
+        <div class="ap-section__copy">
+          <div class="ap-label ap-section__label rv">Employee Documents</div>
+          <h2 class="rv d1">Employee documents <span class="accent">coming soon</span></h2>
+          <p class="ap-section__sub rv d2">We&rsquo;re updating our employee documents. In the meantime, your recruiter can get you anything you need.</p>
+          <div class="ap-section__ctas rv d3">
+            <a href="/contact-us/" class="ap-btn ap-btn--primary">
+              Contact Us
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <p class="ap-call">Or call us at <a href="tel:+18886413444">(888) 641-3444</a></p>
+          </div>
+        </div>
+
+        <div class="ap-book-wrap rv d2">
+          <div class="ap-book">
+            <div class="ap-book__spine" aria-hidden="true"></div>
+            <div class="ap-book__pages" aria-hidden="true"></div>
+            <div class="ap-book__cover">
+              <div class="ap-book__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+              <div>
+                <div class="ap-book__k">Employee Handbook</div>
+                <div class="ap-book__brand">InSync <span>Consulting</span> Services</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+/* ══ SCROLL-ENTRANCE REVEAL CONTRACT (all five parts) ═══════════════
+   a) `.js` is flagged PRE-PAINT at the top of the wrapper (above).
+   b) IntersectionObserver at threshold:0 + a bottom rootMargin — never a
+      ratio, which starves on blocks taller than the viewport.
+   c) The safety net reveals ON-SCREEN elements only.
+   d) Horizontal-track children reveal with their container.
+   e) Siblings stagger in JS at 70ms, capped at 350ms; authored d1/d2/d3
+      delays are left alone.                                             */
+(function(){
+  'use strict';
+  var page=document.getElementById('apPage');
+  if(!page) return;
+  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  var revs=[].slice.call(page.querySelectorAll('.rv'));
+
+  /* (e) sibling stagger */
+  if(!reduce){
+    var groups=[];
+    revs.forEach(function(el){
+      var p=el.parentElement;
+      if(p && groups.indexOf(p)<0) groups.push(p);
+    });
+    groups.forEach(function(p){
+      var kids=[],i;
+      for(i=0;i<p.children.length;i++){
+        var c=p.children[i];
+        if(c.classList.contains('rv') && !/\bd[1234]\b/.test(c.className)) kids.push(c);
+      }
+      if(kids.length<2) return;
+      for(i=0;i<kids.length;i++){
+        kids[i].style.transitionDelay=Math.min(i*0.07,0.35).toFixed(2)+'s';
+      }
+    });
+  }
+
+  /* (b) + (d) */
+  if('IntersectionObserver' in window && !reduce){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        e.target.classList.add('in');
+        var tr=e.target.querySelectorAll?e.target.querySelectorAll('.ap-track > .rv'):null;
+        if(tr) for(var i=0;i<tr.length;i++){ tr[i].classList.add('in'); io.unobserve(tr[i]); }
+        io.unobserve(e.target);
+      });
+    },{threshold:0,rootMargin:'0px 0px -12% 0px'});
+    revs.forEach(function(el){ io.observe(el); });
+  }else{
+    revs.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* Above-the-fold release + (c) on-screen-ONLY safety net. */
+  function releaseVisible(limit){
+    revs.forEach(function(el){
+      if(el.getBoundingClientRect().top < limit) el.classList.add('in');
+    });
+  }
+  var hero=document.getElementById('apHero');
+  requestAnimationFrame(function(){
+    /* Hero scene zoom-out AND the copy + title clip-wipe release in the
+       SAME frame, so the hero settles as one gesture, not two beats. */
+    if(hero) hero.classList.remove('ap-enter');
+    releaseVisible(window.innerHeight*0.94);
+  });
+  setTimeout(function(){ releaseVisible(window.innerHeight); },2500);
+  /* idempotent blank-hero guard in case the driver above never runs */
+  setTimeout(function(){
+    if(hero) hero.classList.remove('ap-enter');
+    releaseVisible(window.innerHeight);
+  },3000);
+
+  /* ── Hero ambience: rising embers (desktop / fine pointer only) ── */
+  var fine=window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var embers=document.getElementById('apHeroEmbers');
+  if(embers && fine && !reduce){
+    for(var n=0;n<9;n++){
+      var s=document.createElement('i');
+      s.className='ap-ember';
+      s.style.setProperty('--x',(6+Math.random()*88).toFixed(1)+'%');
+      s.style.setProperty('--sz',(2+Math.random()*2.6).toFixed(1)+'px');
+      s.style.setProperty('--dur',(9+Math.random()*7).toFixed(1)+'s');
+      s.style.setProperty('--del',(Math.random()*9).toFixed(1)+'s');
+      embers.appendChild(s);
+    }
+  }
+
+  /* ── Ambient pointer glow (native cursor stays visible) ────────── */
+  var glow=document.getElementById('apGlow');
+  if(glow && fine && !reduce){
+    window.addEventListener('pointermove',function(e){
+      glow.classList.add('on');
+      glow.style.left=e.clientX+'px';
+      glow.style.top=e.clientY+'px';
+    },{passive:true});
+  }
+
+  /* ══ SPRING-DAMPED MOUSE PARALLAX ═══════════════════════════════
+     Rides inner wrappers / non-reveal elements ONLY, so it can never
+     clobber the reveal transforms. Desktop + fine pointer, reduced-motion
+     off. Movement stays small and is clipped by the wrapper's
+     overflow:clip -> zero added overflow.                              */
+  if(fine && !reduce && hero){
+    var layers=[
+      {el:document.getElementById('apScrubPar'), dx:-14, dy:-9},
+      {el:document.getElementById('apHeroGlow'), dx:-22, dy:-15},
+      {el:document.getElementById('apHeroAmb'),  dx:10,  dy:7},
+      {el:document.getElementById('apHeroCopy'), dx:8,   dy:6},
+      {el:document.getElementById('apCardsInner'),dx:22, dy:16}
+    ].filter(function(l){ return !!l.el; });
+    var mag=Math.max(.55,Math.min(1.15,window.innerWidth/1600));
+    var tx=0,ty=0,cx=0,cy=0,vx=0,vy=0,still=0,praf=0;
+    var STIFF=46, DAMP=12.5;
+    function loop(){
+      praf=0;
+      var dt=1/60;
+      var ax=(tx-cx)*STIFF-vx*DAMP, ay=(ty-cy)*STIFF-vy*DAMP;
+      vx+=ax*dt; vy+=ay*dt; cx+=vx*dt; cy+=vy*dt;
+      layers.forEach(function(l){
+        l.el.style.transform='translate3d('+(cx*l.dx*mag).toFixed(2)+'px,'+(cy*l.dy*mag).toFixed(2)+'px,0)';
+      });
+      if(Math.abs(tx-cx)<0.0008 && Math.abs(vx)<0.0008 && Math.abs(ty-cy)<0.0008 && Math.abs(vy)<0.0008){
+        if(++still>30) return;
+      } else { still=0; }
+      praf=requestAnimationFrame(loop);
+    }
+    function kick(){ still=0; if(!praf) praf=requestAnimationFrame(loop); }
+    window.addEventListener('pointermove',function(e){
+      var r=hero.getBoundingClientRect();
+      if(r.bottom<0 || r.top>window.innerHeight) return;
+      /* input fades out as the hero scrolls away */
+      var fade=Math.max(0,Math.min(1,r.bottom/Math.max(1,r.height)));
+      tx=((e.clientX-(r.left+r.width/2))/(r.width/2))*fade;
+      ty=((e.clientY-(r.top+r.height/2))/(r.height/2))*fade;
+      if(tx<-1)tx=-1; if(tx>1)tx=1; if(ty<-1)ty=-1; if(ty>1)ty=1;
+      kick();
+    },{passive:true});
+    window.addEventListener('pointerleave',function(){ tx=0; ty=0; kick(); });
+    window.addEventListener('resize',function(){ mag=Math.max(.55,Math.min(1.15,window.innerWidth/1600)); kick(); });
+  }
+})();
+</script>
+
+<script>
+/* ══ LAYER 1 DRIVER — scroll-scrubbed background video ══════════════
+   currentTime is driven by scroll position across the span (top of page
+   -> bottom of #apDocs, the section AFTER the hero), eased each rAF to
+   kill micro-stutter. No loop handoff inside the span. The shade ramps
+   0 -> 1 across the last 45vh of the hero and holds. Desktop/fine only:
+   coarse pointer falls back to the still photo, reduced-motion freezes
+   frame 1. Media URLs are JS runtime constants — GHL corrupts `&` in
+   src/style attributes, so they are never written as attributes.       */
+(function(){
+  'use strict';
+  var wrap=document.getElementById('apScrub');
+  var vid=document.getElementById('apScrubVid');
+  var photo=document.getElementById('apScrubPhoto');
+  if(!wrap||!vid) return;
+
+  /* Apex scrub clip: H.264 .mp4 with dense keyframes. Chrome refuses the
+     QuickTime container, and sparse keyframes make currentTime stutter. */
+  var AP_SCRUB_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7f57ec8a3ea2b5abee755b.mp4';
+  /* Client-supplied hero photo — poster underlay + the off-desktop fallback. */
+  var AP_HERO_PHOTO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a2c7af78a3c98ce56541d78.jpg';
+
+  if(photo) photo.style.backgroundImage="url('"+AP_HERO_PHOTO_URL+"')";
+  /* NO poster attribute. A <video> keeps its "show poster" flag set until
+     playback starts or a seek completes — and a scrub video never plays, so
+     a poster would be painted forever instead of the footage. The photo
+     layer above is the underlay/fallback and does the same job without
+     blocking the frame. showFrame() clears the flag with a nudge seek so
+     frame 1 paints at the top of the page instead of an empty box. */
+  function showFrame(){ try{ vid.currentTime=0.001; }catch(e){} }
+
+  var shade=wrap.querySelector('.ap-scrub__shade');
+
+  /* End of the span = bottom of the section AFTER the hero. */
+  function scrubEnd(){
+    var sec=document.getElementById('apDocs');
+    if(sec){
+      var r=sec.getBoundingClientRect();
+      if(r.height>0) return r.top+window.scrollY+r.height;
+    }
+    return window.innerHeight;
+  }
+  /* Start of the spanned section = bottom of the hero. */
+  function sectionTop(){
+    var h=document.getElementById('apHero');
+    if(h){
+      var r=h.getBoundingClientRect();
+      if(r.height>0) return r.top+window.scrollY+r.height;
+    }
+    return window.innerHeight;
+  }
+  /* Maximum reachable scroll position. THIS PAGE IS SHORT (hero + one
+     section), so the hero's bottom can never be scrolled to the top of the
+     viewport — keying the ramps to it alone leaves the shade stuck part-way
+     and the scrub stuck part-way through the clip. Clamping both to maxY
+     makes them complete here; on a taller page maxY exceeds those marks and
+     the clamp is inert, so the spec behaviour is preserved when the real
+     document sections return. */
+  function maxY(){
+    return Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  /* Hero shows the footage clean (only the constant left fade); the full
+     dark overlay ramps in across the last 45vh of the hero so it is at
+     full strength the moment #apDocs starts, and holds there. */
+  function updateShade(){
+    if(!shade) return;
+    var vh=window.innerHeight, y=window.scrollY;
+    var endY=Math.min(sectionTop(),maxY());
+    var startY=Math.max(0,endY-vh*0.45);
+    var o=(endY-startY)>0?(y-startY)/(endY-startY):0;
+    if(o<0)o=0; if(o>1)o=1;
+    shade.style.opacity=String(o);
+  }
+  window.addEventListener('scroll',updateShade,{passive:true});
+  window.addEventListener('resize',updateShade);
+  updateShade();
+
+  var reduced=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  var offDesktop=window.matchMedia && window.matchMedia('(max-width:1024px), (pointer:coarse)').matches;
+
+  /* Off-desktop: the video element is display:none — the still photo
+     underlay carries the hero and the section below is solid again. */
+  if(offDesktop){ wrap.classList.add('is-on'); return; }
+
+  vid.src=AP_SCRUB_VIDEO_URL;
+  /* decode guard: if the container/codec is refused, keep the photo
+     underlay and never touch the layer again. */
+  vid.addEventListener('error',function(){ vid.style.display='none'; });
+
+  if(reduced||touch||!fine){
+    wrap.classList.add('is-on');
+    vid.removeAttribute('autoplay'); vid.pause();
+    vid.addEventListener('loadeddata',function(){ showFrame(); vid.pause(); });
+    return;
+  }
+
+  /* ---- DESKTOP: scrub currentTime from scroll ---- */
+  vid.loop=false; vid.autoplay=false; vid.pause();
+  var dur=0, ready=false, target=0, raf=0;
+
+  function onMeta(){ dur=vid.duration||0; ready=dur>0; wrap.classList.add('is-on'); showFrame(); tick(); }
+  vid.addEventListener('loadedmetadata',onMeta);
+  vid.addEventListener('loadeddata',function(){ if(!ready) onMeta(); });
+
+  function computeTarget(){
+    var realEnd=scrubEnd(), y=window.scrollY;
+    /* map the clip across the reachable range (see maxY above) ... */
+    var end=Math.min(realEnd,maxY());
+    var p=end>0?(y/end):0;
+    if(p<0)p=0; if(p>1)p=1;
+    /* ... but keep the layer's on/off gate on the REAL span end, so the
+       video never switches off just because we hit the page bottom. */
+    if(y>realEnd+4) wrap.classList.remove('is-on'); else wrap.classList.add('is-on');
+    return p*dur;
+  }
+  function tick(){
+    raf=0;
+    if(!ready) return;
+    target=computeTarget();
+    var cur=vid.currentTime||0, diff=target-cur;
+    if(Math.abs(diff)>=0.008){
+      try{ vid.currentTime=cur+diff*0.28; }catch(e){}
+    }
+    if(Math.abs(target-(vid.currentTime||0))>0.008) schedule();
+  }
+  function schedule(){ if(!raf) raf=requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  schedule();
+})();
+</script>
+
+</div><!-- /.ap-page -->

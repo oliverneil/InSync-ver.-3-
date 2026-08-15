@@ -1,0 +1,1135 @@
+<div class="ceap" id="ceap">
+<script>
+/* PRE-PAINT: flag the wrapper as JS-driven before anything renders. Without
+   this the reveal rules (.ceap.js .ce-rv{opacity:0}) only bind once the
+   bottom-of-page script runs, so the page paints fully visible and then snaps
+   blank — the "loads, then disappears" flash. */
+(function(){ var w=document.getElementById('ceap'); if(w) w.classList.add('js'); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================ TOKENS (scoped to the wrapper, never :root) */
+.ceap{
+  --bg:#000; --bg-1:#070707; --bg-2:#0c0c0c; --bg-3:#131313;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16); --line-3:rgba(255,255,255,.24);
+  --ink:#f6f6f6; --ink-2:rgba(255,255,255,.66); --ink-3:rgba(255,255,255,.46); --ink-4:rgba(255,255,255,.30); --ink-5:rgba(255,255,255,.16);
+  --orange:#ef5a28; --orange-2:#ff7a4d; --orange-3:#ff9060;
+  --navy:#20335a; --navy-2:#16223f; --navy-3:#2c4474;
+  --f:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --max:1220px; --gutter:clamp(20px,5vw,72px); --nav-h:72px;
+  --r:14px; --r-lg:22px;
+  --e:cubic-bezier(.22,1,.36,1); --e-out:cubic-bezier(.16,1,.3,1);
+  position:relative; background:var(--bg); color:var(--ink);
+  font-family:var(--f); line-height:1.5; letter-spacing:-.01em;
+  overflow:clip; isolation:isolate;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.ceap *{ box-sizing:border-box; }
+.ceap ::selection{ background:rgba(239,90,40,.28); color:#fff; }
+.ceap img{ max-width:100%; display:block; }
+.ceap a{ text-decoration:none; color:inherit; }
+.ceap__in{ position:relative; z-index:1; }
+.ce-wrap{ max-width:var(--max); margin:0 auto; padding-inline:var(--gutter); }
+
+/* eyebrow — label only, leading dash (never numbered) */
+.ce-ey{ font-family:var(--f-mono); font-size:11.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3); display:inline-flex; align-items:center; gap:10px; }
+.ce-ey::before{ content:''; width:26px; height:1px; background:var(--ink-4); }
+.ce-ey--o{ color:var(--orange); }
+.ce-ey--o::before{ background:var(--orange); opacity:.75; }
+
+/* section shell */
+.ce-sec{ position:relative; padding:clamp(72px,9vw,132px) 0; }
+.ce-head{ position:relative; z-index:1; max-width:840px; }
+/* padding-bottom gives the clip-wipe descender room (g / p / y) */
+.ce-head h2{ font-size:clamp(29px,4.6vw,54px); line-height:1.04; font-weight:800; letter-spacing:-.035em; margin:18px 0 0; padding-bottom:.1em; color:var(--ink); }
+.ce-head h2 .o{ color:var(--orange); }
+.ce-head p{ font-size:clamp(15px,1.5vw,18px); color:var(--ink-2); line-height:1.62; margin:18px 0 0; max-width:620px; }
+
+/* buttons */
+.ce-btn{ display:inline-flex; align-items:center; gap:10px; font-family:var(--f); font-weight:600; font-size:15px; letter-spacing:-.01em; padding:15px 26px; border-radius:100px; text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .4s var(--e), background .3s var(--e), border-color .3s var(--e), color .3s var(--e); }
+.ce-btn svg{ width:17px; height:17px; flex:none; transition:transform .4s var(--e); }
+.ce-btn--pri{ background:var(--orange); color:#fff; }
+.ce-btn--pri:hover{ transform:translateY(-2px); background:var(--orange-2); }
+.ce-btn--pri:hover svg{ transform:translateX(4px); }
+.ce-btn--ghost{ background:transparent; color:var(--ink); border-color:var(--line-2); }
+.ce-btn--ghost:hover{ transform:translateY(-2px); border-color:rgba(239,90,40,.5); color:#fff; }
+.ce-btn--ghost:hover svg{ transform:translateX(4px); }
+
+/* reveals — the whole contract is documented in the scripts at the foot */
+.ceap.js .ce-rv{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--e-out), transform .9s var(--e-out); }
+.ceap.js .ce-rv.in{ opacity:1; transform:none; }
+.ceap.js .ce-rv.d1{ transition-delay:.08s; } .ceap.js .ce-rv.d2{ transition-delay:.16s; } .ceap.js .ce-rv.d3{ transition-delay:.24s; }
+.ceap.js .ce-head h2, .ceap.js .ce-hero__title, .ceap.js .ce-close h2{ clip-path:inset(0 105% 0 0); transition:clip-path 1.05s var(--e-out); }
+.ceap.js .ce-head.in h2, .ceap.js .in .ce-head h2, .ceap.js .ce-hero__title.in, .ceap.js .ce-close.in h2, .ceap.js .in .ce-close h2{ clip-path:inset(0 0 0 0); }
+
+/* ============================================================ HERO (base; the v2 fixed-morph layer overrides below) */
+.ce-hero{ position:relative; padding:clamp(92px,15vh,180px) 0 0; }
+.ce-hero__glow{ position:absolute; top:-8%; left:50%; transform:translateX(-50%); width:min(1100px,120vw); height:min(640px,70vw); background:radial-gradient(60% 60% at 50% 0%,rgba(239,90,40,.14),transparent 70%); filter:blur(20px); z-index:0; pointer-events:none; }
+.ce-hero__in{ position:relative; z-index:1; }
+.ce-hero__eyrow{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.ce-hero__tick{ font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-4); }
+/* .16em bottom padding keeps the clip-wipe off the big title's descenders */
+.ce-hero__title{ font-size:clamp(36px,6.4vw,84px); line-height:1.0; font-weight:800; letter-spacing:-.04em; margin:22px 0 0; max-width:15ch; padding-bottom:.16em; color:var(--ink); }
+.ce-hero__title .o{ color:var(--orange); }
+.ce-hero__sub{ font-size:clamp(15px,1.5vw,18px); color:var(--ink-2); line-height:1.62; margin:20px 0 0; max-width:540px; }
+.ce-hero__ctas{ display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+
+/* ---------- SIGNATURE MOTIF · hero credit gauge + four discipline rails (decorative, no text) */
+.ce-board{ position:relative; margin-top:clamp(44px,6vw,64px); display:grid; grid-template-columns:auto 1fr; gap:clamp(20px,3vw,34px); align-items:center;
+  border:1px solid var(--line-2); border-radius:var(--r-lg); padding:clamp(18px,2.4vw,28px);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+  -webkit-backdrop-filter:blur(8px) saturate(1.08); backdrop-filter:blur(8px) saturate(1.08);
+  box-shadow:0 50px 90px -50px rgba(0,0,0,.9); overflow:hidden; }
+.ce-gauge{ position:relative; width:clamp(112px,13vw,146px); height:clamp(112px,13vw,146px); flex:none; }
+.ce-gauge svg{ width:100%; height:100%; display:block; transform:rotate(-90deg); }
+.ce-gauge__trk{ fill:none; stroke:var(--line-2); stroke-width:5; }
+/* solid stroke, never an SVG gradient — gradient strokes fail on zero-area boxes */
+.ce-gauge__val{ fill:none; stroke:var(--orange); stroke-width:5; stroke-linecap:round; stroke-dasharray:302; stroke-dashoffset:302; }
+.ceap:not(.js) .ce-gauge__val{ stroke-dashoffset:46; }
+.ceap.js .ce-board.in .ce-gauge__val{ animation:ce-accrue 4.6s var(--e-out) infinite; }
+@keyframes ce-accrue{ 0%{ stroke-dashoffset:302; } 62%,88%{ stroke-dashoffset:46; } 100%{ stroke-dashoffset:302; } }
+.ce-gauge__tick{ stroke:var(--ink-5); stroke-width:2; stroke-linecap:round; }
+.ce-gauge__core{ position:absolute; left:50%; top:50%; width:34%; height:34%; transform:translate(-50%,-50%); border-radius:50%;
+  background:radial-gradient(circle,rgba(239,90,40,.35),transparent 68%); }
+.ceap.js .ce-board.in .ce-gauge__core{ animation:ce-corepulse 4.6s var(--e) infinite; }
+@keyframes ce-corepulse{ 0%,100%{ opacity:.35; transform:translate(-50%,-50%) scale(.86); } 62%,88%{ opacity:1; transform:translate(-50%,-50%) scale(1); } }
+
+.ce-blist{ display:flex; flex-direction:column; gap:clamp(11px,1.5vw,15px); min-width:0; }
+.ce-brow{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:clamp(10px,1.4vw,14px); }
+.ce-brow__ic{ width:30px; height:30px; border-radius:9px; flex:none; display:grid; place-items:center; color:var(--ink-3);
+  background:var(--bg-2); border:1px solid var(--line-2); transition:color .4s var(--e), border-color .4s var(--e); }
+.ce-brow__ic svg{ width:15px; height:15px; }
+.ce-brow__rail{ position:relative; height:6px; border-radius:6px; background:var(--bg-3); border:1px solid var(--line); overflow:hidden; }
+.ce-brow__rail i{ position:absolute; inset:0; transform-origin:left; transform:scaleX(0); border-radius:6px;
+  background:linear-gradient(90deg,var(--orange),var(--orange-3)); }
+.ceap:not(.js) .ce-brow__rail i{ transform:scaleX(1); }
+.ceap.js .ce-board.in .ce-brow__rail i{ animation:ce-fill 4.6s var(--e-out) infinite; }
+@keyframes ce-fill{ 0%,6%{ transform:scaleX(0); } 46%,88%{ transform:scaleX(1); } 100%{ transform:scaleX(0); } }
+.ce-brow__ck{ width:20px; height:20px; border-radius:50%; flex:none; display:grid; place-items:center; color:var(--orange);
+  border:1px solid var(--line-2); transition:border-color .4s var(--e); }
+.ce-brow__ck svg{ width:10px; height:10px; }
+.ce-brow__ck path{ stroke-dasharray:20; stroke-dashoffset:20; }
+.ceap:not(.js) .ce-brow__ck path{ stroke-dashoffset:0; }
+.ceap:not(.js) .ce-brow__ck, .ceap:not(.js) .ce-brow__ic{ border-color:rgba(239,90,40,.4); }
+.ceap.js .ce-board.in .ce-brow__ck path{ animation:ce-draw 4.6s var(--e-out) infinite; }
+@keyframes ce-draw{ 0%,44%{ stroke-dashoffset:20; } 58%,88%{ stroke-dashoffset:0; } 100%{ stroke-dashoffset:20; } }
+.ceap.js .ce-board.in .ce-brow__ck, .ceap.js .ce-board.in .ce-brow__ic{ animation:ce-litborder 4.6s var(--e) infinite; }
+@keyframes ce-litborder{ 0%,44%{ border-color:var(--line-2); color:var(--ink-3); } 58%,88%{ border-color:rgba(239,90,40,.55); color:var(--orange); } 100%{ border-color:var(--line-2); color:var(--ink-3); } }
+.ceap.js .ce-board.in .ce-brow:nth-child(2) .ce-brow__rail i,
+.ceap.js .ce-board.in .ce-brow:nth-child(2) .ce-brow__ck path,
+.ceap.js .ce-board.in .ce-brow:nth-child(2) .ce-brow__ck,
+.ceap.js .ce-board.in .ce-brow:nth-child(2) .ce-brow__ic{ animation-delay:.22s; }
+.ceap.js .ce-board.in .ce-brow:nth-child(3) .ce-brow__rail i,
+.ceap.js .ce-board.in .ce-brow:nth-child(3) .ce-brow__ck path,
+.ceap.js .ce-board.in .ce-brow:nth-child(3) .ce-brow__ck,
+.ceap.js .ce-board.in .ce-brow:nth-child(3) .ce-brow__ic{ animation-delay:.44s; }
+.ceap.js .ce-board.in .ce-brow:nth-child(4) .ce-brow__rail i,
+.ceap.js .ce-board.in .ce-brow:nth-child(4) .ce-brow__ck path,
+.ceap.js .ce-board.in .ce-brow:nth-child(4) .ce-brow__ck,
+.ceap.js .ce-board.in .ce-brow:nth-child(4) .ce-brow__ic{ animation-delay:.66s; }
+
+/* ============================================================ OPENING STATEMENT (shares the scrub span with the hero) */
+.ce-intro__in{ max-width:820px; margin:0 auto; text-align:center; position:relative; z-index:1; }
+.ce-intro__text{ font-size:clamp(17px,2.1vw,25px); line-height:1.6; font-weight:500; letter-spacing:-.02em; color:var(--ink); margin:0; }
+/* the accrual motif at full width — segments charge left to right */
+.ce-accrual{ display:flex; gap:6px; justify-content:center; margin:0 auto clamp(30px,4vw,44px); max-width:560px; }
+.ce-accrual span{ flex:1; height:3px; border-radius:3px; background:var(--line-2); transform-origin:left; }
+.ceap.js .ce-accrual span{ background:var(--line); }
+.ceap.js .ce-accrual.in span{ background:linear-gradient(90deg,var(--orange),var(--orange-3)); transition:background .5s var(--e-out); }
+.ceap.js .ce-accrual span:nth-child(2){ transition-delay:.07s; }
+.ceap.js .ce-accrual span:nth-child(3){ transition-delay:.14s; }
+.ceap.js .ce-accrual span:nth-child(4){ transition-delay:.21s; }
+.ceap.js .ce-accrual span:nth-child(5){ transition-delay:.28s; }
+.ceap.js .ce-accrual span:nth-child(6){ transition-delay:.35s; }
+.ceap.js .ce-accrual span:nth-child(7){ transition-delay:.42s; }
+.ceap.js .ce-accrual span:nth-child(8){ transition-delay:.49s; }
+.ce-accrual--btm{ margin:clamp(30px,4vw,44px) auto 0; }
+
+/* ============================================================ RESOURCE LIBRARY — editorial index rows */
+.ce-seam{ position:absolute; top:0; left:0; right:0; height:1px; background:var(--line); margin:0; border:0; overflow:hidden; z-index:2; }
+.ce-seam i{ position:absolute; inset:0; transform-origin:left; transform:scaleX(0); background:linear-gradient(90deg,var(--orange),transparent 70%); transition:transform 1.2s var(--e-out); }
+.ceap:not(.js) .ce-seam i{ transform:scaleX(1); }
+.ceap.js .ce-seam.in i{ transform:scaleX(1); }
+
+.ce-rows{ margin-top:clamp(34px,4.4vw,52px); }
+.ce-row{ position:relative; display:grid; grid-template-columns:auto 1fr auto; align-items:center;
+  gap:clamp(16px,2.4vw,30px); padding:clamp(20px,2.4vw,28px) clamp(12px,1.6vw,20px);
+  border-top:1px solid var(--line); transition:background .4s var(--e); }
+.ce-row:last-child{ border-bottom:1px solid var(--line); }
+.ce-row::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:linear-gradient(180deg,var(--orange),var(--orange-3));
+  transform:scaleY(0); transform-origin:top; transition:transform .45s var(--e); }
+.ce-row:hover{ background:rgba(255,255,255,.035); }
+.ce-row:hover::before{ transform:scaleY(1); }
+.ce-row__ic{ width:clamp(46px,5vw,56px); height:clamp(46px,5vw,56px); border-radius:var(--r); flex:none; display:grid; place-items:center;
+  color:var(--orange); background:rgba(239,90,40,.1); border:1px solid rgba(239,90,40,.22);
+  transition:background .35s var(--e), color .35s var(--e), border-color .35s var(--e), transform .45s var(--e); }
+.ce-row__ic svg{ width:23px; height:23px; }
+.ce-row:hover .ce-row__ic{ background:var(--orange); color:#fff; border-color:var(--orange); transform:translateY(-2px); }
+.ce-row__body{ min-width:0; }
+.ce-row__t{ font-size:clamp(16px,1.7vw,19px); font-weight:700; letter-spacing:-.02em; line-height:1.25; color:var(--ink); margin:0; transition:color .35s var(--e); }
+.ce-row:hover .ce-row__t{ color:var(--orange-2); }
+.ce-row__d{ font-size:clamp(13.5px,1.35vw,15px); line-height:1.6; color:var(--ink-2); margin:8px 0 0; max-width:64ch; }
+.ce-row__go{ display:inline-flex; align-items:center; gap:9px; flex:none; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.08em;
+  color:var(--ink-3); transition:color .35s var(--e); white-space:nowrap; }
+.ce-row__go svg{ width:14px; height:14px; flex:none; color:var(--orange); transition:transform .35s var(--e); }
+.ce-row:hover .ce-row__go{ color:var(--ink); }
+.ce-row:hover .ce-row__go svg{ transform:translate(3px,-3px); }
+
+/* ============================================================ CLOSING CTA */
+.ce-close{ position:relative; text-align:center; }
+.ce-close__glow{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(680px,90vw); height:min(680px,90vw);
+  background:radial-gradient(circle,rgba(239,90,40,.14),transparent 66%); filter:blur(30px); z-index:0; pointer-events:none; }
+.ce-close__in{ position:relative; z-index:1; max-width:820px; margin:0 auto; }
+.ce-close h2{ font-size:clamp(31px,5.2vw,68px); line-height:1.03; font-weight:900; letter-spacing:-.04em; margin:18px 0 0; padding-bottom:.1em; color:var(--ink); }
+.ce-close h2 .o{ color:var(--orange); }
+.ce-close p{ font-size:clamp(15px,1.6vw,18px); color:var(--ink-2); line-height:1.7; margin:20px auto 0; max-width:580px; }
+.ce-close__btns{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:34px; }
+
+/* ============================================================ RESPONSIVE */
+@media (max-width:1024px){
+  .ce-board{ grid-template-columns:auto 1fr; }
+}
+@media (max-width:820px){
+  .ce-row{ grid-template-columns:auto 1fr; row-gap:14px; }
+  .ce-row__go{ grid-column:2; }
+}
+@media (max-width:640px){
+  .ce-sec{ padding:clamp(60px,12vw,84px) 0; }
+  .ce-board{ grid-template-columns:1fr; justify-items:center; gap:22px; }
+  .ce-gauge{ width:118px; height:118px; }
+  .ce-blist{ width:100%; }
+  .ce-hero__ctas, .ce-close__btns{ flex-direction:column; align-items:stretch; }
+  .ce-hero__ctas .ce-btn, .ce-close__btns .ce-btn{ width:100%; justify-content:center; min-height:48px; }
+  .ce-row{ padding:20px 10px; }
+  .ce-row__ic{ width:44px; height:44px; }
+  .ce-row__d{ font-size:13.5px; }
+  .ce-accrual{ max-width:320px; }
+}
+@media (max-width:400px){
+  .ce-wrap{ padding-inline:18px; }
+  .ce-row{ column-gap:14px; }
+}
+
+/* ============================================================ MOTION OFF — resolved static end-states */
+@media (prefers-reduced-motion:reduce){
+  .ceap.js .ce-rv{ opacity:1 !important; transform:none !important; }
+  .ceap.js .ce-head h2, .ceap.js .ce-hero__title, .ceap.js .ce-close h2{ clip-path:none !important; }
+  .ceap.js .ce-board.in .ce-gauge__val{ animation:none !important; stroke-dashoffset:46 !important; }
+  .ceap.js .ce-board.in .ce-gauge__core{ animation:none !important; opacity:1 !important; transform:translate(-50%,-50%) scale(1) !important; }
+  .ceap.js .ce-board.in .ce-brow__rail i{ animation:none !important; transform:scaleX(1) !important; }
+  .ceap.js .ce-board.in .ce-brow__ck path{ animation:none !important; stroke-dashoffset:0 !important; }
+  .ceap.js .ce-board.in .ce-brow__ck, .ceap.js .ce-board.in .ce-brow__ic{ animation:none !important; border-color:rgba(239,90,40,.45) !important; color:var(--orange) !important; }
+  .ceap.js .ce-seam i{ transform:scaleX(1) !important; transition:none !important; }
+  .ceap.js .ce-accrual span{ background:linear-gradient(90deg,var(--orange),var(--orange-3)) !important; transition:none !important; }
+  .ce-ember{ animation:none !important; opacity:0 !important; }
+}
+
+/* ============================================================
+   HERO v2 — Wonder layer (appended; overrides the base hero above).
+   Fixed hero that scroll-morphs (zoom + fade + blur) across a 100svh
+   runway while .ce-below rises over it; a scroll-scrubbed fixed
+   background video (frame 1 at page top, last frame at the end of the
+   span); zoom-out page-load entrance whose copy + title wipe release in
+   the SAME frame; grid + ember ambience; spring-damped mouse parallax.
+   Desktop / fine pointer only — <=1024px, coarse, and reduced-motion get
+   the plain in-flow hero.
+   ============================================================ */
+
+/* ---------- LAYER 1 · scroll-scrubbed background video (fixed, behind everything) */
+.ce-scrub{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; opacity:0; transition:opacity .5s ease; }
+.ce-scrub.is-on{ opacity:1; }
+.ce-scrub__par{ position:absolute; inset:0; will-change:transform; }
+/* FRAMING — minimum-zoom. The box carries only the bleed the parallax
+   actually needs, so the footage reads at close to its natural scale rather
+   than blown up. Parallax travel on this layer peaks at ~25px horizontally and
+   ~17px vertically (x/y max .72 * 30/20px * mag max 1.15); a 4% bleed is
+   ~58px at 1440 wide and ~29px at 720 tall, so every edge stays covered at
+   both extremes with room to spare. Centre-anchored (50% 50%) rather than
+   top-anchored, so nothing is cropped harder on one axis than the other. */
+.ce-scrub__vid{ position:absolute; left:-4%; top:-4%; width:108%; height:108%;
+  object-fit:cover; object-position:50% 50%; will-change:transform; }
+/* constant left-dark fade keeps the hero copy readable over the footage */
+.ce-scrub__grad{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.8) 22%, rgba(0,0,0,.58) 46%, rgba(0,0,0,.42) 70%, rgba(0,0,0,.34) 88%, rgba(0,0,0,.34) 100%); }
+/* full dark overlay — ramps 0 -> 1 across the LAST 45vh of the hero so the
+   opening statement is already at full strength when it begins, then holds */
+.ce-scrub__shade{ position:absolute; inset:0; opacity:0; background:rgba(0,0,0,.66); }
+
+/* ---------- fixed hero + morph runway */
+.ce-hero{ position:fixed; inset:0; height:100svh; z-index:40; padding:0; overflow:hidden; will-change:opacity,transform; }
+.ce-hero__s1{ position:relative; height:100%; display:flex; flex-direction:column; justify-content:center;
+  padding:calc(var(--nav-h,72px) + 16px) 0 24px; transform-origin:50% 42svh; }
+.ce-hero__in{ z-index:3; }
+.ce-fadespacer{ height:100svh; }             /* the runway the fixed hero morphs across */
+.ce-below{ position:relative; z-index:4; }   /* content rises OVER the morphing hero */
+
+/* ---------- SCRUB SPAN: hero + the opening statement.
+   Only these two go transparent so the fixed video shows through; every
+   section below keeps its own surface, so there is no page-wide transparency. */
+.ce-hero, .ce-hero__s1, #ceIntro{ background:transparent !important; }
+
+/* section tint (only on sections OUTSIDE the scrub span) */
+.ce-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)); }
+
+/* mobile / coarse / reduced-motion: the scrub layer is hero-only, so give the
+   risen content a solid floor (these sections carry no background of their own) */
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  .ce-below{ background:var(--bg); }
+}
+
+/* ============================================================
+   LAYER 2 · BAND VIDEO — a SECOND fixed video behind everything after
+   the scrub span. Darkened + gradient-shaded so text stays readable;
+   band sections go transparent and band surfaces take the frosted-glass
+   recipe. Toggled by a viewport-centre probe. Desktop / fine pointer only.
+   ============================================================ */
+.ce-band{ position:relative; z-index:1; }
+.ce-bandvid{ position:fixed; inset:0; z-index:0; opacity:0; pointer-events:none; transition:opacity .6s ease; }
+.ce-bandvid.on{ opacity:1; }
+.ce-bandvid__media{ position:absolute; inset:0; overflow:hidden; }
+.ce-bandvid__media video{
+  position:absolute; left:50%; top:50%; width:100%; height:100%;
+  transform:translate(-50%,-50%); object-fit:cover; object-position:50% 50%;
+  filter:brightness(.6);
+}
+/* OVERLAY — the hero's treatment carried down the page. Two stacked layers,
+   same construction as the scrub layer above:
+     1. a constant left-dark fade, so left-aligned section heads and rows sit
+        on the darkest part of the frame and the footage breathes on the right
+        (the hero's directional character, at a lighter weight);
+     2. the v2 band gradient underneath it — its top stop is eased from .87 to
+        .80 so the two together land in the v2 darkness range instead of
+        crushing the clip to black.
+   Net: ~88% dark at the left edge, ~80% at the right. */
+.ce-bandvid__grad{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.3) 26%, rgba(0,0,0,.17) 52%, rgba(0,0,0,.07) 78%, rgba(0,0,0,0) 100%); }
+.ce-bandvid__shade{ position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.81) 30%, rgba(0,0,0,.83) 70%, rgba(0,0,0,.9) 100%); }
+
+/* band sections transparent so the fixed video shows through */
+.ce-band > section{ background:transparent !important; }
+
+/* frosted glass over the band video — real card children only, never a grid
+   wrapper (glassing a wrapper draws a phantom outer box) */
+.ce-band .ce-row:hover{ background:rgba(255,255,255,.055); }
+.ce-band .ce-row__ic{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.ce-band .ce-row:hover .ce-row__ic{ background:var(--orange); border-color:var(--orange); }
+
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  /* no band video here -> restore solid surfaces for contrast + perf */
+  .ce-bandvid{ display:none !important; }
+  .ce-band > section{ background:var(--bg) !important; }
+  .ce-band > section.ce-sec--tint{ background:linear-gradient(180deg,var(--bg),var(--bg-1)) !important; }
+  .ce-band .ce-row__ic{
+    background:rgba(239,90,40,.1); border:1px solid rgba(239,90,40,.22);
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+  .ce-board{ -webkit-backdrop-filter:none; backdrop-filter:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012)); box-shadow:none; }
+}
+
+/* ---------- ambient grid + embers (scene layers under the copy) */
+.ce-hero__s1grid{ position:absolute; inset:0; z-index:1; pointer-events:none; will-change:transform;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%);
+          mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 30%,transparent 80%); }
+.ce-hero__embers{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:2; will-change:transform; }
+.ce-ember{ position:absolute; bottom:-2%; width:var(--sz,3px); height:var(--sz,3px); border-radius:50%;
+  left:var(--x,50%); background:var(--orange-2); box-shadow:0 0 10px rgba(239,90,40,.6); opacity:0;
+  animation:ce-ember var(--t,12s) linear var(--dl,0s) infinite; }
+@keyframes ce-ember{
+  0%{ transform:translate3d(0,2vh,0); opacity:0; }
+  10%{ opacity:var(--op,.22); }
+  85%{ opacity:var(--op,.22); }
+  100%{ transform:translate3d(var(--swx,20px),-108vh,0); opacity:0; } }
+
+/* parallax rides these wrappers; the reveal targets stay on their children */
+.ce-hero__copy, .ce-hero .ce-board{ will-change:transform; }
+
+/* ---------- desktop composition: copy left / accrual board right, so the
+   stacked hero fits inside the fixed 100svh frame without clipping */
+@media (min-width:1025px) and (pointer:fine){
+  .ce-hero__in{ display:grid; grid-template-columns:1.06fr .94fr; gap:clamp(28px,3.6vw,60px); align-items:center; }
+  .ce-hero__title{ font-size:clamp(34px,3.8vw,58px); margin-top:18px; max-width:none; }
+  .ce-hero__sub{ margin-top:18px; max-width:520px; }
+  .ce-hero .ce-board{ margin-top:0; }
+}
+@media (min-width:1025px) and (pointer:fine) and (max-height:820px){
+  .ce-hero__s1{ padding-top:calc(var(--nav-h,72px) + 8px); }
+  .ce-hero__title{ font-size:clamp(32px,3.3vw,48px); margin-top:14px; }
+  .ce-hero__sub{ margin-top:14px; }
+  .ce-hero .ce-board{ padding:18px; }
+  .ce-gauge{ width:112px; height:112px; }
+}
+
+/* ---------- page-load entrance: the scene snaps zoomed-up before paint, then
+   animates out while the copy rises and the title wipes in the SAME frame */
+.ceap.js .ce-hero.ce-enter .ce-hero__s1{ transform:scale(1.12) !important; opacity:.5 !important; transition:none !important; }
+.ceap.js .ce-hero.ce-entering .ce-hero__s1{ transition:transform 1.7s cubic-bezier(.16,.84,.28,1), opacity 1.2s ease !important; }
+.ceap.js .ce-hero.ce-enter .ce-hero__copy .ce-rv,
+.ceap.js .ce-hero.ce-entering .ce-hero__copy .ce-rv,
+.ceap.js .ce-hero.ce-enter .ce-board.ce-rv,
+.ceap.js .ce-hero.ce-entering .ce-board.ce-rv{ opacity:0 !important; transform:translateY(24px) !important; }
+.ceap.js .ce-hero.ce-enter .ce-hero__title,
+.ceap.js .ce-hero.ce-entering .ce-hero__title{ clip-path:inset(0 105% 0 0) !important; }   /* hold the wipe too */
+.ceap.js .ce-hero.ce-reveal-hero .ce-hero__copy .ce-rv,
+.ceap.js .ce-hero.ce-reveal-hero .ce-board.ce-rv{ opacity:1 !important; transform:none !important; }
+/* release the wipe WITH the reveal — otherwise the hold above outlasts it and
+   the headline stays fully clipped for another two seconds */
+.ceap.js .ce-hero.ce-reveal-hero .ce-hero__title{ clip-path:inset(0 0 0 0) !important; }
+
+/* ---------- mobile / coarse / reduced-motion: in-flow hero, no morph */
+@media (max-width:1024px), (prefers-reduced-motion:reduce), (pointer:coarse){
+  .ce-hero{ position:relative; inset:auto; height:auto; z-index:auto; overflow:visible; padding:clamp(92px,15vh,180px) 0 0; }
+  .ce-hero__s1{ height:auto; display:block; padding:0; }
+  .ce-fadespacer{ display:none; }
+  .ce-below{ z-index:auto; }
+}
+@media (prefers-reduced-motion:reduce){
+  .ceap.js .ce-hero.ce-enter .ce-hero__s1, .ceap.js .ce-hero.ce-entering .ce-hero__s1{ transform:none !important; opacity:1 !important; }
+  .ceap.js .ce-hero.ce-enter .ce-hero__copy .ce-rv, .ceap.js .ce-hero.ce-entering .ce-hero__copy .ce-rv,
+  .ceap.js .ce-hero.ce-enter .ce-board.ce-rv, .ceap.js .ce-hero.ce-entering .ce-board.ce-rv{ opacity:1 !important; transform:none !important; }
+  .ceap.js .ce-hero.ce-enter .ce-hero__title, .ceap.js .ce-hero.ce-entering .ce-hero__title{ clip-path:none !important; }
+}
+
+/* ---------- cursor safety (scoped + !important so it beats the global hide) */
+.ceap, .ceap *{ cursor:auto !important; }
+.ceap a[href], .ceap button, .ceap .ce-btn, .ceap label[for], .ceap [role="button"]{ cursor:pointer !important; }
+.ceap input, .ceap textarea, .ceap select{ cursor:text !important; }
+.ceap input[type="checkbox"], .ceap input[type="radio"]{ cursor:pointer !important; }
+</style>
+
+<div class="ceap__in">
+
+<!-- LAYER 1 · scroll-scrubbed background video (hero runway + opening statement) -->
+<div class="ce-scrub" id="ceScrub" aria-hidden="true">
+  <div class="ce-scrub__par" id="ceScrubPar">
+    <video class="ce-scrub__vid" id="ceScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="ce-scrub__grad" aria-hidden="true"></div>
+  <div class="ce-scrub__shade" id="ceScrubShade"></div>
+</div>
+
+<!-- ═══════════════════════ HERO (v2 — fixed morph over the runway) ═══════════════════════ -->
+<header class="ce-hero" id="ceHero">
+<script>
+/* PRE-PAINT: set the zoomed-up + copy-held state before the hero paints, so the
+   entrance never plays as a second beat after a visible first frame. */
+(function(){
+  var h = document.getElementById('ceHero');
+  if (!h) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  h.classList.add('ce-enter');
+})();
+</script>
+  <div class="ce-hero__s1" id="ceHeroS1">
+    <div class="ce-hero__glow" aria-hidden="true"></div>
+    <div class="ce-hero__s1grid" aria-hidden="true"></div>
+    <div class="ce-hero__embers" id="ceEmbers" aria-hidden="true"></div>
+    <div class="ce-wrap ce-hero__in">
+
+      <div class="ce-hero__copy" id="ceHeroCopy">
+        <div class="ce-hero__eyrow ce-rv">
+          <span class="ce-ey ce-ey--o">Career Development</span>
+        </div>
+        <h1 class="ce-hero__title ce-rv d1">Continuing <span class="o">Education</span> Resources</h1>
+        <div class="ce-rv d2">
+          <p class="ce-hero__sub">Stay current, stay credentialed. Browse our curated list of free and paid CE resources for healthcare professionals.</p>
+          <div class="ce-hero__ctas">
+            <a href="/apply-now/" class="ce-btn ce-btn--pri">Quick Apply
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/contact-us/" class="ce-btn ce-btn--ghost">Contact Us
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGNATURE MOTIF · credit accrual gauge + four discipline rails.
+           Purely decorative and text-free — it echoes the page's four resource
+           disciplines without adding a single word of copy. -->
+      <div class="ce-board ce-rv d1" aria-hidden="true">
+        <div class="ce-gauge">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ce-gauge__trk" cx="60" cy="60" r="48"/>
+            <circle class="ce-gauge__val" cx="60" cy="60" r="48"/>
+            <line class="ce-gauge__tick" x1="60" y1="4" x2="60" y2="10"/>
+            <line class="ce-gauge__tick" x1="88" y1="11.5" x2="85" y2="16.7"/>
+            <line class="ce-gauge__tick" x1="108.5" y1="32" x2="103.3" y2="35"/>
+            <line class="ce-gauge__tick" x1="116" y1="60" x2="110" y2="60"/>
+            <line class="ce-gauge__tick" x1="108.5" y1="88" x2="103.3" y2="85"/>
+            <line class="ce-gauge__tick" x1="88" y1="108.5" x2="85" y2="103.3"/>
+            <line class="ce-gauge__tick" x1="60" y1="116" x2="60" y2="110"/>
+            <line class="ce-gauge__tick" x1="32" y1="108.5" x2="35" y2="103.3"/>
+            <line class="ce-gauge__tick" x1="11.5" y1="88" x2="16.7" y2="85"/>
+            <line class="ce-gauge__tick" x1="4" y1="60" x2="10" y2="60"/>
+            <line class="ce-gauge__tick" x1="11.5" y1="32" x2="16.7" y2="35"/>
+            <line class="ce-gauge__tick" x1="32" y1="11.5" x2="35" y2="16.7"/>
+          </svg>
+          <span class="ce-gauge__core" aria-hidden="true"></span>
+        </div>
+        <div class="ce-blist">
+          <div class="ce-brow">
+            <span class="ce-brow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></span>
+            <span class="ce-brow__rail"><i></i></span>
+            <span class="ce-brow__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+          <div class="ce-brow">
+            <span class="ce-brow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.5 3 6 3s6-2 6-3v-5"/></svg></span>
+            <span class="ce-brow__rail"><i></i></span>
+            <span class="ce-brow__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+          <div class="ce-brow">
+            <span class="ce-brow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+            <span class="ce-brow__rail"><i></i></span>
+            <span class="ce-brow__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+          <div class="ce-brow">
+            <span class="ce-brow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg></span>
+            <span class="ce-brow__rail"><i></i></span>
+            <span class="ce-brow__ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.ce-hero__in -->
+  </div><!-- /.ce-hero__s1 -->
+</header>
+
+<div class="ce-fadespacer" id="ceFadeSpacer" aria-hidden="true"></div>
+
+<div class="ce-below">
+
+<!-- ═══════════════════════ OPENING STATEMENT (end of the scrub span) ═══════════════════════ -->
+<section class="ce-sec" id="ceIntro">
+  <div class="ce-wrap">
+    <div class="ce-intro__in">
+      <div class="ce-accrual ce-rv" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <p class="ce-intro__text ce-rv d1">InSync Consulting Services is committed to supporting the ongoing education and career growth of the healthcare professionals we place. Below are trusted resources across multiple disciplines to help you maintain licensure and advance your practice.</p>
+      <div class="ce-accrual ce-accrual--btm ce-rv d2" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 2 · looping band video (behind every section below). Overlay is the
+     hero's treatment repeated: left-fade gradient + shade, same construction. -->
+<div class="ce-bandvid" id="ceBandVid">
+  <div class="ce-bandvid__media" id="ceBandVidMedia" aria-hidden="true"></div>
+  <div class="ce-bandvid__shade" aria-hidden="true"></div>
+  <div class="ce-bandvid__grad" aria-hidden="true"></div>
+</div>
+
+<div class="ce-band" id="ceBand">
+
+<!-- ═══════════════════════ GENERAL ═══════════════════════ -->
+<section class="ce-sec" id="general">
+  <div class="ce-seam" aria-hidden="true"><i></i></div>
+  <div class="ce-wrap">
+    <div class="ce-head ce-rv">
+      <span class="ce-ey">General</span>
+      <h2>General <span class="o">Healthcare</span> Resources</h2>
+      <p>Foundational resources from government agencies and global health organizations.</p>
+    </div>
+    <div class="ce-rows">
+
+      <a href="https://www.hhs.gov/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">U.S. Dept. of Health &amp; Human Services</h3>
+          <p class="ce-row__d">Federal agency overseeing national health policy, grant programs, and healthcare regulatory guidance.</p>
+        </span>
+        <span class="ce-row__go">hhs.gov <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://travel.state.gov/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">U.S. Dept. of State &mdash; Travel</h3>
+          <p class="ce-row__d">Passport, visa, and international travel resources for healthcare professionals working abroad or relocating.</p>
+        </span>
+        <span class="ce-row__go">travel.state.gov <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.uscis.gov/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.5 9C7.5 19.5 3 17 3 12V5l9-3 9 3z"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">U.S. Citizenship &amp; Immigration Services</h3>
+          <p class="ce-row__d">Official resource for work visa applications, green card processes, and immigration forms for healthcare workers.</p>
+        </span>
+        <span class="ce-row__go">uscis.gov <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.who.int/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">World Health Organization</h3>
+          <p class="ce-row__d">Global health data, clinical guidelines, and public health standards from the leading international health authority.</p>
+        </span>
+        <span class="ce-row__go">who.int <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ MEDICINE ═══════════════════════ -->
+<section class="ce-sec ce-sec--tint" id="medicine">
+  <div class="ce-seam" aria-hidden="true"><i></i></div>
+  <div class="ce-wrap">
+    <div class="ce-head ce-rv">
+      <span class="ce-ey">Medicine</span>
+      <h2>Medicine &amp; <span class="o">Physician</span> Resources</h2>
+      <p>CME and continuing education platforms trusted by physicians and advanced practice providers.</p>
+    </div>
+    <div class="ce-rows">
+
+      <a href="https://edhub.ama-assn.org/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.5 3 6 3s6-2 6-3v-5"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">AMA Ed Hub</h3>
+          <p class="ce-row__d">The American Medical Association&#39;s platform for CME, MOC, and professional development courses for physicians.</p>
+        </span>
+        <span class="ce-row__go">edhub.ama-assn.org <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.mer.org/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">Medical Education Resources</h3>
+          <p class="ce-row__d">Accredited CME provider offering case-based learning, live events, and online courses for healthcare providers.</p>
+        </span>
+        <span class="ce-row__go">mer.org <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ NURSING ═══════════════════════ -->
+<section class="ce-sec" id="nursing">
+  <div class="ce-seam" aria-hidden="true"><i></i></div>
+  <div class="ce-wrap">
+    <div class="ce-head ce-rv">
+      <span class="ce-ey">Nursing</span>
+      <h2>Nursing <span class="o">Continuing</span> Education</h2>
+      <p>Accredited CE platforms designed for RNs, LPNs, and specialty nurses to maintain licensure and grow skills.</p>
+    </div>
+    <div class="ce-rows">
+
+      <a href="https://www.myfreece.com/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">MyFreeCE</h3>
+          <p class="ce-row__d">Free and low-cost accredited CE courses for nurses covering clinical skills, pharmacology, infection control, and more.</p>
+        </span>
+        <span class="ce-row__go">myfreece.com <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.vlh.com/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 8 15 10.5 10 13 10 8" fill="currentColor" stroke="none"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">Virtual Lecture Hall</h3>
+          <p class="ce-row__d">Online nursing CE platform with board-certified instructors, specialty modules, and state approval verification.</p>
+        </span>
+        <span class="ce-row__go">vlh.com <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.rn.com/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">RN.com</h3>
+          <p class="ce-row__d">Accredited CE for nurses with courses in critical care, pediatrics, emergency nursing, and leadership development.</p>
+        </span>
+        <span class="ce-row__go">rn.com <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CNA ═══════════════════════ -->
+<section class="ce-sec ce-sec--tint" id="cna">
+  <div class="ce-seam" aria-hidden="true"><i></i></div>
+  <div class="ce-wrap">
+    <div class="ce-head ce-rv">
+      <span class="ce-ey">CNA</span>
+      <h2>CNA <span class="o">Continuing</span> Education</h2>
+      <p>Keep your CNA certification current with state-approved continuing education resources.</p>
+    </div>
+    <div class="ce-rows">
+
+      <a href="https://cnaceus.co/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">CNA CEUs</h3>
+          <p class="ce-row__d">State-approved CE units for CNAs covering dementia care, HIPAA, safety, and patient rights.</p>
+        </span>
+        <span class="ce-row__go">cnaceus.co <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+      <a href="https://www.cnazone.com/" target="_blank" rel="noopener" class="ce-row ce-rv">
+        <span class="ce-row__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span class="ce-row__body">
+          <h3 class="ce-row__t">CNA Zone</h3>
+          <p class="ce-row__d">Online CE platform for nursing assistants offering self-paced, affordable courses with state-approved certification tracking.</p>
+        </span>
+        <span class="ce-row__go">cnazone.com <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CLOSING CTA ═══════════════════════ -->
+<section class="ce-sec ce-close ce-rv">
+  <div class="ce-close__glow" aria-hidden="true"></div>
+  <div class="ce-wrap ce-close__in">
+    <span class="ce-ey ce-ey--o">Your Next Role</span>
+    <h2>Join the InSync <span class="o">Family</span> of Clinicians</h2>
+    <p>Ready to advance your career? InSync connects healthcare professionals with top facilities across the country &mdash; competitive pay, full benefits, and ongoing support.</p>
+    <div class="ce-close__btns">
+      <a href="/apply-now/" class="ce-btn ce-btn--pri">Quick Apply
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/contact-us/" class="ce-btn ce-btn--ghost">Contact Us
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /.ce-band -->
+</div><!-- /.ce-below -->
+</div><!-- /.ceap__in -->
+
+<script>
+/* ════ LAYER 2 · BAND VIDEO ════
+   A second fixed video behind every section after the scrub span. Source is a
+   JS runtime constant (GHL corrupts URLs in src attributes). Toggled by a
+   viewport-centre probe against the band's absolute range — not a
+   section-by-section observer. Desktop / fine pointer only. */
+(function(){
+  /* ─────────────────────────────────────────────────────────────────────
+     MEDIA SOURCE — both video layers run the SAME clip, so the hero's
+     background carries down the page as one continuous piece of footage.
+
+     .mov IS A TRAP: Chrome routinely refuses the QuickTime container even
+     when the stream inside is H.264. Re-encode and paste the result into
+     CE_VIDEO_MP4 below — that constant wins whenever it is non-empty:
+
+       ffmpeg -i 6a76553e4689e074da87c771.mov \
+              -c:v libx264 -pix_fmt yuv420p -g 12 -movflags +faststart \
+              6a76553e4689e074da87c771.mp4
+
+     -g 12 matters for the scrub layer too: sparse keyframes make
+     currentTime seeking stutter. Until the MP4 is in place the decode
+     guard below keeps both layers OFF, so sections sit on clean black
+     rather than a stray gradient wash over nothing.
+     ───────────────────────────────────────────────────────────────────── */
+  var CE_VIDEO_MP4 = '';   /* <-- paste the H.264 re-encode URL here */
+  var CE_VIDEO_MOV = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a76553e4689e074da87c771.mov';
+  var CE_BAND_VIDEO_URL = CE_VIDEO_MP4 || CE_VIDEO_MOV;
+
+  var wrap  = document.getElementById('ceBandVid');
+  var media = document.getElementById('ceBandVidMedia');
+  var band  = document.getElementById('ceBand');
+  if (!wrap || !media || !band) return;
+  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  if (mqOff.matches) return;
+
+  var vidOk = true;
+  if (CE_BAND_VIDEO_URL.indexOf('http') === 0){
+    var v = document.createElement('video');
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('playsinline',''); v.preload = 'auto'; v.src = CE_BAND_VIDEO_URL;
+    /* DECODE GUARD: if the container/codec is refused, leave the layer off for
+       good so the band sits on clean black rather than a stray gradient wash. */
+    v.addEventListener('error', function(){ vidOk = false; wrap.classList.remove('on'); });
+    media.appendChild(v);
+    var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+  }
+
+  var raf = 0;
+  function bandRange(){
+    var r = band.getBoundingClientRect();
+    var top = r.top + window.scrollY;
+    return { top: top, bottom: top + r.height };
+  }
+  function update(){
+    raf = 0;
+    var vh = window.innerHeight;
+    var y = window.scrollY + vh * 0.5;
+    var r = bandRange();
+    wrap.classList.toggle('on', vidOk && y > r.top + 60 && y < r.bottom);
+  }
+  function onScroll(){ if (!raf) raf = requestAnimationFrame(update); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+
+<script>
+/* ════ SCROLL-ENTRANCE REVEAL CONTRACT ════
+   The .js flag is already set pre-paint at the top of the wrapper. What
+   remains: the observer, the sibling stagger, and an ON-SCREEN-ONLY safety
+   net. */
+(function(){
+  var root = document.getElementById('ceap'); if(!root) return;
+  root.classList.add('js');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  var revs = root.querySelectorAll('.ce-rv, .ce-seam');
+
+  /* Stagger siblings in JS: where a parent holds several reveal children (the
+     resource rows), delay each a beat after the last so the group cascades
+     instead of popping in as a slab. 70ms apart, capped at 350ms. Elements
+     that already carry an explicit d1/d2/d3 delay are left alone. */
+  if(!reduce){
+    var groups = [];
+    revs.forEach(function(el){
+      var p = el.parentElement;
+      if(p && groups.indexOf(p) < 0) groups.push(p);
+    });
+    groups.forEach(function(p){
+      var kids = [], i;
+      for(i = 0; i < p.children.length; i++){
+        var c = p.children[i];
+        if(c.classList.contains('ce-rv') && !/\bd[123]\b/.test(c.className)) kids.push(c);
+      }
+      if(kids.length < 2) return;
+      for(i = 0; i < kids.length; i++){
+        kids[i].style.transitionDelay = Math.min(i * 0.07, 0.35).toFixed(2) + 's';
+      }
+    });
+  }
+
+  if('IntersectionObserver' in window && !reduce){
+    /* threshold 0 + a bottom offset fires when an element's top crosses ~88%
+       of the viewport. A RATIO threshold starves on any block taller than the
+       viewport — it can never reach the ratio, so tall blocks stay invisible. */
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        e.target.classList.add('in');
+        /* children parked inside a horizontal track never intersect on their
+           own — reveal them with their container */
+        var tr = e.target.querySelectorAll ? e.target.querySelectorAll('.ce-track > .ce-rv') : null;
+        if(tr) for(var i = 0; i < tr.length; i++){ tr[i].classList.add('in'); io.unobserve(tr[i]); }
+        io.unobserve(e.target);
+      });
+    }, { threshold:0, rootMargin:'0px 0px -12% 0px' });
+    revs.forEach(function(el){ io.observe(el); });
+  } else {
+    revs.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){ if(el.getBoundingClientRect().top < window.innerHeight * 0.94) el.classList.add('in'); });
+  });
+  /* Safety net for ON-SCREEN content only. A blanket reveal here would kill
+     every scroll entrance below the fold before the visitor reaches it. */
+  setTimeout(function(){
+    revs.forEach(function(el){
+      if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  }, 2500);
+})();
+</script>
+
+<script>
+/* ════ HERO v2 · embers + spring-damped mouse parallax ════
+   Fine pointer + motion-on only. The scene moves AGAINST the cursor; near
+   layers travel more than far ones. Parallax rides wrapper elements so it
+   never clobbers the reveal/clip-wipe on their children, and every movement
+   is small enough to be clipped by the wrapper's overflow:clip (0 added
+   overflow). */
+(function(){
+  'use strict';
+  var hero = document.getElementById('ceHero');
+  if (!hero) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse  = window.matchMedia('(pointer: coarse)').matches;
+
+  if (!reduced) {
+    var ew = document.getElementById('ceEmbers');
+    if (ew) for (var i = 0; i < 9; i++) {
+      var e = document.createElement('span');
+      e.className = 'ce-ember';
+      e.style.setProperty('--x',  (4 + Math.random() * 92) + '%');
+      e.style.setProperty('--sz', (2 + Math.random() * 2.4).toFixed(1) + 'px');
+      e.style.setProperty('--t',  (9 + Math.random() * 8).toFixed(1) + 's');
+      e.style.setProperty('--dl', (-Math.random() * 16).toFixed(1) + 's');
+      e.style.setProperty('--swx', ((Math.random() * 120) - 60).toFixed(0) + 'px');
+      e.style.setProperty('--op', (0.1 + Math.random() * 0.16).toFixed(2));
+      ew.appendChild(e);
+    }
+  }
+
+  if (!coarse && !reduced) {
+    var pCopy    = document.getElementById('ceHeroCopy');
+    var pBoard   = hero.querySelector('.ce-board');
+    var pEmbers  = document.getElementById('ceEmbers');
+    var pGrid    = hero.querySelector('.ce-hero__s1grid');
+    var scrubPar = document.getElementById('ceScrubPar');
+
+    var tx = 0, ty = 0, x = 0, y = 0, vx = 0, vy = 0;
+    var live = true, still = 0;
+    var lastT = performance.now();
+    var mag = 1, scrollDamp = 1;
+
+    function calcMag(){ mag = Math.max(.55, Math.min(1.15, window.innerWidth / 1600)); }
+    calcMag();
+    window.addEventListener('resize', calcMag);
+
+    function calcScroll(){ scrollDamp = Math.max(0, 1 - (window.scrollY / (window.innerHeight * .7))); }
+    calcScroll();
+    window.addEventListener('scroll', function(){ calcScroll(); live = true; still = 0; }, { passive:true });
+
+    hero.addEventListener('mousemove', function(ev){
+      var r = hero.getBoundingClientRect();
+      var nx = (ev.clientX - r.left) / r.width - .5;
+      var ny = (ev.clientY - r.top) / Math.min(r.height, window.innerHeight) - .5;
+      tx = Math.sign(nx) * Math.pow(Math.min(1, Math.abs(nx) * 2), 1.2) * .72;
+      ty = Math.sign(ny) * Math.pow(Math.min(1, Math.abs(ny) * 2), 1.2) * .72;
+      live = true; still = 0;
+    });
+    hero.addEventListener('mouseleave', function(){ tx = 0; ty = 0; live = true; still = 0; });
+
+    var STIFF = 46, DAMP = 12.5;
+    function frame(now){
+      var dt = Math.min(.05, (now - lastT) / 1000) || .016; lastT = now;
+      var gx = tx * scrollDamp, gy = ty * scrollDamp;
+      vx += (gx - x) * STIFF * dt; vx *= Math.exp(-DAMP * dt);
+      vy += (gy - y) * STIFF * dt; vy *= Math.exp(-DAMP * dt);
+      x += vx * dt; y += vy * dt;
+      if (live) {
+        /* depth order, most-to-least travel: embers > copy > board > grid > video */
+        if (pCopy)    pCopy.style.transform    = 'translate3d(' + (-x * 60 * mag) + 'px,' + (-y * 40 * mag) + 'px,0)';
+        if (pBoard)   pBoard.style.transform   = 'translate3d(' + (-x * 44 * mag) + 'px,' + (-y * 30 * mag) + 'px,0)';
+        if (pEmbers)  pEmbers.style.transform  = 'translate3d(' + (-x * 74 * mag) + 'px,' + (-y * 50 * mag) + 'px,0)';
+        if (pGrid)    pGrid.style.transform    = 'translate3d(' + (-x * 34 * mag) + 'px,' + (-y * 22 * mag) + 'px,0)';
+        if (scrubPar) scrubPar.style.transform = 'translate3d(' + (-x * 30 * mag) + 'px,' + (-y * 20 * mag) + 'px,0)';
+        if (Math.abs(gx - x) < .0005 && Math.abs(gy - y) < .0005 && Math.abs(vx) < .001 && Math.abs(vy) < .001) {
+          if (++still > 30) live = false;
+        } else { still = 0; }
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+
+<script>
+/* ════ HERO v2 · page-load entrance ════
+   The pre-paint script set .ce-enter (scene snapped to scale 1.12, copy held).
+   Arm the transition, then release BOTH in the same frame: the scene zooms out
+   while the copy rises and the title wipes — one gesture, not two beats. */
+(function(){
+  var h = document.getElementById('ceHero');
+  if (!h || !h.classList.contains('ce-enter')) return;   /* reduced-motion -> skip */
+
+  function runEntrance(){
+    h.classList.add('ce-entering');
+    void h.offsetWidth;                        /* commit "zoomed + transition-armed" */
+    requestAnimationFrame(function(){
+      h.classList.remove('ce-enter');          /* 1.12 -> 1 */
+      h.classList.add('ce-reveal-hero');       /* copy rises + title wipes, SAME frame */
+    });
+    setTimeout(function(){ h.classList.remove('ce-entering'); }, 2400);
+  }
+  requestAnimationFrame(function(){ requestAnimationFrame(runEntrance); });
+
+  /* idempotent blank-hero guard — never leave the copy held */
+  setTimeout(function(){
+    h.classList.remove('ce-enter'); h.classList.remove('ce-entering');
+    h.classList.add('ce-reveal-hero');
+  }, 3000);
+})();
+</script>
+
+<script>
+/* ════ HERO v2 · fixed-hero scroll morph ════
+   The hero is position:fixed (zero drift) and zooms + fades + blurs across the
+   100svh runway while .ce-below rises over it. Desktop / fine pointer only;
+   armed and disarmed on media-query change and resize. */
+(function(){
+  var hero = document.getElementById('ceHero');
+  if (!hero) return;
+  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  var armed = false, raf = 0;
+  function paint(){
+    raf = 0;
+    var dist = window.innerHeight * 0.82;
+    var t = Math.max(0, Math.min(1, window.scrollY / dist));
+    var e = t * t * (3 - 2 * t);
+    if (t <= 0.001) e = 0; if (t >= 0.999) e = 1;
+    hero.style.opacity = String(1 - e);
+    hero.style.transform = 'scale(' + (1 + e * 1.4).toFixed(4) + ')';
+    hero.style.transformOrigin = '50% 42%';
+    hero.style.filter = e > 0.01 ? 'blur(' + (e * 10).toFixed(1) + 'px)' : 'none';
+    hero.style.pointerEvents = e >= 0.9 ? 'none' : '';
+    hero.style.visibility = e >= 1 ? 'hidden' : 'visible';
+  }
+  function onScroll(){ if(armed && !raf) raf = requestAnimationFrame(paint); }
+  function arm(){ if(mqOff.matches){ disarm(); return; } if(armed) return;
+    armed = true; window.addEventListener('scroll', onScroll, { passive:true }); paint(); }
+  function disarm(){ armed = false; window.removeEventListener('scroll', onScroll);
+    hero.style.cssText = ''; }
+  arm();
+  if (mqOff.addEventListener) mqOff.addEventListener('change', arm);
+  window.addEventListener('resize', function(){ mqOff.matches ? disarm() : arm(); });
+})();
+</script>
+
+<script>
+/* ════ LAYER 1 · SCROLL-SCRUBBED BACKGROUND VIDEO ════
+   Desktop: the playhead is driven by scroll position — frame 1 at the top of
+   the page, last frame at the BOTTOM OF THE OPENING STATEMENT (the section
+   after the hero). No loop handoff anywhere inside the span. Mobile/touch:
+   muted autoplay loop, gated off past the span. Reduced-motion: frozen on
+   frame 1. The media URL is a JS runtime constant. */
+(function(){
+  'use strict';
+  var wrap = document.getElementById('ceScrub');
+  var vid  = document.getElementById('ceScrubVid');
+  if (!wrap || !vid) return;
+
+  /* Same clip as the band layer. See the band script for the .mov / .mp4
+     note — paste the H.264 re-encode into CE_VIDEO_MP4 and it wins. */
+  var CE_VIDEO_MP4 = '';   /* <-- paste the H.264 re-encode URL here */
+  var CE_VIDEO_MOV = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a76553e4689e074da87c771.mov';
+  var CE_SCRUB_VIDEO_URL = CE_VIDEO_MP4 || CE_VIDEO_MOV;
+  vid.src = CE_SCRUB_VIDEO_URL;
+
+  /* DECODE GUARD: if the container/codec is refused, kill the layer for good
+     so the hero sits on clean black instead of a half-lit empty frame. */
+  var dead = false;
+  vid.addEventListener('error', function(){ dead = true; wrap.classList.remove('is-on'); });
+
+  var shade = wrap.querySelector('.ce-scrub__shade');
+
+  /* end of the span = the bottom of #ceIntro, measured (never hardcoded) */
+  function scrubEnd(){
+    var sec = document.getElementById('ceIntro');
+    if (sec){
+      var r = sec.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* start of the spanned section = the bottom of the hero runway (the
+     fadespacer on desktop; the in-flow hero itself when the spacer is hidden) */
+  function sectionTop(){
+    var sp = document.getElementById('ceFadeSpacer');
+    if (sp){
+      var r = sp.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    var h = document.getElementById('ceHero');
+    if (h){
+      var hr = h.getBoundingClientRect();
+      if (hr.height > 0) return hr.top + window.scrollY + hr.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* The hero shows the footage clean (only the constant left-fade gradient);
+     the full dark overlay ramps 0 -> 1 across the LAST 45vh of the hero so it
+     is at full strength the moment the opening statement begins, then holds. */
+  function updateShade(){
+    if (!shade) return;
+    var vh = window.innerHeight;
+    var y  = window.scrollY;
+    var endY = sectionTop(), startY = endY - vh * 0.45;
+    var o = (y - startY) / (endY - startY);
+    if (o < 0) o = 0; if (o > 1) o = 1;
+    shade.style.opacity = String(o);
+  }
+  window.addEventListener('scroll', updateShade, { passive:true });
+  window.addEventListener('resize', updateShade);
+  updateShade();
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine    = window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch   = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  var canScrub = fine && !touch && !reduced;
+
+  /* ---- non-scrub fallbacks ---- */
+  if (!canScrub){
+    if (!dead) wrap.classList.add('is-on');
+    if (reduced){
+      vid.removeAttribute('autoplay'); vid.pause();
+      vid.addEventListener('loadeddata', function(){ try{ vid.currentTime = 0; }catch(e){} vid.pause(); });
+    } else {
+      vid.loop = true; vid.autoplay = true; vid.muted = true; vid.setAttribute('autoplay','');
+      var pl = function(){ var p = vid.play(); if (p && p.catch) p.catch(function(){}); };
+      vid.addEventListener('loadeddata', pl); pl();
+      /* drop the layer and stop playback past the span so the loop costs
+         nothing for the rest of the page */
+      var gate = function(){
+        if (dead || window.scrollY > scrubEnd() + 4){ wrap.classList.remove('is-on'); if(!vid.paused) vid.pause(); }
+        else { wrap.classList.add('is-on'); if(vid.paused) pl(); }
+      };
+      window.addEventListener('scroll', gate, { passive:true });
+      window.addEventListener('resize', gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- desktop: scrub currentTime from scroll ---- */
+  vid.loop = false; vid.autoplay = false; vid.pause();
+
+  var dur = 0, ready = false, target = 0, raf = 0;
+
+  function onMeta(){ if(dead) return; dur = vid.duration || 0; ready = dur > 0; wrap.classList.add('is-on'); tick(); }
+  vid.addEventListener('loadedmetadata', onMeta);
+  vid.addEventListener('loadeddata', function(){ if(!ready) onMeta(); });
+
+  function computeTarget(){
+    var end = scrubEnd();
+    var y = window.scrollY;
+    var p = end > 0 ? (y / end) : 0;
+    if (p < 0) p = 0; if (p > 1) p = 1;
+    /* past the span the whole layer switches off (cross-fades over .5s); every
+       section below carries its own surface or the band video */
+    if (dead || y > end + 4) wrap.classList.remove('is-on'); else wrap.classList.add('is-on');
+    return p * dur;
+  }
+
+  function tick(){
+    raf = 0;
+    if (ready){
+      target = computeTarget();
+      var cur = vid.currentTime || 0;
+      var diff = target - cur;
+      if (Math.abs(diff) >= 0.008){
+        try { vid.currentTime = cur + diff * 0.28; } catch(e){}
+      }
+      if (Math.abs(target - (vid.currentTime || 0)) > 0.008) schedule();
+    }
+  }
+  function schedule(){ if(!raf) raf = requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('resize', schedule);
+  schedule();
+})();
+</script>
+
+</div><!-- /.ceap -->

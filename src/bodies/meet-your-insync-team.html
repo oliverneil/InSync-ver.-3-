@@ -1,0 +1,1108 @@
+<!-- ================================================================
+     INSYNC — MEET YOUR INSYNC TEAM · APEX VARIANT (GHL body block)
+     Paste between the APEX nav block and APEX footer block,
+     in a full-width section with section/row/column padding = 0.
+     Standards: insync-website-standards + insync-apex-design
+     ----------------------------------------------------------------
+     v2 — rebuilt against the current insync-apex-design skill:
+       · tokens moved off :root onto the .ap-page wrapper
+       · every selector scoped under .ap-page; overflow:clip
+       · custom cursor dropped (removed in production for perf);
+         native cursor restored scoped + !important
+       · label-only eyebrows with a leading dash accent
+       · kinetic clip-wipe headings + descender padding
+       · reveals gated on .js, rAF above-the-fold pass, 2.5s safety
+       · hero mouse-parallax on hover (glow / copy / board tilt)
+       · hero is copy-only and deliberately NOT above-the-fold; the
+         Executive Team section takes the freed space, with ample air
+         between the two
+       · v2 section background standard: plain sections carry no fill,
+         alternating sections take linear-gradient(180deg,--bg,--bg-1)
+       · v2 scroll-entrance contract: .js set PRE-PAINT inside the
+         wrapper, observer at threshold:0 + -12% rootMargin, 2.5s safety
+         restricted to on-screen elements, JS sibling stagger 70ms/350ms
+       · Apex v2 LAYER 1 scroll-scrubbed background video replacing the
+         still photo: fixed layer, currentTime driven by scroll across the
+         hero + #executives, shade ramp over the last 45vh of the hero,
+         .is-on dropped past the span, mobile loop / reduced-motion freeze.
+         URL in the AP_TEAM_SCRUB_VIDEO_URL runtime constant.
+       · Apex v2 LAYER 2 looping band video behind everything after the
+         span (#team + CTA): second fixed layer, viewport-centre probe,
+         band shade gradient, glassed cards/tab rail, decode guard,
+         desktop-only with every solid surface restored on mobile.
+         Same asset as Layer 1 until a dedicated band clip is supplied.
+       · reduced-motion resolved static end-states throughout
+     Copy carried verbatim — no wording changed from v1.
+     ----------------------------------------------------------------
+     ROSTER IS PLACEHOLDER — pending Tim. Duplicate/trim .ap-tm cards
+     per section; swap the .ap-tm__avatar span for a real photo:
+       <img class="ap-tm__img" src="https://images.leadconnectorhq.com/image/f_webp/q_80/r_1200/u_https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/FILE-ID"
+            alt="NAME, ROLE at InSync Consulting Services" loading="lazy">
+     Bios unfold beneath the role on hover / keyboard focus
+     (tap toggles them on touch devices).
+     Deep links: #executives · #educational · #healthcare
+                 · #commercial · #eor-payroll
+     ================================================================ -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ---------- Tokens live on the WRAPPER, never :root (body block = no leaks) ---------- */
+.ap-page{
+--bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+--ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);--ink-4:rgba(255,255,255,.34);
+--line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+--orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+--navy:#20335a;--navy-2:#16223f;
+--f:'Inter',system-ui,sans-serif;--f-mono:'JetBrains Mono',ui-monospace,monospace;
+--e:cubic-bezier(.4,0,.2,1);--e-out:cubic-bezier(.16,1,.3,1);--e-spring:cubic-bezier(.34,1.56,.64,1);
+--nav-h:64px;--gutter:24px;--max-w:1440px}
+@media (max-width:640px){.ap-page{--gutter:16px}}
+@media (max-width:400px){.ap-page{--gutter:14px}}
+
+.ap-page,.ap-page *,.ap-page *::before,.ap-page *::after{box-sizing:border-box;margin:0;padding:0}
+.ap-page{background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;overflow:clip;isolation:isolate;position:relative}
+.ap-page .ap-page__in{position:relative;z-index:1}
+.ap-page a{color:inherit;text-decoration:none}
+.ap-page img{max-width:100%;display:block}
+.ap-page .ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+.ap-page .ap-btn,.ap-page .ap-team-tab,.ap-page .ap-tm{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+/* ---------- Cursor restore (global Apex layer hides the native cursor) ---------- */
+.ap-page,.ap-page *{cursor:auto !important}
+.ap-page a[href],.ap-page button,.ap-page .ap-btn,.ap-page label[for],.ap-page [role="button"],.ap-page [role="tab"]{cursor:pointer !important}
+.ap-page input,.ap-page textarea,.ap-page select{cursor:text !important}
+.ap-page input[type="checkbox"],.ap-page input[type="radio"]{cursor:pointer !important}
+
+/* ---------- Reveal (only active once JS marks the wrapper) ---------- */
+.ap-page.js .rv{opacity:0;transform:translateY(20px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js .rv.in{opacity:1;transform:none}
+.ap-page.js .rv.d1{transition-delay:.1s}.ap-page.js .rv.d2{transition-delay:.2s}.ap-page.js .rv.d3{transition-delay:.3s}.ap-page.js .rv.d4{transition-delay:.4s}.ap-page.js .rv.d5{transition-delay:.5s}
+
+/* ---------- Kinetic clip-wipe on headings (+ descender room) ---------- */
+.ap-page.js .ap-hero__title,.ap-page.js .ap-section__title{clip-path:inset(0 105% 0 0);transition:clip-path 1.05s var(--e-out)}
+.ap-page.js .ap-hero__title.in,.ap-page.js .rv.in .ap-section__title{clip-path:inset(0 0 0 0)}
+.ap-page .ap-hero__title{padding-bottom:.16em}
+.ap-page .ap-section__title{padding-bottom:.09em}
+
+/* ---------- Section scaffold ---------- */
+.ap-page .ap-section{padding:140px 0;position:relative}
+/* v2 section background standard: plain sections carry NO fill (the wrapper's
+   black is the floor); alternating sections take the tint gradient, never a
+   flat --bg-1 slab */
+.ap-page .ap-section--alt{background:linear-gradient(180deg,var(--bg),var(--bg-1))}
+/* the section sharing the scrub span mirrors the hero's tail, so the gap
+   between them reads as one balanced band of air rather than two stacked pads */
+.ap-page #executives{padding-top:clamp(84px,11vh,132px)}
+.ap-page .ap-section__head{max-width:720px;margin:0 auto 72px;text-align:center}
+.ap-page .ap-section__label{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);line-height:1;margin-bottom:22px}
+.ap-page .ap-section__label::before{content:'';width:26px;height:1px;background:var(--ink-3);opacity:.85;flex:none}
+.ap-page .ap-section__title{font-size:clamp(32px,4.5vw,56px);font-weight:800;letter-spacing:-.03em;line-height:1.08;color:var(--ink)}
+.ap-page .ap-section__title .accent{color:var(--orange)}
+.ap-page .ap-section__sub{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:560px;margin:20px auto 0}
+
+/* ---------- Buttons ---------- */
+.ap-page .ap-btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--f);font-weight:600;font-size:15px;padding:15px 30px;border-radius:10px;border:1px solid transparent;transition:all .3s var(--e)}
+.ap-page .ap-btn svg{width:17px;height:17px;transition:transform .3s var(--e)}
+.ap-page .ap-btn:hover svg{transform:translateX(4px)}
+.ap-page .ap-btn--primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.ap-page .ap-btn--primary:hover{background:var(--orange-2);border-color:var(--orange-2);transform:translateY(-2px);box-shadow:0 16px 40px -8px rgba(239,90,40,.4)}
+.ap-page .ap-btn--ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.ap-page .ap-btn--ghost:hover{border-color:rgba(255,255,255,.32);background:var(--bg-elev);transform:translateY(-2px)}
+
+/* ---------- Hero ---------- */
+.ap-page .ap-hero{position:relative;background:var(--bg);padding:calc(var(--nav-h) + clamp(88px,12vh,140px)) 0 clamp(84px,11vh,132px);overflow:hidden}
+/* ---------- LAYER 1 — scroll-SCRUBBED background video (fixed, behind everything)
+   Spans the hero + the section AFTER it (#executives). currentTime is driven by
+   scroll; no loop handoff inside the span. Layer drops .is-on past the span. */
+.ap-page .ap-scrub{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.ap-page .ap-scrub.is-on{opacity:1}
+.ap-page .ap-scrub__par{position:absolute;inset:0;will-change:transform}
+/* top-anchored subject; bleed on every edge is parallax room */
+.ap-page .ap-scrub__vid{position:absolute;left:-6%;top:-2%;width:112%;height:114%;max-width:none;object-fit:cover;object-position:50% 0;will-change:transform}
+/* constant readability gradient — symmetric, because this hero's copy is CENTRED
+   (the reference's 90deg left-fade exists for its left-aligned hero) */
+.ap-page .ap-scrub__grad{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 76% 60% at 50% 40%,rgba(0,0,0,.56) 0%,rgba(0,0,0,.2) 58%,rgba(0,0,0,0) 100%),linear-gradient(180deg,rgba(0,0,0,.66) 0%,rgba(0,0,0,.42) 30%,rgba(0,0,0,.38) 62%,rgba(0,0,0,.58) 100%)}
+/* full dark overlay, ramped in by JS across the last 45vh of the hero */
+.ap-page .ap-scrub__shade{position:absolute;inset:0;opacity:0;background:rgba(0,0,0,.66)}
+
+/* SCRUB SPAN — only the hero and the section it shares the span with go
+   transparent; every other section keeps its own background */
+.ap-page .ap-hero,.ap-page #executives{background:transparent !important}
+/* frosted glass over the scrub video — cards in a video region are glassed,
+   never solid panels that hide the footage (blur stays at 8px) */
+.ap-page #executives .ap-tm{background:rgba(255,255,255,.045);border:1px solid var(--line-2);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+.ap-page #executives .ap-tm:hover,.ap-page #executives .ap-tm:focus-visible{background:rgba(255,255,255,.07)}
+.ap-page #executives .ap-tm__avatar{background:rgba(255,255,255,.05)}
+/* mobile / coarse / reduced-motion: solid cards (backdrop-filter over video is
+   the heaviest paint case) */
+@media (max-width:1024px),(prefers-reduced-motion:reduce),(pointer:coarse){
+.ap-page #executives .ap-tm{background:var(--bg-card);border-color:var(--line);-webkit-backdrop-filter:none;backdrop-filter:none}
+.ap-page #executives .ap-tm__avatar{background:var(--bg-elev)}
+}
+
+/* ---------- LAYER 2 — the looping BAND video (everything after the scrub span)
+   A SECOND fixed video, plain looping playback, darkened + gradient-shaded so
+   the band sections read as a dark overlay over moving footage rather than
+   solid panels. Toggled by a viewport-centre probe. Desktop / fine-pointer
+   only; mobile restores every solid surface. */
+.ap-page .ap-band{position:relative;z-index:1}
+.ap-page .ap-bandvid{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .6s ease}
+.ap-page .ap-bandvid.on{opacity:1}
+.ap-page .ap-bandvid__media{position:absolute;inset:0;overflow:hidden}
+.ap-page .ap-bandvid__media video{position:absolute;left:50%;top:50%;width:100%;height:100%;max-width:none;transform:translate(-50%,-50%);object-fit:cover;filter:brightness(.6)}
+.ap-page .ap-bandvid__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.87) 0%,rgba(0,0,0,.81) 30%,rgba(0,0,0,.83) 70%,rgba(0,0,0,.9) 100%)}
+
+/* band sections go transparent so the video shows through */
+.ap-page .ap-band > section{background:transparent !important}
+
+/* frosted glass over the band video — cards and the tab rail read as glass,
+   never solid panels that hide the footage */
+.ap-page .ap-band .ap-tm,
+.ap-page .ap-band .ap-team-tabs{background:rgba(255,255,255,.045);border:1px solid var(--line-2);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08)}
+.ap-page .ap-band .ap-tm:hover,.ap-page .ap-band .ap-tm:focus-visible{background:rgba(255,255,255,.07)}
+.ap-page .ap-band .ap-tm__avatar{background:rgba(255,255,255,.05)}
+.ap-page .ap-band .ap-team-tab[aria-selected="true"]{background:rgba(255,255,255,.08)}
+.ap-page .ap-band .ap-team-tab:hover{background:rgba(255,255,255,.05)}
+
+@media (max-width:1024px),(prefers-reduced-motion:reduce),(pointer:coarse){
+.ap-page .ap-bandvid{display:none !important}
+.ap-page .ap-band > section{background:var(--bg) !important}
+.ap-page .ap-band > section.ap-section--alt{background:linear-gradient(180deg,var(--bg),var(--bg-1)) !important}
+.ap-page .ap-band .ap-tm,
+.ap-page .ap-band .ap-team-tabs{background:var(--bg-card);border-color:var(--line);-webkit-backdrop-filter:none;backdrop-filter:none}
+.ap-page .ap-band .ap-tm__avatar{background:var(--bg-elev)}
+.ap-page .ap-band .ap-team-tab[aria-selected="true"]{background:var(--bg-elev)}
+.ap-page .ap-band .ap-team-tab:hover{background:var(--bg-1)}
+}
+.ap-page .ap-hero__grid{position:absolute;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 38%,#000 28%,transparent 80%);mask-image:radial-gradient(ellipse 70% 70% at 50% 38%,#000 28%,transparent 80%)}
+.ap-page .ap-hero__glow{position:absolute;top:-20%;left:50%;margin-left:-450px;width:900px;height:600px;background:radial-gradient(circle,rgba(239,90,40,.09) 0%,transparent 60%);pointer-events:none;z-index:1;will-change:transform}
+.ap-page .ap-hero__copy{position:relative;will-change:transform}
+.ap-page .ap-hero .ap-wrap{position:relative;z-index:2;text-align:center}
+.ap-page .ap-hero__label{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);line-height:1;margin-bottom:26px}
+.ap-page .ap-hero__label::before{content:'';width:26px;height:1px;background:var(--orange);opacity:.75;flex:none}
+.ap-page .ap-hero__title{font-size:clamp(30px,7.5vw,96px);font-weight:900;letter-spacing:-.03em;line-height:1.04;color:var(--ink);max-width:1200px;margin:0 auto;text-wrap:balance}
+.ap-page .ap-hero__title .accent{color:var(--orange)}
+.ap-page .ap-hero__sub{font-size:18px;line-height:1.7;color:var(--ink-2);max-width:540px;margin:28px auto 0}
+
+/* ---------- Team member cards ---------- */
+.ap-page .ap-tm-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.ap-page .ap-tm{background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:28px 20px 26px;text-align:center;transition:border-color .35s var(--e),transform .35s var(--e),box-shadow .35s var(--e);outline:none}
+.ap-page .ap-tm:hover,.ap-page .ap-tm:focus-visible{border-color:var(--line-2);transform:translateY(-4px);box-shadow:0 28px 60px -16px rgba(0,0,0,.85),0 12px 32px -10px rgba(239,90,40,.14)}
+.ap-page .ap-tm:focus-visible{border-color:rgba(239,90,40,.5)}
+.ap-page .ap-tm__avatar{width:72px;height:72px;border-radius:50%;background:var(--bg-elev);border:1px solid var(--line-2);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-3);margin-bottom:18px;transition:border-color .35s var(--e),color .35s var(--e)}
+.ap-page .ap-tm:hover .ap-tm__avatar{border-color:rgba(239,90,40,.55);color:var(--orange)}
+.ap-page .ap-tm__avatar svg{width:30px;height:30px}
+.ap-page .ap-tm__img{width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 18px;border:1px solid var(--line-2)}
+.ap-page .ap-tm__name{font-size:16px;font-weight:700;letter-spacing:-.01em;color:var(--ink);line-height:1.25;margin-bottom:7px}
+.ap-page .ap-tm__role{display:inline-block;font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);line-height:1.5}
+.ap-page .ap-tm__bio{margin:0;max-height:0;opacity:0;overflow:hidden;font-size:13.5px;line-height:1.65;color:var(--ink-2);transition:max-height .4s var(--e-out),opacity .35s var(--e),margin-top .4s var(--e-out)}
+.ap-page .ap-tm:hover .ap-tm__bio,.ap-page .ap-tm:focus-within .ap-tm__bio,.ap-page .ap-tm.bio-open .ap-tm__bio{max-height:220px;opacity:1;margin-top:12px}
+
+/* staggered card entrance (backwards fill so the hover lift still works after).
+   The per-card delay is set in JS at 70ms increments capped at 350ms — a CSS
+   nth-child ladder loses the cascade to this shorthand and silently flattens. */
+.ap-page.js .ap-tm-grid.in .ap-tm,.ap-page.js .ap-team-panel.active .ap-tm{animation:apTeamCardIn .55s var(--e-out) backwards}
+@keyframes apTeamCardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ---------- Sector tabs ---------- */
+.ap-page .ap-team-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:6px;width:max-content;max-width:100%;margin:0 auto 56px}
+.ap-page .ap-team-tab{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--f);font-weight:600;font-size:14px;line-height:1.45;color:var(--ink-3);background:transparent;border:none;border-radius:9px;padding:14px 22px;min-height:48px;white-space:nowrap;position:relative;transition:color .3s var(--e),background .3s var(--e)}
+.ap-page .ap-team-tab svg{width:16px;height:16px;flex-shrink:0;transition:color .3s var(--e)}
+.ap-page .ap-team-tab:hover{color:var(--ink);background:var(--bg-1)}
+.ap-page .ap-team-tab:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(239,90,40,.5)}
+.ap-page .ap-team-tab[aria-selected="true"]{background:var(--bg-elev);color:var(--ink)}
+.ap-page .ap-team-tab[aria-selected="true"] svg{color:var(--orange)}
+.ap-page .ap-team-tab::after{content:'';position:absolute;left:22px;right:22px;bottom:7px;height:1.5px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--e-out)}
+.ap-page .ap-team-tab[aria-selected="true"]::after{transform:scaleX(1)}
+
+/* ---------- Panels ---------- */
+.ap-page .ap-team-panel{display:none}
+.ap-page .ap-team-panel.active{display:block}
+.ap-page.js .ap-team-panel.active .ap-team-panel__intro{animation:apTeamCardIn .5s var(--e-out) backwards}
+.ap-page .ap-team-panel__intro{text-align:center;font-size:15px;line-height:1.7;color:var(--ink-3);max-width:560px;margin:0 auto 48px}
+
+/* ---------- CTA ---------- */
+.ap-page .ap-cta{padding:60px 0 150px;position:relative;overflow:hidden}
+.ap-page .ap-cta::before{content:'';position:absolute;bottom:-30%;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(circle,rgba(239,90,40,.08) 0%,transparent 60%);pointer-events:none}
+.ap-page .ap-cta .ap-wrap{position:relative;z-index:2;text-align:center}
+.ap-page .ap-cta__btns{display:flex;gap:14px;justify-content:center;margin-top:44px}
+
+/* ---------- Reduced motion — resolved static end-states ---------- */
+@media (prefers-reduced-motion:reduce){
+.ap-page.js .rv{opacity:1;transform:none;transition:none}
+.ap-page.js .ap-hero__title,.ap-page.js .ap-section__title{clip-path:none !important;transition:none}
+.ap-page .ap-scrub{transition:none}
+.ap-page.js .ap-tm-grid.in .ap-tm,.ap-page.js .ap-team-panel.active .ap-tm,
+.ap-page.js .ap-team-panel.active .ap-team-panel__intro{animation:none !important}
+.ap-page .ap-btn,.ap-page .ap-tm,.ap-page .ap-team-tab,.ap-page .ap-tm__bio,
+.ap-page .ap-team-tab::after{transition:none}
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1200px){.ap-page .ap-tm-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){
+.ap-page .ap-tm-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+.ap-page .ap-section{padding:80px 0}
+.ap-page .ap-hero{padding:calc(var(--nav-h) + 52px) 0 clamp(60px,9vh,96px)}
+.ap-page .ap-hero .ap-wrap{width:100%}
+.ap-page #executives{padding-top:clamp(60px,9vh,96px)}
+.ap-page .ap-cta{padding:44px 0 96px}
+.ap-page .ap-section__head{margin-bottom:56px}
+.ap-page .ap-team-tabs,.ap-page .ap-band .ap-team-tabs{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:1px;padding:0;background:var(--line);border:none;overflow:hidden}
+.ap-page .ap-team-tab{white-space:normal;justify-content:center;text-align:center;padding:15px 10px;min-height:48px;font-size:13px;background:var(--bg-card);border-radius:0}
+.ap-page .ap-team-tab:hover{background:var(--bg-1)}
+.ap-page .ap-team-tab::after{left:10px;right:10px;bottom:0}
+.ap-page .ap-tm-grid{grid-template-columns:1fr;gap:10px}
+.ap-page .ap-tm{display:grid;grid-template-columns:56px 1fr;align-items:center;gap:15px;text-align:left;padding:15px 16px;min-height:48px}
+.ap-page .ap-tm__avatar{width:56px;height:56px;margin:0}
+.ap-page .ap-tm__avatar svg{width:24px;height:24px}
+.ap-page .ap-tm__img{width:56px;height:56px;margin:0}
+.ap-page .ap-tm__name{font-size:15px;margin-bottom:4px}
+.ap-page .ap-tm__bio{grid-column:1/-1;font-size:13px}
+.ap-page .ap-btn{min-height:48px}
+.ap-page .ap-cta__btns{flex-direction:column;align-items:stretch}
+.ap-page .ap-cta__btns .ap-btn{width:100%;justify-content:center}
+}
+@media (max-width:480px){
+.ap-page .ap-section{padding:64px 0}
+}
+</style>
+
+<div class="ap-page" id="apTeamPage">
+<script>(function(){var w=document.getElementById('apTeamPage');if(w)w.classList.add('js');})();</script>
+
+<!-- LAYER 1 — SCROLL-SCRUBBED BACKGROUND VIDEO (hero + Executive Team span) -->
+<div class="ap-scrub" id="apTeamScrub" aria-hidden="true">
+  <div class="ap-scrub__par" id="apTeamScrubPar">
+    <video class="ap-scrub__vid" id="apTeamScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="ap-scrub__grad" aria-hidden="true"></div>
+  <div class="ap-scrub__shade" id="apTeamScrubShade"></div>
+</div>
+
+<!-- LAYER 2 — LOOPING BAND VIDEO (everything after the scrub span) -->
+<div class="ap-bandvid" id="apTeamBandVid" aria-hidden="true">
+  <div class="ap-bandvid__media" id="apTeamBandVidMedia"></div>
+  <div class="ap-bandvid__shade" aria-hidden="true"></div>
+</div>
+
+<div class="ap-page__in">
+
+<!-- ============ HERO ============ -->
+<header class="ap-hero" id="apTeamHero">
+  <span class="ap-hero__grid" aria-hidden="true"></span>
+  <span class="ap-hero__glow" aria-hidden="true"></span>
+  <div class="ap-wrap">
+    <div class="ap-hero__copy">
+      <span class="ap-hero__label rv">InSync Consulting Services</span>
+      <h1 class="ap-hero__title rv d1">Meet Your InSync <span class="accent">Team</span></h1>
+      <p class="ap-hero__sub rv d2">The staffing professionals behind every InSync placement — organized by the sector they serve.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ EXECUTIVE BIOS ============ -->
+<section class="ap-section" id="executives">
+  <div class="ap-wrap">
+    <div class="ap-section__head rv">
+      <span class="ap-section__label">Executive Team</span>
+      <h2 class="ap-section__title">The Leadership Behind <span class="accent">InSync</span></h2>
+      <p class="ap-section__sub">The leadership team guiding every InSync placement, partnership, and program.</p>
+    </div>
+    <div class="ap-tm-grid rv d1">
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Executive Name</h3>
+            <span class="ap-tm__role">Executive Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM BY SECTOR ============ -->
+<div class="ap-band" id="apTeamBand">
+
+<section class="ap-section ap-section--alt" id="team">
+  <div class="ap-wrap">
+    <div class="ap-section__head rv">
+      <span class="ap-section__label">Our Staff</span>
+      <h2 class="ap-section__title">Four sectors. One <span class="accent">InSync</span> team.</h2>
+      <p class="ap-section__sub">Select a sector to meet the recruiters, coordinators, and specialists who support it.</p>
+    </div>
+
+    <div class="ap-team-tabs rv d1" role="tablist" aria-label="InSync team by sector">
+      <button class="ap-team-tab" id="tab-educational" role="tab" aria-selected="true" aria-controls="panel-educational" data-hash="educational" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12.5V17c0 1.66 2.69 3 6 3s6-1.34 6-3v-4.5"/></svg> Educational Staffing</button>
+      <button class="ap-team-tab" id="tab-healthcare" role="tab" aria-selected="false" aria-controls="panel-healthcare" data-hash="healthcare" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Healthcare Staffing</button>
+      <button class="ap-team-tab" id="tab-commercial" role="tab" aria-selected="false" aria-controls="panel-commercial" data-hash="commercial" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Commercial Staffing</button>
+      <button class="ap-team-tab" id="tab-eor" role="tab" aria-selected="false" aria-controls="panel-eor" data-hash="eor-payroll" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> EOR &amp; Payroll Staffing</button>
+    </div>
+
+    <div class="ap-team-panel active" id="panel-educational" role="tabpanel" aria-labelledby="tab-educational">
+      <p class="ap-team-panel__intro">The recruiters and coordinators behind our school and district placements.</p>
+      <div class="ap-tm-grid">
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ap-team-panel" id="panel-healthcare" role="tabpanel" aria-labelledby="tab-healthcare">
+      <p class="ap-team-panel__intro">The team supporting our Family of Clinicians across every facility we serve.</p>
+      <div class="ap-tm-grid">
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ap-team-panel" id="panel-commercial" role="tabpanel" aria-labelledby="tab-commercial">
+      <p class="ap-team-panel__intro">The specialists who keep our commercial and administrative placements moving.</p>
+      <div class="ap-tm-grid">
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ap-team-panel" id="panel-eor" role="tabpanel" aria-labelledby="tab-eor">
+      <p class="ap-team-panel__intro">The people who make employer-of-record and payroll run smoothly for our partners.</p>
+      <div class="ap-tm-grid">
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+        <article class="ap-tm" tabindex="0">
+          <span class="ap-tm__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div class="ap-tm__body">
+            <h3 class="ap-tm__name">Team Member Name</h3>
+            <span class="ap-tm__role">Position / Title</span>
+            <p class="ap-tm__bio">Short professional bio to be added.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="ap-cta">
+  <div class="ap-wrap">
+    <div class="ap-cta__head rv">
+      <span class="ap-section__label">Work With Us</span>
+      <h2 class="ap-section__title">Put our team to <span class="accent">work</span> for you</h2>
+      <p class="ap-section__sub">Whether you're hiring or looking for your next role, the InSync team is ready to help.</p>
+    </div>
+    <div class="ap-cta__btns rv d1">
+      <a class="ap-btn ap-btn--primary" href="/contact-us/">Contact Us
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a class="ap-btn ap-btn--ghost" href="/apply-now/">Apply Now
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /ap-band -->
+
+</div><!-- /ap-page__in -->
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var root=document.getElementById('apTeamPage');
+  if(!root)return;
+  root.classList.add('js');   /* idempotent — the pre-paint script already set it */
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ----- Reveal on scroll (Apex v2 scroll-entrance contract) ----- */
+  var revs=[].slice.call(root.querySelectorAll('.rv'));
+  /* (e) stagger siblings in JS — 70ms apart, capped at 350ms; skip anything
+     already carrying an explicit d1..d5 delay class */
+  function apStagger(nodes,prop){
+    nodes.forEach(function(c,i){
+      if(/\bd[1-5]\b/.test(c.className))return;
+      c.style[prop]=Math.min(i*0.07,0.35).toFixed(2)+'s';
+    });
+  }
+  [].slice.call(root.querySelectorAll('.ap-tm-grid')).forEach(function(g){
+    apStagger([].slice.call(g.children),'animationDelay');
+  });
+  [].slice.call(root.querySelectorAll('.ap-section__head,.ap-cta__head')).forEach(function(h){
+    apStagger([].slice.call(h.children).filter(function(c){return c.classList.contains('rv');}),'transitionDelay');
+  });
+  if('IntersectionObserver' in window && !reduce){
+    /* (b) threshold:0 + bottom rootMargin — a ratio starves on blocks taller
+       than the viewport, which is every team grid on this page */
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+    },{threshold:0,rootMargin:'0px 0px -12% 0px'});
+    revs.forEach(function(el){io.observe(el);});
+  }else{
+    revs.forEach(function(el){el.classList.add('in');});
+  }
+  /* reveal above-the-fold on the first frame so the hero never flashes blank */
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*0.92)el.classList.add('in');});
+  });
+  /* (c) safety net — ON-SCREEN ONLY. A blanket reveal here would kill every
+     scroll entrance below the fold before the visitor ever reaches it. */
+  setTimeout(function(){
+    revs.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight)el.classList.add('in');});
+  },2500);
+
+  /* ----- Bio: tap toggles on touch devices ----- */
+  if(window.matchMedia&&window.matchMedia('(hover: none)').matches){
+    [].slice.call(root.querySelectorAll('.ap-tm')).forEach(function(cardEl){
+      cardEl.addEventListener('click',function(){cardEl.classList.toggle('bio-open');});
+    });
+  }
+
+  /* ----- Sector tabs ----- */
+  var tabs=[].slice.call(root.querySelectorAll('.ap-team-tab'));
+  var panels=[].slice.call(root.querySelectorAll('.ap-team-panel'));
+  if(!tabs.length)return;
+
+  function select(tab,setFocus,updateHash){
+    tabs.forEach(function(t){
+      var on=(t===tab);
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.setAttribute('tabindex',on?'0':'-1');
+    });
+    panels.forEach(function(p){
+      p.classList.toggle('active',p.id===tab.getAttribute('aria-controls'));
+    });
+    if(setFocus)tab.focus();
+    if(updateHash&&window.history&&history.replaceState){
+      try{history.replaceState(null,'','#'+tab.getAttribute('data-hash'));}catch(e){}
+    }
+  }
+
+  tabs.forEach(function(tab,i){
+    tab.addEventListener('click',function(){select(tab,false,true);});
+    tab.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=tabs[(i+1)%tabs.length];
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=tabs[(i-1+tabs.length)%tabs.length];
+      else if(e.key==='Home')n=tabs[0];
+      else if(e.key==='End')n=tabs[tabs.length-1];
+      if(n){e.preventDefault();select(n,true,true);}
+    });
+  });
+
+  /* ----- Deep links ----- */
+  function openFromHash(){
+    var h=(location.hash||'').replace('#','');
+    if(!h)return;
+    for(var i=0;i<tabs.length;i++){
+      if(tabs[i].getAttribute('data-hash')===h){select(tabs[i],false,false);break;}
+    }
+  }
+  openFromHash();
+  window.addEventListener('hashchange',openFromHash);
+})();
+</script>
+
+<script>
+/* Hero: mouse-driven parallax on hover — desktop + fine pointer + motion-safe.
+   Rides the .ap-hero__copy wrapper and the scrub layer, never the reveal targets. */
+(function(){
+  var hero=document.getElementById('apTeamHero');
+  if(!hero)return;
+  if(!(window.matchMedia&&window.matchMedia('(pointer:fine) and (min-width:901px)').matches))return;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  var glow=hero.querySelector('.ap-hero__glow');
+  var copy=hero.querySelector('.ap-hero__copy');
+  var scrubPar=document.getElementById('apTeamScrubPar');
+  var tx=0,ty=0,cx=0,cy=0,running=false;
+  function render(){
+    cx+=(tx-cx)*0.09; cy+=(ty-cy)*0.09;
+    if(scrubPar) scrubPar.style.transform='translate3d('+(cx*4).toFixed(2)+'px,'+(cy*3).toFixed(2)+'px,0)';
+    if(glow) glow.style.transform='translate3d('+(cx*-20).toFixed(2)+'px,'+(cy*-14).toFixed(2)+'px,0)';
+    if(copy) copy.style.transform='translate3d('+(cx*8).toFixed(2)+'px,'+(cy*6).toFixed(2)+'px,0)';
+    if(Math.abs(tx-cx)>0.0005||Math.abs(ty-cy)>0.0005){requestAnimationFrame(render);}
+    else{running=false;}
+  }
+  function kick(){if(!running){running=true;requestAnimationFrame(render);}}
+  hero.addEventListener('pointermove',function(e){
+    var r=hero.getBoundingClientRect();
+    tx=((e.clientX-r.left)/r.width-.5)*2;
+    ty=((e.clientY-r.top)/r.height-.5)*2;
+    kick();
+  });
+  hero.addEventListener('pointerleave',function(){tx=0;ty=0;kick();});
+})();
+</script>
+
+<script>
+/* ============================================================
+   LAYER 1 — SCROLL-SCRUBBED HERO SPAN (Apex v2)
+   The fixed video's currentTime is driven by scroll across the hero +
+   the section after it (#executives). No loop handoff inside the span.
+   Shade ramps 0 -> 1 across the last 45vh of the hero and holds. Mobile /
+   touch: muted autoplay loop, gated to the span. Reduced motion: freeze
+   frame 1. Media URL is a JS runtime constant (immune to GHL attribute
+   corruption).
+   ============================================================ */
+(function(){
+  'use strict';
+  var wrap = document.getElementById('apTeamScrub');
+  var vid  = document.getElementById('apTeamScrubVid');
+  if (!wrap || !vid) return;
+
+  var AP_TEAM_SCRUB_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7e507b99074f5ef62a15c9.mp4';
+  vid.src = AP_TEAM_SCRUB_VIDEO_URL;
+
+  var shade = wrap.querySelector('.ap-scrub__shade');
+
+  /* decode guard: if the clip never decodes, leave the layer off for good so
+     sections sit on clean black rather than a shade wash over nothing */
+  var dead = false;
+  vid.addEventListener('error', function(){ dead = true; wrap.classList.remove('is-on'); });
+
+  /* the span ends at the BOTTOM of the section after the hero */
+  function scrubEnd(){
+    var sec = document.getElementById('executives');
+    if (sec){
+      var r = sec.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY + r.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* start of the spanned section = the bottom of the hero */
+  function sectionTop(){
+    var h = document.getElementById('apTeamHero');
+    if (h){
+      var hr = h.getBoundingClientRect();
+      if (hr.height > 0) return hr.top + window.scrollY + hr.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* hero shows the video clean apart from the constant gradient; the full dark
+     overlay ramps in across the last 45vh of the hero so it is at full strength
+     the moment the Executive Team section starts */
+  function updateShade(){
+    if (!shade) return;
+    var vh = window.innerHeight;
+    var y  = window.scrollY;
+    var endY = sectionTop(), startY = endY - vh * 0.45;
+    var o = (y - startY) / (endY - startY);
+    if (o < 0) o = 0; if (o > 1) o = 1;
+    shade.style.opacity = String(o);
+  }
+  window.addEventListener('scroll', updateShade, { passive:true });
+  window.addEventListener('resize', updateShade);
+  updateShade();
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine    = window.matchMedia && window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch   = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  var canScrub = fine && !touch && !reduced;
+
+  /* ---- NON-SCRUB fallbacks ---- */
+  if (!canScrub){
+    if (!dead) wrap.classList.add('is-on');
+    if (reduced){
+      vid.removeAttribute('autoplay'); vid.pause();
+      var freeze = function(){ try{ vid.currentTime = 0; }catch(e){} vid.pause(); };
+      vid.addEventListener('loadeddata', freeze);
+    } else {
+      vid.loop = true; vid.autoplay = true; vid.muted = true; vid.setAttribute('autoplay','');
+      var pl = function(){ var pr = vid.play(); if (pr && pr['catch']) pr['catch'](function(){}); };
+      vid.addEventListener('loadeddata', pl); pl();
+      /* drop the layer and stop playback past the span so the loop costs
+         nothing for the rest of the page */
+      var gate = function(){
+        if (dead) return;
+        var past = window.scrollY > scrubEnd() + 4;
+        if (past){ wrap.classList.remove('is-on'); if(!vid.paused) vid.pause(); }
+        else { wrap.classList.add('is-on'); if(vid.paused) pl(); }
+      };
+      window.addEventListener('scroll', gate, { passive:true });
+      window.addEventListener('resize', gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- DESKTOP: scrub currentTime from scroll ---- */
+  vid.loop = false; vid.autoplay = false; vid.pause();
+
+  var dur = 0, ready = false, target = 0, raf = 0;
+
+  function onMeta(){ dur = vid.duration || 0; ready = dur > 0; if(!dead) wrap.classList.add('is-on'); tick(); }
+  vid.addEventListener('loadedmetadata', onMeta);
+  vid.addEventListener('loadeddata', function(){ if(!ready) onMeta(); });
+
+  function computeTarget(){
+    var end = scrubEnd();
+    var y = window.scrollY;
+    var p = end > 0 ? (y / end) : 0;
+    if (p < 0) p = 0; if (p > 1) p = 1;
+    /* switch the whole layer off past the span (cross-fades out over .5s) */
+    if (dead || y > end + 4) wrap.classList.remove('is-on'); else wrap.classList.add('is-on');
+    return p * dur;
+  }
+
+  /* rAF loop: ease currentTime toward the scroll-derived target for smoothness */
+  function tick(){
+    raf = 0;
+    if (ready){
+      target = computeTarget();
+      var cur = vid.currentTime || 0;
+      var diff = target - cur;
+      if (Math.abs(diff) < 0.008) { /* settled */ }
+      else {
+        var next = cur + diff * 0.28;
+        try { vid.currentTime = next; } catch(e){}
+      }
+      if (Math.abs(target - (vid.currentTime||0)) > 0.008) schedule();
+    }
+  }
+  function schedule(){ if(!raf) raf = requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('resize', schedule);
+  schedule();
+})();
+</script>
+
+<script>
+/* ============================================================
+   LAYER 2 — LOOPING BAND VIDEO (Apex v2)
+   A second fixed video behind every section after the scrub span. Plain
+   looping playback (no scrubbing), toggled by a viewport-centre probe
+   against the band's absolute top/bottom. Built in JS from a URL constant.
+   Decode guard: on error the layer stays off for good, so the band sits on
+   clean black instead of a gradient wash over nothing.
+   Desktop / fine-pointer only.
+   ============================================================ */
+(function(){
+  'use strict';
+  var AP_TEAM_BAND_VIDEO_URL = 'https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7e507b99074f5ef62a15c9.mp4';
+
+  var wrap  = document.getElementById('apTeamBandVid');
+  var media = document.getElementById('apTeamBandVidMedia');
+  var band  = document.getElementById('apTeamBand');
+  if (!wrap || !media || !band) return;
+
+  var mqOff = window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  if (mqOff.matches) return;
+
+  var dead = false;
+  if (AP_TEAM_BAND_VIDEO_URL.indexOf('http') === 0) {
+    var v = document.createElement('video');
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('playsinline',''); v.setAttribute('muted','');
+    v.preload = 'auto'; v.src = AP_TEAM_BAND_VIDEO_URL;
+    v.addEventListener('error', function(){ dead = true; wrap.classList.remove('on'); });
+    media.appendChild(v);
+    var pr = v.play(); if (pr && pr['catch']) pr['catch'](function(){});
+  }
+
+  /* viewport-centre probe against the band's absolute range */
+  var raf = 0;
+  function bandRange(){
+    var rect = band.getBoundingClientRect();
+    var top = rect.top + window.scrollY;
+    return { top: top, bottom: top + rect.height };
+  }
+  function update(){
+    raf = 0;
+    if (dead) { wrap.classList.remove('on'); return; }
+    var vh = window.innerHeight;
+    var y = window.scrollY + vh * 0.5;
+    var r = bandRange();
+    /* The reference subtracts a screen here because its footer sits INSIDE the
+       band's page; on this build the footer is a separate GHL block, so the
+       band's bottom already IS the footer boundary. Releasing at r.bottom keeps
+       the closing CTA on footage instead of dropping it onto black a screen
+       early; the .6s fade lands exactly as the footer takes the viewport. */
+    var on = y > r.top + 60 && y < r.bottom;
+    wrap.classList.toggle('on', on);
+  }
+  function onScroll(){ if (!raf) raf = requestAnimationFrame(update); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+
+<!-- ============== END MEET YOUR INSYNC TEAM · APEX ============== -->

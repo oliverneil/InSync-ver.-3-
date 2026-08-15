@@ -1,0 +1,917 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.ap-page *,.ap-page *::before,.ap-page *::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ══════════ TOKENS — on the wrapper, never :root ══════════ */
+.ap-page{
+  --bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+  --ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);--ink-4:rgba(255,255,255,.3);
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+  --orange-soft:rgba(239,90,40,.12);
+  --navy:#20335a;--navy-2:#16223f;
+  --f:'Inter',system-ui,-apple-system,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.4,0,.2,1);--e-out:cubic-bezier(.16,1,.3,1);--e-spring:cubic-bezier(.34,1.56,.64,1);
+  --gutter:24px;--max-w:1200px;
+  font-family:var(--f);background:var(--bg);color:var(--ink-2);
+  line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased;
+  position:relative;overflow:clip;isolation:isolate
+}
+/* faint instrument grid behind everything */
+.ap-page::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 28%,transparent 78%);
+  mask-image:radial-gradient(120% 90% at 50% 0%,#000 28%,transparent 78%)
+}
+.ap-page__in{position:relative;z-index:1}
+
+.ap-page h1,.ap-page h2,.ap-page h3,.ap-page h4{font-family:var(--f);color:var(--ink);font-weight:800;line-height:1.08;letter-spacing:-.03em}
+.ap-page a{text-decoration:none;color:inherit}
+.ap-page img{max-width:100%;display:block}
+.ap-page .accent{color:var(--orange)}
+.ap-page ::selection{background:rgba(239,90,40,.28);color:#fff}
+.ap-page .ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+.ap-page .ap-section{padding:140px 0;position:relative}
+.ap-page .ap-section--alt{background:var(--bg-1)}
+.ap-page .ap-section__head{max-width:720px;margin:0 auto 72px;text-align:center}
+.ap-page .ap-section__head--left{margin-left:0;text-align:left}
+.ap-page .ap-section__title{font-size:clamp(2.1rem,4.6vw,3.4rem);padding-bottom:.1em}
+.ap-page .ap-section__sub{margin-top:22px;font-size:1.05rem;color:var(--ink-3);line-height:1.7;max-width:560px}
+.ap-page .ap-section__head:not(.ap-section__head--left) .ap-section__sub{margin-left:auto;margin-right:auto}
+
+/* ── Eyebrows: label-only, leading dash, no numerals ── */
+.ap-page .ap-section__label,.ap-page .ap-hero__label{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--f-mono);font-size:.72rem;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;line-height:1;
+  margin-bottom:20px;color:var(--ink-3)
+}
+.ap-page .ap-section__label::before,.ap-page .ap-hero__label::before{content:"";width:24px;height:1px;background:var(--ink-3);opacity:.8;flex:none}
+.ap-page .ap-hero__label{color:var(--orange);margin-bottom:26px}
+.ap-page .ap-hero__label::before{background:var(--orange);opacity:.9}
+.ap-page .ap-section__head:not(.ap-section__head--left) .ap-section__label{justify-content:center}
+
+/* ── Buttons ── */
+.ap-page .ap-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;font-family:var(--f);font-weight:600;font-size:.95rem;letter-spacing:-.01em;padding:15px 28px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:transform .35s var(--e-out),background .3s var(--e),border-color .3s var(--e),box-shadow .3s var(--e)}
+.ap-page .ap-btn svg{width:17px;height:17px;transition:transform .35s var(--e-out)}
+.ap-page .ap-btn:hover svg{transform:translateX(4px)}
+.ap-page .ap-btn--primary{background:var(--orange);color:#fff}
+.ap-page .ap-btn--primary:hover{background:var(--orange-2);transform:translateY(-3px);box-shadow:0 18px 40px -12px rgba(239,90,40,.6)}
+.ap-page .ap-btn--ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.ap-page .ap-btn--ghost:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.04);transform:translateY(-3px)}
+
+/* ── Cursor: the global Apex layer hides the native cursor site-wide and
+      ships its own dot in the nav/footer blocks — restore a visible one
+      here, scoped + !important, so this block is never cursor-less. ── */
+.ap-page,.ap-page *{cursor:auto !important}
+.ap-page a[href],.ap-page button,.ap-page .ap-btn,.ap-page label[for],.ap-page [role="button"]{cursor:pointer !important}
+.ap-page input,.ap-page textarea,.ap-page select{cursor:text !important}
+.ap-page input[type="checkbox"],.ap-page input[type="radio"]{cursor:pointer !important}
+
+/* ══════════ SIGNATURE MOTIF — the audit scan ══════════ */
+.ap-page .ap-scan{position:relative;height:1px;background:var(--line);overflow:hidden;max-width:var(--max-w);margin:0 auto}
+.ap-page .ap-scan::after{content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:.75}
+.ap-page.js .ap-scan.on::after{animation:apjcScanRun 4.6s linear infinite}
+@keyframes apjcScanRun{0%{left:-30%}100%{left:100%}}
+
+/* ══════════ LAYER 1 — SCROLL-SCRUBBED HERO SPAN VIDEO ══════════
+   One fixed video whose currentTime is driven by scroll. The span runs
+   from the top of the page to the BOTTOM of the section after the hero
+   (the Commitment Statement) — no loop handoff inside the span. Those
+   two sections go transparent; every other section keeps its own
+   background, so there is no page-wide transparency. */
+.ap-page .ap-scrub{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.ap-page .ap-scrub.is-on{opacity:1}
+.ap-page .ap-scrub__par{position:absolute;inset:0;will-change:transform}
+/* framing: top-anchored subject, bled on all four edges as parallax room */
+.ap-page .ap-scrub__vid{position:absolute;left:-6%;top:-4%;width:112%;height:122%;object-fit:cover;object-position:50% 0;will-change:transform}
+/* constant left-dark fade keeps hero copy readable over the video */
+.ap-page .ap-scrub__grad{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.8) 22%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.34) 88%,rgba(0,0,0,.34) 100%)}
+/* full dark overlay; opacity ramps 0->1 across the last 45vh of the hero */
+.ap-page .ap-scrub__shade{position:absolute;inset:0;opacity:0;background:rgba(0,0,0,.66)}
+/* the spanned sections show the video through */
+.ap-page .ap-hero,.ap-page .ap-commit{background:transparent !important}
+/* mobile / coarse / reduced-motion: video is hero-only, so give the risen
+   content a solid floor */
+@media(max-width:1024px),(prefers-reduced-motion:reduce),(pointer:coarse){
+  .ap-page .ap-commit{background:var(--bg) !important}
+}
+
+/* ══ HERO ══ */
+.ap-page .ap-hero{position:relative;padding:150px 0 130px;overflow:hidden}
+.ap-page .ap-hero__glow{position:absolute;top:-10%;left:50%;width:900px;height:600px;margin-left:-450px;background:radial-gradient(circle,rgba(239,90,40,.10) 0%,transparent 60%);pointer-events:none;z-index:1;will-change:transform}
+.ap-page .ap-hero__grid{position:relative;z-index:2;display:grid;grid-template-columns:1.5fr minmax(300px,.7fr);gap:56px;align-items:center}
+.ap-page .ap-hero__copy{will-change:transform}
+.ap-page .ap-hero h1{font-size:clamp(2.8rem,6.4vw,5rem);letter-spacing:-.035em;padding-bottom:.16em}
+.ap-page .ap-hero h1 .ap-hero__l1{white-space:nowrap}
+.ap-page .ap-hero h1 .accent{display:block}
+.ap-page .ap-hero__sub{margin:26px 0 36px;font-size:1.12rem;color:var(--ink-2);line-height:1.65;max-width:500px}
+.ap-page .ap-hero__ctas{display:flex;gap:14px;flex-wrap:wrap}
+
+/* 3D policy book — the page's document under audit */
+.ap-page .ap-book-stage{perspective:1600px;display:flex;justify-content:center}
+.ap-page .ap-book-inner{transform-style:preserve-3d;will-change:transform}
+.ap-page .ap-book{position:relative;width:290px;height:390px;transform-style:preserve-3d;transform:rotateY(-24deg) rotateX(6deg);transition:transform 1s var(--e-out)}
+.ap-page .ap-book-stage:hover .ap-book{transform:rotateY(-14deg) rotateX(3deg)}
+/* glass over the scrub video — the recipe, blur held at 8px */
+.ap-page .ap-book__cover{position:absolute;inset:0;border-radius:4px 12px 12px 4px;background:linear-gradient(160deg,rgba(0,0,0,.34) 0%,rgba(0,0,0,.54) 100%),rgba(255,255,255,.045);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08);border:1px solid var(--line-2);box-shadow:0 50px 90px -24px rgba(0,0,0,.95),0 24px 46px -10px rgba(239,90,40,.22);overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:34px 30px 30px}
+.ap-page .ap-book__cover::before{content:"";position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.14) 0%,transparent 62%);pointer-events:none}
+/* motif: the scan sweeping down the cover */
+.ap-page .ap-book__cover::after{content:"";position:absolute;left:0;right:0;top:-24%;height:24%;background:linear-gradient(180deg,transparent,rgba(239,90,40,.16) 48%,rgba(239,90,40,.42) 72%,transparent);pointer-events:none;z-index:3}
+.ap-page.js .ap-book__cover::after{animation:apjcCoverScan 5.2s var(--e) infinite}
+@keyframes apjcCoverScan{0%{top:-24%;opacity:0}12%{opacity:1}78%{opacity:1}100%{top:100%;opacity:0}}
+.ap-page .ap-book__spine{position:absolute;left:0;top:0;bottom:0;width:20px;transform:translateX(-19px) rotateY(90deg);transform-origin:right center;background:linear-gradient(var(--orange),var(--orange-2));border-radius:3px 0 0 3px}
+.ap-page .ap-book__seal{width:44px;height:44px;border-radius:11px;background:var(--orange);display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
+.ap-page .ap-book__seal svg{width:24px;height:24px;color:#fff}
+.ap-page .ap-book__seal::after{content:"";position:absolute;inset:-3px;border-radius:14px;border:1px solid var(--orange);opacity:0}
+.ap-page.js .ap-book__seal::after{animation:apjcSealRing 5.2s var(--e-out) infinite}
+@keyframes apjcSealRing{0%,58%{transform:scale(1);opacity:0}66%{opacity:.7}100%{transform:scale(1.7);opacity:0}}
+.ap-page .ap-book__meta{position:relative;z-index:2}
+.ap-page .ap-book__kicker{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--orange-3);margin-bottom:12px}
+.ap-page .ap-book__title{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.05}
+.ap-page .ap-book__org{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:.72rem;letter-spacing:.02em;color:var(--ink-3)}
+
+/* ── Commitment statement + verification seal ── */
+.ap-page .ap-statement{max-width:900px;margin:0 auto;text-align:center}
+.ap-page .ap-statement .ap-section__label{margin-bottom:26px}
+.ap-page .ap-statement h2{font-size:clamp(1.9rem,4vw,2.9rem);margin-bottom:28px;padding-bottom:.1em}
+.ap-page .ap-statement p{font-size:1.12rem;color:var(--ink-2);line-height:1.75;max-width:760px;margin:0 auto}
+.ap-page .ap-verify{position:relative;width:86px;height:86px;margin:0 auto 34px}
+.ap-page .ap-verify__core{position:absolute;inset:0;margin:auto;width:52px;height:52px;border-radius:14px;background:var(--orange-soft);border:1px solid rgba(239,90,40,.4);display:flex;align-items:center;justify-content:center}
+.ap-page .ap-verify__core svg{width:26px;height:26px;color:var(--orange)}
+.ap-page .ap-verify__core svg path{stroke-dasharray:34;stroke-dashoffset:34}
+.ap-page.js .ap-verify.on .ap-verify__core svg path{animation:apjcTick 3.6s var(--e-out) infinite}
+@keyframes apjcTick{0%{stroke-dashoffset:34}22%,74%{stroke-dashoffset:0}100%{stroke-dashoffset:34}}
+.ap-page .ap-verify i{position:absolute;inset:0;margin:auto;width:52px;height:52px;border-radius:16px;border:1px solid var(--orange);opacity:0}
+.ap-page.js .ap-verify.on i{animation:apjcVring 3.6s var(--e-out) infinite}
+.ap-page.js .ap-verify.on i:nth-child(2){animation-delay:1.2s}
+.ap-page.js .ap-verify.on i:nth-child(3){animation-delay:2.4s}
+@keyframes apjcVring{0%{width:52px;height:52px;opacity:.65}100%{width:86px;height:86px;opacity:0}}
+
+/* ══════════ LAYER 2 — LOOPING BAND VIDEO ══════════
+   A SECOND fixed video, plain looping playback, behind every section
+   after the scrub span. It carries the SAME overlay as the hero — the
+   constant 90deg left-dark fade — so the treatment reads identically all
+   the way down. Band sections go transparent (overlay only, never a solid
+   fill); band cards take the frosted-glass recipe.
+   Desktop / fine-pointer only — mobile restores every solid surface. */
+.ap-page .ap-band{position:relative;z-index:1}
+.ap-page .ap-bandvid{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .6s ease}
+.ap-page .ap-bandvid.on{opacity:1}
+.ap-page .ap-bandvid__media{position:absolute;inset:0;overflow:hidden}
+.ap-page .ap-bandvid__media video{position:absolute;left:50%;top:50%;width:100%;height:100%;transform:translate(-50%,-50%);object-fit:cover}
+/* same overlay as the hero: the constant 90deg left-dark fade */
+.ap-page .ap-bandvid__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.8) 22%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.34) 88%,rgba(0,0,0,.34) 100%)}
+/* band sections carry the overlay only — never a solid fill */
+.ap-page .ap-band > section{background:transparent !important}
+/* frosted glass on the real cards (never on grid wrappers) */
+.ap-page .ap-band .ap-pol,
+.ap-page .ap-band .ap-tile{
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid var(--line-2) !important;
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.ap-page .ap-band .ap-pol.is-open{background:rgba(255,255,255,.075) !important;border-color:rgba(239,90,40,.4) !important}
+.ap-page .ap-band .ap-tile:hover{background:rgba(255,255,255,.075) !important}
+
+/* ══ POLICY ACCORDION ══ */
+.ap-page .ap-pol-wrap{position:relative;max-width:940px;margin:0 auto}
+.ap-page .ap-pol-spine{position:absolute;left:-30px;top:6px;bottom:6px;width:2px;background:var(--line);overflow:hidden;border-radius:2px}
+.ap-page .ap-pol-spine__fill{position:absolute;top:0;left:0;width:100%;height:0;background:linear-gradient(180deg,var(--orange),var(--orange-3))}
+.ap-page .ap-pol-list{display:flex;flex-direction:column;gap:14px}
+.ap-page .ap-pol{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .4s var(--e),background .4s var(--e)}
+.ap-page .ap-pol:hover{border-color:var(--line-2)}
+.ap-page .ap-pol.is-open{border-color:rgba(239,90,40,.4);background:var(--bg-elev)}
+.ap-page .ap-pol__ghost{position:absolute;top:8px;right:22px;font-size:5rem;font-weight:900;line-height:1;color:rgba(255,255,255,.03);letter-spacing:-.05em;pointer-events:none;transition:color .4s var(--e)}
+.ap-page .ap-pol.is-open .ap-pol__ghost{color:rgba(239,90,40,.10)}
+.ap-page .ap-pol__head{width:100%;min-height:56px;display:flex;align-items:center;gap:20px;padding:24px 28px;background:none;border:none;cursor:pointer;text-align:left;font-family:var(--f);position:relative;z-index:2}
+/* motif: an audit scan crosses the row the moment it opens */
+.ap-page .ap-pol__head::after{content:"";position:absolute;top:0;bottom:0;left:-28%;width:28%;background:linear-gradient(90deg,transparent,rgba(239,90,40,.16),transparent);opacity:0;pointer-events:none}
+.ap-page.js .ap-pol.is-open .ap-pol__head::after{animation:apjcRowScan 1s var(--e-out) 1}
+@keyframes apjcRowScan{0%{left:-28%;opacity:1}100%{left:100%;opacity:0}}
+.ap-page .ap-pol__n{display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;border-radius:11px;background:var(--orange-soft);color:var(--orange);font-family:var(--f-mono);font-size:.95rem;font-weight:600;line-height:1;transition:background .4s var(--e),color .4s var(--e)}
+.ap-page .ap-pol:hover .ap-pol__n,.ap-page .ap-pol.is-open .ap-pol__n{background:var(--orange);color:#fff}
+.ap-page .ap-pol__t{flex:1;font-size:1.08rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.2;transition:color .3s var(--e)}
+.ap-page .ap-pol.is-open .ap-pol__t{color:var(--orange-2)}
+.ap-page .ap-pol__chev{flex-shrink:0;color:var(--ink-3);transition:transform .4s var(--e-out),color .3s var(--e)}
+.ap-page .ap-pol__chev svg{width:20px;height:20px;display:block}
+.ap-page .ap-pol.is-open .ap-pol__chev{transform:rotate(180deg);color:var(--orange)}
+.ap-page .ap-pol__body{max-height:0;overflow:hidden;transition:max-height .45s var(--e-out)}
+.ap-page .ap-pol__inner{padding:0 28px 28px 92px;position:relative;z-index:2}
+.ap-page .ap-pol__inner p{font-size:.97rem;color:var(--ink-2);line-height:1.75}
+.ap-page .ap-pol__inner p+p{margin-top:16px}
+
+/* ══ SPLIT: office / emergency / complaints ══ */
+.ap-page .ap-split{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.ap-page .ap-split__col .ap-section__head{margin-bottom:34px}
+.ap-page .ap-tile{background:var(--bg-card);border:1px solid var(--line);border-radius:18px;padding:36px;transition:border-color .4s var(--e),transform .5s var(--e-out),background .4s var(--e)}
+.ap-page .ap-tile+.ap-tile{margin-top:24px}
+.ap-page .ap-tile:hover{border-color:var(--line-2);background:var(--bg-elev);transform:translateY(-6px)}
+.ap-page .ap-tile__row{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.ap-page .ap-tile__ic{width:52px;height:52px;min-width:52px;border-radius:13px;background:var(--orange-soft);color:var(--orange);display:flex;align-items:center;justify-content:center;transition:background .4s var(--e),color .4s var(--e)}
+.ap-page .ap-tile:hover .ap-tile__ic{background:var(--orange);color:#fff}
+.ap-page .ap-tile__ic svg{width:25px;height:25px}
+.ap-page .ap-tile h3{flex:1;font-size:1.15rem;letter-spacing:-.02em}
+.ap-page .ap-tile p{font-size:.96rem;color:var(--ink-2);line-height:1.75}
+.ap-page .ap-tile p+p{margin-top:15px}
+.ap-page .ap-tile a{color:var(--orange-2);font-weight:600;transition:color .25s var(--e)}
+.ap-page .ap-tile a:hover{color:var(--orange-3)}
+
+/* ── Tile micro-visuals (content-matched, IO-gated) ── */
+.ap-page .ap-mv{width:44px;height:44px;min-width:44px;position:relative;flex:none}
+/* office hours — a sweeping clock hand */
+.ap-page .ap-mv--clock svg{width:44px;height:44px;color:var(--line-2);overflow:visible}
+.ap-page .ap-mv--clock .hand{transform-origin:22px 22px;color:var(--orange)}
+.ap-page.js .ap-tile.on .ap-mv--clock .hand{animation:apjcSpin 6s linear infinite}
+@keyframes apjcSpin{to{transform:rotate(360deg)}}
+.ap-page .ap-mv--clock .arc{color:var(--orange);stroke-dasharray:96;stroke-dashoffset:96;opacity:.55}
+.ap-page.js .ap-tile.on .ap-mv--clock .arc{animation:apjcArc 6s linear infinite}
+@keyframes apjcArc{0%{stroke-dashoffset:96}70%,100%{stroke-dashoffset:34}}
+/* continuity — a signal that keeps broadcasting */
+.ap-page .ap-mv--signal::before{content:"";position:absolute;inset:0;margin:auto;width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px rgba(239,90,40,.8)}
+.ap-page .ap-mv--signal i{position:absolute;inset:0;margin:auto;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--orange);opacity:0}
+.ap-page.js .ap-tile.on .ap-mv--signal i{animation:apjcRings 3s var(--e-out) infinite}
+.ap-page.js .ap-tile.on .ap-mv--signal i:nth-child(2){animation-delay:1s}
+.ap-page.js .ap-tile.on .ap-mv--signal i:nth-child(3){animation-delay:2s}
+@keyframes apjcRings{0%{width:12px;height:12px;opacity:.75}100%{width:44px;height:44px;opacity:0}}
+/* complaint resolution — an escalation path stepping up */
+.ap-page .ap-mv--path{display:flex;align-items:center;justify-content:center;gap:6px}
+.ap-page .ap-mv--path b{display:block;width:8px;height:8px;border-radius:50%;background:var(--line-2);transition:background .3s var(--e)}
+.ap-page.js .ap-tile.on .ap-mv--path b{animation:apjcStep 2.7s var(--e) infinite}
+.ap-page.js .ap-tile.on .ap-mv--path b:nth-child(2){animation-delay:.35s}
+.ap-page.js .ap-tile.on .ap-mv--path b:nth-child(3){animation-delay:.7s}
+@keyframes apjcStep{0%,72%,100%{background:var(--line-2);transform:scale(1)}18%,44%{background:var(--orange);transform:scale(1.35)}}
+
+/* ══ CTA ══ */
+.ap-page .ap-cta{position:relative;overflow:hidden;text-align:center}
+.ap-page .ap-cta::before{content:"";position:absolute;top:50%;left:50%;width:800px;height:500px;margin:-250px 0 0 -400px;background:radial-gradient(circle,rgba(239,90,40,.12) 0%,transparent 60%);pointer-events:none}
+.ap-page.js .ap-cta.on::before{animation:apjcBreathe 7s var(--e) infinite}
+@keyframes apjcBreathe{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.ap-page .ap-cta__inner{position:relative;z-index:2;max-width:760px;margin:0 auto}
+.ap-page .ap-cta h2{font-size:clamp(2rem,4.4vw,3.2rem);margin-bottom:22px;padding-bottom:.1em}
+.ap-page .ap-cta p{font-size:1.08rem;color:var(--ink-2);line-height:1.7;max-width:560px;margin:0 auto}
+.ap-page .ap-cta__btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:38px}
+.ap-page .ap-cta .ap-section__label{justify-content:center}
+
+/* ══ Reveal on scroll + kinetic clip-wipe headings ══ */
+.ap-page.js .rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js .rv.in{opacity:1;transform:none}
+.ap-page .d1{transition-delay:.08s}.ap-page .d2{transition-delay:.16s}.ap-page .d3{transition-delay:.24s}.ap-page .d4{transition-delay:.32s}.ap-page .d5{transition-delay:.4s}
+.ap-page.js h1.rv,.ap-page.js h2.rv,.ap-page.js .rv h1,.ap-page.js .rv h2{clip-path:inset(0 105% 0 0);transition:clip-path 1.05s var(--e-out),opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js h1.rv.in,.ap-page.js h2.rv.in,.ap-page.js .rv.in h1,.ap-page.js .rv.in h2{clip-path:inset(0 0 0 0)}
+
+/* ══ Responsive ══ */
+@media(max-width:1200px){.ap-page .ap-pol-spine{display:none}}
+@media(max-width:1024px),(prefers-reduced-motion:reduce),(pointer:coarse){
+  .ap-page .ap-bandvid{display:none !important}
+  .ap-page .ap-band > section{background:var(--bg) !important}
+  .ap-page .ap-band > section.ap-section--alt{background:var(--bg-1) !important}
+  .ap-page .ap-band .ap-pol,.ap-page .ap-band .ap-tile{
+    background:var(--bg-card) !important;border-color:var(--line) !important;
+    -webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+  .ap-page .ap-band .ap-pol.is-open{background:var(--bg-elev) !important}
+  .ap-page .ap-band .ap-tile:hover{background:var(--bg-elev) !important}
+  .ap-page .ap-book__cover{background:rgba(14,14,14,.74);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media(max-width:1024px){
+  .ap-page .ap-section{padding:96px 0}
+  .ap-page .ap-hero{padding:112px 0 96px}
+  .ap-page .ap-hero__grid{grid-template-columns:1fr;gap:56px}
+  .ap-page .ap-book-stage{order:-1}
+  .ap-page .ap-split{grid-template-columns:1fr;gap:24px}
+}
+@media(max-width:640px){
+  .ap-page{--gutter:16px}
+  .ap-page .ap-section{padding:72px 0}
+  .ap-page .ap-hero{padding:92px 0 76px}
+  .ap-page .ap-hero__ctas,.ap-page .ap-cta__btns{flex-direction:column;align-items:stretch}
+  .ap-page .ap-hero__ctas .ap-btn,.ap-page .ap-cta__btns .ap-btn{width:100%}
+  .ap-page .ap-hero h1 .ap-hero__l1{white-space:normal}
+  .ap-page .ap-hero__glow{width:600px;margin-left:-300px}
+  .ap-page .ap-book{width:230px;height:310px}
+  .ap-page .ap-book__title{font-size:1.4rem}
+  .ap-page .ap-tile{padding:28px 22px}
+  .ap-page .ap-tile__row{flex-wrap:wrap}
+  .ap-page .ap-pol__head{min-height:60px;padding:20px;gap:15px}
+  .ap-page .ap-pol__n{width:38px;height:38px;min-width:38px;font-size:.85rem}
+  .ap-page .ap-pol__t{font-size:1rem}
+  .ap-page .ap-pol__inner{padding:0 20px 24px 20px}
+  .ap-page .ap-pol__ghost{font-size:3.6rem;right:16px}
+  .ap-page .ap-cta::before{width:520px;height:400px;margin:-200px 0 0 -260px}
+}
+@media(max-width:400px){
+  .ap-page{--gutter:14px}
+  .ap-page .ap-mv{display:none}
+}
+
+/* ══ Motion off ══ */
+@media(prefers-reduced-motion:reduce){
+  .ap-page *{animation:none!important;transition-duration:.001ms!important}
+  .ap-page.js .rv{opacity:1;transform:none}
+  .ap-page.js h1.rv,.ap-page.js h2.rv,.ap-page.js .rv h1,.ap-page.js .rv h2{clip-path:none!important}
+  .ap-page .ap-verify__core svg path{stroke-dashoffset:0}
+  .ap-page .ap-mv--clock .arc{stroke-dashoffset:34}
+  .ap-page .ap-book__cover::after{display:none}
+  .ap-page .ap-pol-spine__fill{height:100%}
+}
+</style>
+
+<div class="ap-page" id="apJcPage">
+<script>/* .js flag set PRE-PAINT so the page never paints visible then snaps blank */
+(function(){var w=document.getElementById('apJcPage');if(w)w.classList.add('js');})();</script>
+<div class="ap-page__in">
+
+<!-- ══ LAYER 1 — SCROLL-SCRUBBED HERO SPAN VIDEO ══ -->
+<div class="ap-scrub" id="apJcScrub" aria-hidden="true">
+  <div class="ap-scrub__par" id="apJcScrubPar">
+    <video class="ap-scrub__vid" id="apJcScrubVid" muted playsinline preload="auto"></video>
+  </div>
+  <div class="ap-scrub__grad" aria-hidden="true"></div>
+  <div class="ap-scrub__shade" id="apJcScrubShade"></div>
+</div>
+
+<!-- ══ LAYER 2 — LOOPING BAND VIDEO ══ -->
+<div class="ap-bandvid" id="apJcBandVid" aria-hidden="true">
+  <div class="ap-bandvid__media" id="apJcBandMedia"></div>
+  <div class="ap-bandvid__shade" aria-hidden="true"></div>
+</div>
+
+<!-- ══ HERO ══ -->
+<header class="ap-hero" id="apJcHero">
+  <div class="ap-hero__glow" aria-hidden="true"></div>
+  <div class="ap-wrap">
+    <div class="ap-hero__grid">
+      <div class="ap-hero__copy">
+        <span class="ap-hero__label rv">Joint Commission Certified</span>
+        <h1 class="rv d1"><span class="ap-hero__l1">Joint Commission</span> <span class="accent">Policy Statement</span></h1>
+        <p class="ap-hero__sub rv d2">InSync Consulting Services is committed to providing a higher standard of service and to the delivery of safe, quality patient care. InSync Consulting Services complies with the Joint Commission's Standards for Healthcare Staffing Services.</p>
+        <div class="ap-hero__ctas rv d3">
+          <a href="/healthcare-staffing/" class="ap-btn ap-btn--primary">View Healthcare Staffing
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/contact-us/" class="ap-btn ap-btn--ghost">Contact Us</a>
+        </div>
+      </div>
+
+      <div class="ap-book-stage rv d2" aria-hidden="true">
+        <div class="ap-book-inner">
+          <div class="ap-book">
+            <div class="ap-book__spine"></div>
+            <div class="ap-book__cover">
+              <div class="ap-book__seal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+              </div>
+              <div class="ap-book__meta">
+                <div class="ap-book__kicker">Certified Standards</div>
+                <div class="ap-book__title">Joint Commission Policy Statement</div>
+                <div class="ap-book__org">InSync Consulting Services</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ap-wrap"><div class="ap-scan rv" aria-hidden="true"></div></div>
+
+<!-- ══ COMMITMENT STATEMENT — end of the scrub span ══ -->
+<section class="ap-section ap-commit" id="apJcCommit">
+  <div class="ap-wrap">
+    <div class="ap-statement rv">
+      <div class="ap-verify" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <div class="ap-verify__core">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>
+        </div>
+      </div>
+      <div class="ap-section__label">Our Commitment</div>
+      <h2>A Written Standard of <span class="accent">Accountability</span></h2>
+      <p>As our customer, you can have confidence that the processes within InSync Consulting Services support that the supplemental staff working in your organization have met the requirements established by the Joint Commission. To assure compliance with the Joint Commission Standards for Healthcare Staffing Services, InSync Consulting Services provides the customer a written description of the following service features.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BAND — everything below the scrub span sits over the looping video ══ -->
+<div class="ap-band" id="apJcBand">
+
+<!-- ══ 10 POLICY STANDARDS (accordion) ══ -->
+<section class="ap-section ap-section--alt">
+  <div class="ap-wrap">
+    <div class="ap-section__head rv">
+      <div class="ap-section__label">Policy Standards</div>
+      <h2 class="ap-section__title">Service <span class="accent">Features</span> Overview</h2>
+      <p class="ap-section__sub">Ten service features that define how InSync Consulting Services delivers compliant, accountable healthcare staffing.</p>
+    </div>
+
+    <div class="ap-pol-wrap" id="apJcPolWrap">
+      <div class="ap-pol-spine" aria-hidden="true"><div class="ap-pol-spine__fill" id="apJcSpineFill"></div></div>
+      <div class="ap-pol-list">
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">01</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">01</span>
+          <span class="ap-pol__t">Subcontractors</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>InSync Consulting Services will not engage subcontractors to provide Assigned Providers unless agreed to in advance by the customer.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">02</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">02</span>
+          <span class="ap-pol__t">Floating</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>Assigned Providers may only be placed in assignments that match the job description for which InSync Consulting Services assigns them; if an Assigned Provider is asked to float to another department with the customer, the department must be a like department or unit and the float provider must have demonstrated previous competency and have the appropriate certifications, credentials for that department/unit. Assigned Providers should only be floated to areas of comparable clinical diagnoses and acuities.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">03</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">03</span>
+          <span class="ap-pol__t">Competency Review</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>It is the responsibility of InSync Consulting Services to conduct and finalize the pre-employment assessment of the Assigned Provider's competence based on the techniques, procedures, technology and skills needed to provide care, treatment and services to the populations served by the customer upon completion of InSync Consulting Services' orientation.</p>
+          <p>It shall be the responsibility of the customer to cooperate in a review or evaluation of each Assigned Provider, relative to the provider's ability to perform specific job functions upon completion of provider's assignment or shift. InSync Consulting Services relies on the customer's feedback in order to accurately assess and re-assess the competence of the Assigned Provider on an ongoing basis based on the customer's report of clinical performance.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">04</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">04</span>
+          <span class="ap-pol__t">Orientation of Providers</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>InSync Consulting Services will provide all new providers with an orientation to the company's policies and procedures. It shall be the responsibility of customer to orient assigned providers to the facility and its rules and regulations and to acquaint them with the facility policies and procedures, including dress code, physical layout and equipment and to validate competency and ability of Assigned Provider to properly use equipment.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">05</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">05</span>
+          <span class="ap-pol__t">Providers and Independent Contractors</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>As the provider of staffing services, InSync Consulting Services will be the employer of Assigned Providers and shall not by reason of their temporary assignment with the customer through InSync Consulting Services become providers of the customer. At its sole discretion InSync Consulting Services reserves the right to utilize Independent Contractors in addition to its providers, to assist in the provision of all agreed upon Healthcare Supplemental Staffing services.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">06</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">06</span>
+          <span class="ap-pol__t">Incident, Error, Tracking System</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>Upon notification of Incidents and or Errors, InSync Consulting Services shall document and track all unexpected incidents, including errors, sentinel events and other events, such as injuries and safety hazards related to the care and services provided, utilizing its data gathering tools. Information gathered tracked and analyzed is to shared and reported appropriately to customers, regulatory bodies and the Joint Commission as required.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">07</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">07</span>
+          <span class="ap-pol__t">Communicating Occupational Safety Hazards/Events</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>It shall be the responsibility of the customer to notify InSync Consulting Services within 24 hours of the event; any competency issues, incidents, and/or complaints related to the Assigned Provider and/or InSync Consulting Services Customer agrees to initiate communication with InSync Consulting Services whenever an incident/injury report related to the Assigned Provider is completed.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">08</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">08</span>
+          <span class="ap-pol__t">Requirements for Staff Specified</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>The requirements of staff sent to the customer by InSync Consulting Services are to be determined by the customer as part of the written agreement between the two parties. It is InSync Consulting Services' obligation to comply with the requirements of the customer by supplying staff that have the documented competencies, credentials, health screening and experience to satisfy the requirements specified by the customer in order to deliver safe care to the population being served.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">09</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">09</span>
+          <span class="ap-pol__t">Conflicts of Interest</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>InSync Consulting Services to the best of its ability identifies conflicts of interest. InSync Consulting Services discloses all conflicts of interest to its clients. InSync Consulting Services annually reviews its relationships and its healthcare providers' relationships with vendors, clients, competitors and regulatory entities to determine conflicts of interest.</p>
+          <p>When conflicts of interest arise InSync Consulting Services discloses this conflict of interest when appropriate to whichever client may be involved or affected. InSync Consulting Services enforces that internal employees of InSync Consulting Services are not permitted to maintain additional employment, accept gifts (other than those of nominal value) or to allow payment on their behalf of any travel, living or entertainment expense by any person or organization currently doing business with or seeking to conduct business with InSync Consulting Services, unless approved by the client involved or potentially involved.</p>
+        </div></div>
+      </div>
+
+      <div class="ap-pol rv">
+        <div class="ap-pol__ghost">10</div>
+        <button type="button" class="ap-pol__head" aria-expanded="false">
+          <span class="ap-pol__n">10</span>
+          <span class="ap-pol__t">Staff Matching Requirements</span>
+          <span class="ap-pol__chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="ap-pol__body"><div class="ap-pol__inner">
+          <p>InSync Consulting Services shall verify the Assigned Provider's licensure, certification, education and work experience to assure they are competent and possess the skills and experience that match requirements for the assignment. Matching the Assigned Provider's licensure, certification, education and work experience to assure they are competent and possess the skills and experience matching the specified requirements of the assignment may include the use of new grad practitioners upon the request or approval of the customer.</p>
+        </div></div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ap-wrap"><div class="ap-scan rv" aria-hidden="true"></div></div>
+
+<!-- ══ OFFICE / EMERGENCY / COMPLAINTS ══ -->
+<section class="ap-section">
+  <div class="ap-wrap">
+    <div class="ap-split">
+
+      <div class="ap-split__col">
+        <div class="ap-section__head ap-section__head--left rv">
+          <div class="ap-section__label">Office Information</div>
+          <h2 class="ap-section__title">Office Hours &amp; <span class="accent">Emergency Contact</span></h2>
+        </div>
+
+        <div class="ap-tile rv d1">
+          <div class="ap-tile__row">
+            <div class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <h3>Roseville, CA Office</h3>
+            <div class="ap-mv ap-mv--clock" aria-hidden="true">
+              <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <circle cx="22" cy="22" r="17"/>
+                <circle class="arc" cx="22" cy="22" r="17" stroke="currentColor" stroke-dasharray="96" transform="rotate(-90 22 22)"/>
+                <path class="hand" d="M22 22V11" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <p>The InSync Consulting Services office, located in the Roseville, CA is open Monday through Friday from the hours of 8:00 a.m. – 5:00 p.m. Our local telephone number is <a href="tel:9162442085">(916) 244-2085</a>. Outside of normal business hours, in the event of an emergency please contact us at <a href="tel:9162442085">(916) 244-2085</a>.</p>
+        </div>
+
+        <div class="ap-tile rv d2">
+          <div class="ap-tile__row">
+            <div class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <h3>Emergency &amp; Disaster Continuity</h3>
+            <div class="ap-mv ap-mv--signal" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+          <p>In the event of an emergency, natural disaster or other uncontrollable event, InSync Consulting Services will continue to provide service to you through our corporate network form a location where phones and computers are functional. InSync Consulting Services will do everything possible to support you in meeting your needs during crisis situation(s). A copy of our Emergency Management Plan is available upon request.</p>
+        </div>
+      </div>
+
+      <div class="ap-split__col">
+        <div class="ap-section__head ap-section__head--left rv d1">
+          <div class="ap-section__label">Complaint Resolution</div>
+          <h2 class="ap-section__title">Service Standards &amp; <span class="accent">Reporting</span></h2>
+        </div>
+
+        <div class="ap-tile rv d2">
+          <div class="ap-tile__row">
+            <div class="ap-tile__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+            <h3>How to Resolve a Concern</h3>
+            <div class="ap-mv ap-mv--path" aria-hidden="true"><b></b><b></b><b></b></div>
+          </div>
+          <p>Our goal is to always provide you with a consistent level of service. If for any reason you are dissatisfied with our service or the service provided by one of our healthcare professionals, we encourage you to contact the local manager to discuss the issue. InSync Consulting Services has processes in place to resolve customer complaints in an effective and efficient manner.</p>
+          <p>If the resolution does not meet your expectation, we encourage you to call the InSync Consulting Services corporate office at <a href="tel:9162442085">(916) 244-2085</a>. A corporate representative will work with you to resolve your concern.</p>
+          <p>Any individual or organization that has a concern about the quality and safety of patient care delivered by InSync Consulting Services healthcare professionals, which has not been addressed by InSync Consulting Services management, is encouraged to contact the Joint Commission at <a href="https://www.jointcommission.org" target="_blank" rel="noopener">www.jointcommission.org</a> or by calling the Office of Quality Monitoring at <a href="tel:6307925636">(630) 792-5636</a>.</p>
+          <p>InSync Consulting Services demonstrates this commitment by taking no retaliatory or disciplinary action against providers when they do report safety or quality of care concerns to the Joint Commission.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="ap-section ap-section--alt ap-cta" id="apJcCta">
+  <div class="ap-wrap">
+    <div class="ap-cta__inner rv">
+      <div class="ap-section__label">Work With Us</div>
+      <h2>Ready to Work With a Joint Commission <span class="accent">Certified</span> Staffing Agency?</h2>
+      <p>Contact our team today — we're here to support your facility with fully compliant, credentialed healthcare professionals.</p>
+      <div class="ap-cta__btns">
+        <a href="/contact-us/" class="ap-btn ap-btn--primary">Contact Our Team
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="/healthcare-staffing/" class="ap-btn ap-btn--ghost">View Healthcare Staffing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /ap-band -->
+
+</div><!-- /ap-page__in -->
+</div><!-- /ap-page -->
+
+<script>
+(function(){
+  'use strict';
+  var root=document.getElementById('apJcPage');
+  if(!root)return;
+  root.classList.add('js');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ── Scroll entrance: stagger siblings in JS (70ms apart, capped .35s),
+        skipping anything that already carries an explicit d1..d5 delay ── */
+  Array.prototype.forEach.call(root.querySelectorAll('.ap-pol-list,.ap-hero__ctas,.ap-cta__btns'),function(parent){
+    var kids=Array.prototype.filter.call(parent.children,function(c){
+      return c.classList.contains('rv')&&!/\bd[1-5]\b/.test(c.className);
+    });
+    kids.forEach(function(c,i){ c.style.transitionDelay=Math.min(i*0.07,0.35).toFixed(2)+'s'; });
+  });
+
+  /* ── Reveal on scroll — threshold:0 + bottom rootMargin. A ratio threshold
+        starves on any block taller than the viewport. ── */
+  var revs=root.querySelectorAll('.rv');
+  if('IntersectionObserver' in window && !reduce){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:0,rootMargin:'0px 0px -12% 0px'});
+    revs.forEach(function(el){io.observe(el);});
+  }else{
+    revs.forEach(function(el){el.classList.add('in');});
+  }
+  /* above-the-fold reveals fire on the first frame so the hero never flashes blank */
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){ if(el.getBoundingClientRect().top < window.innerHeight*0.92) el.classList.add('in'); });
+  });
+  /* safety net — ON-SCREEN ONLY, never the whole page (a blanket reveal kills
+     every scroll entrance below the fold before the visitor reaches it) */
+  setTimeout(function(){
+    revs.forEach(function(el){ if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in'); });
+  },2500);
+
+  /* ── Looping visuals: gate on scroll-in, idle off-screen ── */
+  var loops=root.querySelectorAll('.ap-tile,.ap-verify,.ap-scan,.ap-cta');
+  if('IntersectionObserver' in window){
+    var lio=new IntersectionObserver(function(es){
+      es.forEach(function(e){ e.target.classList.toggle('on',e.isIntersecting); });
+    },{threshold:.08});
+    loops.forEach(function(el){lio.observe(el);});
+  }else{
+    Array.prototype.forEach.call(loops,function(el){el.classList.add('on');});
+  }
+
+  /* ── Policy accordion — one open at a time ── */
+  var pols=root.querySelectorAll('.ap-pol');
+  pols.forEach(function(pol){
+    var head=pol.querySelector('.ap-pol__head'),body=pol.querySelector('.ap-pol__body');
+    if(!head||!body)return;
+    head.addEventListener('click',function(){
+      var wasOpen=pol.classList.contains('is-open');
+      pols.forEach(function(p){
+        p.classList.remove('is-open');
+        var b=p.querySelector('.ap-pol__body'),h=p.querySelector('.ap-pol__head');
+        if(b)b.style.maxHeight='';
+        if(h)h.setAttribute('aria-expanded','false');
+      });
+      if(!wasOpen){
+        pol.classList.add('is-open');
+        body.style.maxHeight=body.scrollHeight+'px';
+        head.setAttribute('aria-expanded','true');
+      }
+    });
+  });
+  /* keep an open panel correctly sized on resize */
+  window.addEventListener('resize',function(){
+    var open=root.querySelector('.ap-pol.is-open .ap-pol__body');
+    if(open)open.style.maxHeight=open.scrollHeight+'px';
+  },{passive:true});
+
+  /* ── Policy index spine fills with reading progress ── */
+  var wrap=document.getElementById('apJcPolWrap'),fill=document.getElementById('apJcSpineFill');
+  if(wrap&&fill&&!reduce){
+    var spineOn=false,ticking=false;
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ spineOn=es[0].isIntersecting; if(spineOn)draw(); },{threshold:0}).observe(wrap);
+    }else{spineOn=true;}
+    function draw(){
+      var r=wrap.getBoundingClientRect(),vh=window.innerHeight;
+      var p=(vh*0.72-r.top)/Math.max(r.height,1);
+      p=p<0?0:(p>1?1:p);
+      fill.style.height=(p*100).toFixed(2)+'%';
+      ticking=false;
+    }
+    window.addEventListener('scroll',function(){
+      if(spineOn&&!ticking){ticking=true;requestAnimationFrame(draw);}
+    },{passive:true});
+    draw();
+  }else if(fill){ fill.style.height='100%'; }
+})();
+</script>
+
+<script>
+/* Hero mouse-parallax on hover — desktop / fine-pointer, motion-safe.
+   Rides inner wrappers so it never fights the reveal / clip-wipe. */
+(function(){
+  var hero=document.getElementById('apJcHero'); if(!hero)return;
+  if(!(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches))return;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  if(window.innerWidth<1025)return;
+  var glow=hero.querySelector('.ap-hero__glow'),
+      copy=hero.querySelector('.ap-hero__copy'),
+      panel=hero.querySelector('.ap-book-inner'),
+      scrubPar=document.getElementById('apJcScrubPar');
+  var tx=0,ty=0,cx=0,cy=0,running=false;
+  function render(){
+    cx+=(tx-cx)*0.09; cy+=(ty-cy)*0.09;
+    if(glow) glow.style.transform='translate3d('+(cx*-20).toFixed(2)+'px,'+(cy*-14).toFixed(2)+'px,0)';
+    if(copy) copy.style.transform='translate3d('+(cx*8).toFixed(2)+'px,'+(cy*6).toFixed(2)+'px,0)';
+    if(panel)panel.style.transform='translate3d('+(cx*20).toFixed(2)+'px,'+(cy*14).toFixed(2)+'px,0) rotateY('+(cx*4).toFixed(2)+'deg) rotateX('+(cy*-4).toFixed(2)+'deg)';
+    /* the video frame drifts opposite and far — well inside its 6%/2% bleed */
+    if(scrubPar)scrubPar.style.transform='translate3d('+(cx*-26).toFixed(2)+'px,'+(cy*-18).toFixed(2)+'px,0)';
+    if(Math.abs(tx-cx)>0.0005||Math.abs(ty-cy)>0.0005){requestAnimationFrame(render);}else{running=false;}
+  }
+  function kick(){ if(!running){running=true;requestAnimationFrame(render);} }
+  hero.addEventListener('pointermove',function(e){
+    var r=hero.getBoundingClientRect();
+    tx=((e.clientX-r.left)/r.width-.5)*2;
+    ty=((e.clientY-r.top)/r.height-.5)*2;
+    kick();
+  },{passive:true});
+  hero.addEventListener('pointerleave',function(){tx=0;ty=0;kick();});
+})();
+</script>
+
+<script>
+/* LAYER 1 — scroll-SCRUBBED hero span video. Desktop: playhead driven by
+   scroll (frame 1 at page top, last frame at the bottom of the Commitment
+   Statement), eased each rAF to kill micro-stutter. Mobile/touch: muted
+   autoplay loop, gated off past the span. Reduced-motion: freeze frame 1.
+   Media URL is a JS runtime constant (immune to GHL attribute corruption). */
+(function(){
+  'use strict';
+  var wrap=document.getElementById('apJcScrub');
+  var vid =document.getElementById('apJcScrubVid');
+  if(!wrap||!vid)return;
+
+  var AP_JC_SCRUB_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7e4c5fa6a03cda06e91528.mp4';
+  vid.src=AP_JC_SCRUB_VIDEO_URL;
+
+  var shade=wrap.querySelector('.ap-scrub__shade');
+
+  /* decode guard: if the clip refuses to load, drop the layer permanently so
+     the hero sits on clean black rather than a stray gradient over nothing */
+  var dead=false;
+  vid.addEventListener('error',function(){ dead=true; wrap.classList.remove('is-on'); wrap.style.display='none'; });
+
+  /* the span runs scrollY 0 -> the BOTTOM of the Commitment Statement */
+  function scrubEnd(){
+    var sec=document.getElementById('apJcCommit');
+    if(sec){ var r=sec.getBoundingClientRect(); if(r.height>0) return r.top+window.scrollY+r.height; }
+    return window.innerHeight;
+  }
+  /* start of the spanned section = the bottom of the hero */
+  function sectionTop(){
+    var h=document.getElementById('apJcHero');
+    if(h){ var r=h.getBoundingClientRect(); if(r.height>0) return r.top+window.scrollY+r.height; }
+    return window.innerHeight;
+  }
+  /* hero shows the video clean (only the constant left-fade grad); the full
+     dark overlay ramps in across the last 45vh of the hero so it is at full
+     strength the moment the Commitment Statement begins, and holds there */
+  function updateShade(){
+    if(!shade)return;
+    var vh=window.innerHeight,y=window.scrollY;
+    var endY=sectionTop(),startY=endY-vh*0.45;
+    var o=(y-startY)/(endY-startY);
+    if(o<0)o=0; if(o>1)o=1;
+    shade.style.opacity=String(o);
+  }
+  window.addEventListener('scroll',updateShade,{passive:true});
+  window.addEventListener('resize',updateShade);
+  updateShade();
+
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   =window.matchMedia&&window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch  =('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  var canScrub=fine&&!touch&&!reduced;
+
+  /* ---- NON-SCRUB fallbacks ---- */
+  if(!canScrub){
+    if(!dead)wrap.classList.add('is-on');
+    if(reduced){
+      vid.removeAttribute('autoplay'); vid.pause();
+      vid.addEventListener('loadeddata',function(){ try{vid.currentTime=0;}catch(e){} vid.pause(); });
+    }else{
+      vid.loop=true; vid.autoplay=true; vid.muted=true; vid.setAttribute('autoplay','');
+      var pl=function(){ var q=vid.play(); if(q&&q.catch)q.catch(function(){}); };
+      vid.addEventListener('loadeddata',pl); pl();
+      var gate=function(){
+        if(dead)return;
+        if(window.scrollY>scrubEnd()+4){ wrap.classList.remove('is-on'); if(!vid.paused)vid.pause(); }
+        else { wrap.classList.add('is-on'); if(vid.paused)pl(); }
+      };
+      window.addEventListener('scroll',gate,{passive:true});
+      window.addEventListener('resize',gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- DESKTOP: scrub currentTime from scroll ---- */
+  vid.loop=false; vid.autoplay=false; vid.pause();
+  var dur=0,ready=false,target=0,raf=0;
+
+  function onMeta(){ dur=vid.duration||0; ready=dur>0; if(!dead)wrap.classList.add('is-on'); tick(); }
+  vid.addEventListener('loadedmetadata',onMeta);
+  vid.addEventListener('loadeddata',function(){ if(!ready)onMeta(); });
+
+  function computeTarget(){
+    var end=scrubEnd(),y=window.scrollY;
+    var p=end>0?(y/end):0;
+    if(p<0)p=0; if(p>1)p=1;
+    /* switch the whole layer off past the span (cross-fades over .5s; every
+       section below carries its own background) */
+    if(!dead){ if(y>end+4)wrap.classList.remove('is-on'); else wrap.classList.add('is-on'); }
+    return p*dur;
+  }
+  function tick(){
+    raf=0;
+    if(ready){
+      target=computeTarget();
+      var cur=vid.currentTime||0,diff=target-cur;
+      if(Math.abs(diff)>=0.008){ try{ vid.currentTime=cur+diff*0.28; }catch(e){} }
+      if(Math.abs(target-(vid.currentTime||0))>0.008)schedule();
+    }
+  }
+  function schedule(){ if(!raf)raf=requestAnimationFrame(tick); }
+
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  schedule();
+})();
+</script>
+
+<script>
+/* LAYER 2 — looping BAND video behind every section after the scrub span.
+   Plain looping playback (no scrubbing). Toggled with a viewport-centre
+   probe against the band's absolute top/bottom, not a per-section observer.
+   The <video> is built in JS from a URL constant so GHL can't corrupt a src
+   attribute. Decode guard: on error the layer stays off permanently, so the
+   sections sit on clean black instead of a gradient wash over nothing.
+   Desktop / fine-pointer only. */
+(function(){
+  'use strict';
+  var wrap =document.getElementById('apJcBandVid');
+  var media=document.getElementById('apJcBandMedia');
+  var band =document.getElementById('apJcBand');
+  if(!wrap||!media||!band)return;
+
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   =window.matchMedia&&window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch  =('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  if(!fine||touch||reduced)return;
+
+  var AP_JC_BAND_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7e4c5fa6a03cda06e91528.mp4';
+
+  var vid=document.createElement('video');
+  vid.muted=true; vid.loop=true; vid.playsInline=true; vid.preload='auto';
+  vid.setAttribute('muted',''); vid.setAttribute('playsinline','');
+  vid.src=AP_JC_BAND_VIDEO_URL;
+  media.appendChild(vid);
+
+  var dead=false;
+  vid.addEventListener('error',function(){ dead=true; wrap.classList.remove('on'); wrap.style.display='none'; });
+
+  function play(){ var q=vid.play(); if(q&&q.catch)q.catch(function(){}); }
+  vid.addEventListener('loadeddata',play);
+
+  var raf=0;
+  function probe(){
+    raf=0;
+    if(dead)return;
+    var r=band.getBoundingClientRect();
+    var mid=window.innerHeight/2;
+    var inside=r.top<=mid&&r.bottom>=mid;
+    if(inside){ wrap.classList.add('on'); if(vid.paused)play(); }
+    else{ wrap.classList.remove('on'); if(!vid.paused)vid.pause(); }
+  }
+  function schedule(){ if(!raf)raf=requestAnimationFrame(probe); }
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  schedule();
+})();
+</script>

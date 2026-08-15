@@ -1,0 +1,905 @@
+<!-- ================================================================
+     INSYNC -- STRIKE WORK & UPDATES . APEX v2 (body-only GHL block)
+     insync-apex-design-v2 system . copy verbatim from Vercel reference.
+     Paste as page CONTENT between the global Apex NAV block and the
+     global Apex FOOTER block, in a full-width GHL section with
+     section/row/column padding = 0. Nav + footer are separate blocks.
+
+     v2 video architecture:
+       Layer 1 -- scroll-SCRUBBED fixed video spanning the hero +
+       Current Status + Strike Support split (frame 1 at page top,
+       last frame at the bottom of the split). Constant left-fade
+       gradient over the hero; a fixed rgba(0,0,0,.66) shade ramps
+       0->1 across the last 45vh of the hero and holds. Layer drops
+       past the span. Mobile loops the clip (hero only); reduced-
+       motion freezes frame 1.
+       Layer 2 -- looping BAND video behind Example Tiles -> CTA,
+       darkened (brightness .6) + gradient shade, toggled by a
+       viewport-centre probe, decode-guarded, desktop-only.
+     Video URLs are JS runtime constants -- never src attributes.
+     The global Apex layer owns the custom cursor; this block restores
+     a visible native cursor (scoped + !important). Tokens live on
+     .ap-page, not :root.
+     ================================================================ -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* -- Tokens on the page WRAPPER (never :root -- body blocks share the GHL page) -- */
+.ap-page{
+  --bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+  --ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+  --navy:#20335a;--navy-2:#16223f;
+  --f:'Inter',system-ui,sans-serif;--f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.4,0,.2,1);--e-out:cubic-bezier(.16,1,.3,1);--e-spring:cubic-bezier(.34,1.56,.64,1);
+  --nav-h:64px;--gutter:24px;--max-w:1440px;
+}
+@media(max-width:640px){.ap-page{--gutter:16px}}
+@media(max-width:400px){.ap-page{--gutter:14px}}
+
+/* -- Base (scoped to .ap-page so it never touches GHL globals) -- */
+.ap-page,.ap-page *,.ap-page *::before,.ap-page *::after{box-sizing:border-box;margin:0;padding:0}
+.ap-page{font-family:var(--f);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;position:relative;overflow:clip}
+.ap-page img{max-width:100%;display:block}
+.ap-page a{color:inherit;text-decoration:none}
+.ap-page h1,.ap-page h2,.ap-page h3,.ap-page h4{line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.ap-page .accent{color:var(--orange)}
+.ap-page .ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+.ap-page [id]{scroll-margin-top:calc(var(--nav-h) + 40px)}
+
+/* -- Cursor restore (GHL's global Apex layer hides the native cursor) -- */
+.ap-page,.ap-page *{cursor:auto !important}
+.ap-page a[href],.ap-page button,.ap-page .ap-btn,.ap-page label[for],.ap-page [role="button"],.ap-page .ap-faq__q{cursor:pointer !important}
+.ap-page input,.ap-page textarea,.ap-page select{cursor:text !important}
+.ap-page input[type="checkbox"],.ap-page input[type="radio"]{cursor:pointer !important}
+
+/* -- Gradient utilities (media/colors never in inline style attrs) -- */
+.ap-page .ap-grad-o{background:linear-gradient(135deg,var(--orange),var(--orange-3))}
+.ap-page .ap-grad-o2{background:linear-gradient(135deg,var(--orange-2),var(--orange))}
+.ap-page .ap-grad-n{background:linear-gradient(135deg,var(--navy-2),var(--navy))}
+.ap-page .ap-grad-n2{background:linear-gradient(135deg,var(--navy),var(--navy-2))}
+
+/* -- Buttons -- */
+.ap-page .ap-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--f);font-weight:600;font-size:.92rem;letter-spacing:-.01em;padding:13px 22px;border-radius:10px;border:1px solid var(--line-2);color:var(--ink);background:transparent;transition:all .3s var(--e)}
+.ap-page .ap-btn svg{width:16px;height:16px;transition:transform .3s var(--e)}
+.ap-page .ap-btn:hover svg{transform:translateX(4px)}
+.ap-page .ap-btn:hover{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.04);transform:translateY(-2px)}
+.ap-page .ap-btn--primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.ap-page .ap-btn--primary:hover{background:var(--orange-2);border-color:var(--orange-2);box-shadow:0 14px 34px rgba(239,90,40,.32)}
+.ap-page .ap-btn--ghost{background:transparent}
+
+/* -- Section shell -- */
+.ap-page .ap-section{padding:140px 0;position:relative}
+.ap-page .ap-section--alt{background:var(--bg-1)}
+.ap-page .ap-section__head{max-width:720px;margin:0 auto 72px;text-align:center}
+.ap-page .ap-section__title{font-size:clamp(2.1rem,4.6vw,3.6rem);letter-spacing:-.03em}
+.ap-page .ap-section__sub{margin-top:20px;font-size:1.05rem;color:var(--ink-2);line-height:1.7;max-width:600px;margin-left:auto;margin-right:auto}
+
+/* -- Eyebrows -- label-only, leading dash accent (no numbers) --
+   Hero eyebrow = orange . section eyebrows = muted gray */
+.ap-page .ap-hero__label{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11.5px;line-height:1;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:26px}
+.ap-page .ap-hero__label::before{content:'';width:26px;height:1px;background:var(--orange);opacity:.8}
+.ap-page .ap-section__label{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11.5px;line-height:1;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);margin-bottom:20px}
+.ap-page .ap-section__label::before{content:'';width:22px;height:1px;background:var(--ink-3);opacity:.85}
+
+/* == LAYER 1 -- SCROLL-SCRUBBED BACKGROUND VIDEO (hero span) ==
+   Fixed behind the span; frame 1 at page top, last frame at the bottom
+   of the Strike Support split. Constant left-dark fade keeps hero copy
+   readable; the full shade ramps in across the last 45vh of the hero. */
+.ap-page .ap-scrub{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.ap-page .ap-scrub.is-on{opacity:1}
+.ap-page .ap-scrub__par{position:absolute;inset:0;will-change:transform}
+/* Framing: native cover with a slim 2% bleed per edge -- just past the
+   parallax extremes (max drift is 14px x / 10px y), so the clip reads at
+   its natural crop instead of zoomed. */
+.ap-page .ap-scrub__vid{position:absolute;left:-2%;top:-2%;width:104%;height:104%;object-fit:cover;object-position:50% 50%;will-change:transform}
+.ap-page .ap-scrub__grad{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.8) 22%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.34) 88%,rgba(0,0,0,.34) 100%)}
+.ap-page .ap-scrub__shade{position:absolute;inset:0;opacity:0;background:rgba(0,0,0,.66)}
+
+/* SCRUB SPAN: hero + Current Status + Strike Support split are forced
+   transparent so the fixed video shows through; everything else keeps
+   its own background -- no page-wide transparency. */
+.ap-page .ap-hero,.ap-page .ap-status,.ap-page #apIntro{background:transparent !important;position:relative;z-index:1}
+
+/* == HERO == */
+.ap-page .ap-hero{padding:130px 0 120px;overflow:hidden}
+.ap-page .ap-hero__grid{position:relative;z-index:2;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+.ap-page .ap-hero__h1{font-size:clamp(3rem,8vw,6.4rem);font-weight:900;letter-spacing:-.045em;line-height:.98;padding-bottom:.16em}
+.ap-page .ap-hero__sub{margin-top:14px;font-size:1.14rem;color:var(--ink-2);line-height:1.7;max-width:520px}
+.ap-page .ap-hero__ctas{margin-top:34px;display:flex;gap:13px;flex-wrap:wrap}
+.ap-page .ap-hero__tags{margin-top:30px;display:flex;gap:9px;flex-wrap:wrap}
+.ap-page .ap-tag{font-family:var(--f-mono);font-size:.68rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-2);padding:6px 14px;border:1px solid rgba(239,90,40,.32);border-radius:100px;background:rgba(239,90,40,.06)}
+
+/* Hero parallax inner layers (parallax rides inners -- never the .rv reveal targets) */
+.ap-page .ap-hero__copy-in{will-change:transform}
+.ap-page .ap-hero__cards{position:relative;height:440px;perspective:900px}
+.ap-page .ap-hero__cards-in{position:relative;height:100%;transform-style:preserve-3d;will-change:transform}
+
+/* Floating cards -- frosted glass over the scrub video */
+.ap-page .ap-fcard{position:absolute;background:rgba(255,255,255,.045);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08);border:1px solid var(--line-2);border-radius:16px;padding:16px 18px;width:212px;box-shadow:0 30px 60px -18px rgba(0,0,0,.85),0 10px 30px -12px rgba(239,90,40,.18);animation:ap-float 6s var(--e) infinite}
+.ap-page .ap-fcard__top{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.ap-page .ap-fcard__dot{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:600;font-size:.8rem;color:#fff;flex-shrink:0}
+.ap-page .ap-fcard__role{font-size:.86rem;font-weight:700;color:var(--ink)}
+.ap-page .ap-fcard__meta{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.ap-page .ap-fcard__row{display:flex;align-items:center;justify-content:space-between;font-size:.74rem;color:var(--ink-2);padding-top:9px;border-top:1px solid var(--line)}
+.ap-page .ap-fcard__val{color:#fff}
+.ap-page .ap-fcard__status{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-2)}
+.ap-page .ap-fcard__pulse{width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 0 rgba(239,90,40,.6);animation:ap-pulse 2.2s var(--e) infinite}
+.ap-page .ap-fcard--1{top:4%;left:2%;animation-delay:0s}
+.ap-page .ap-fcard--2{top:30%;right:0;width:196px;animation-delay:1.4s}
+.ap-page .ap-fcard--3{bottom:2%;left:12%;width:222px;animation-delay:.7s}
+@keyframes ap-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes ap-pulse{0%{box-shadow:0 0 0 0 rgba(239,90,40,.55)}70%{box-shadow:0 0 0 12px rgba(239,90,40,0)}100%{box-shadow:0 0 0 0 rgba(239,90,40,0)}}
+
+/* == STATUS STRIP (inside the scrub span -- hairlines only) == */
+.ap-page .ap-status{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ap-page .ap-status .ap-wrap{display:flex;align-items:center;gap:18px;padding:22px var(--gutter);flex-wrap:wrap}
+.ap-page .ap-status__live{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);flex-shrink:0}
+.ap-page .ap-status__live .ap-fcard__pulse{width:9px;height:9px}
+.ap-page .ap-status__text{font-size:.98rem;color:var(--ink-2);line-height:1.6}
+.ap-page .ap-status__text strong{color:var(--ink);font-weight:700}
+
+/* == INTRO SPLIT (last section of the scrub span) == */
+.ap-page .ap-split{display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:center}
+.ap-page .ap-split__copy .ap-section__label{margin-bottom:14px}
+.ap-page .ap-split__copy h2{font-size:clamp(1.9rem,3.6vw,2.9rem);padding-bottom:.09em}
+.ap-page .ap-split__copy p{margin-top:18px;font-size:1rem;color:var(--ink-2);line-height:1.75}
+.ap-page .ap-split__copy p strong{color:var(--ink);font-weight:600}
+.ap-page .ap-check{list-style:none;margin:26px 0 30px;display:grid;gap:13px}
+.ap-page .ap-check li{display:flex;gap:12px;align-items:flex-start;font-size:.96rem;color:var(--ink-2);line-height:1.6}
+.ap-page .ap-check svg{width:20px;height:20px;color:var(--orange);flex-shrink:0;margin-top:2px}
+
+/* Dashboard mockup -- frosted glass over the scrub video */
+.ap-page .ap-mock-container{perspective:1400px}
+.ap-page .ap-mock-inner{transform-style:preserve-3d;transform:rotateY(-15deg) rotateX(4deg);transition:transform .8s var(--e-out)}
+.ap-page .ap-mock-container:hover .ap-mock-inner{transform:rotateY(-8deg) rotateX(2deg)}
+.ap-page .ap-mock-body{background:rgba(255,255,255,.045);-webkit-backdrop-filter:blur(8px) saturate(1.08);backdrop-filter:blur(8px) saturate(1.08);border:1px solid var(--line-2);border-radius:18px;position:relative;overflow:hidden;box-shadow:0 40px 80px -20px rgba(0,0,0,.9),0 20px 40px -8px rgba(239,90,40,.15)}
+.ap-page .ap-mock-body::before{content:'';position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.10) 0%,transparent 60%);pointer-events:none;z-index:1}
+.ap-page .ap-mock-body::after{content:'';position:absolute;top:0;bottom:0;left:-45%;width:34%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.05),transparent);transform:skewX(-12deg);pointer-events:none;z-index:1;opacity:0}
+.ap-page .ap-dash__bar{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line)}
+.ap-page .ap-dash__title{font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:9px}
+.ap-page .ap-dash__count{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;color:var(--orange-2);padding:4px 10px;border:1px solid rgba(239,90,40,.3);border-radius:100px}
+.ap-page .ap-dash__rows{padding:12px}
+.ap-page .ap-drow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:11px;transition:background .3s var(--e)}
+.ap-page .ap-drow:hover{background:rgba(255,255,255,.04)}
+.ap-page .ap-drow__av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;color:#fff;flex-shrink:0}
+.ap-page .ap-drow__main{flex:1;min-width:0}
+.ap-page .ap-drow__name{font-size:.82rem;font-weight:600;color:var(--ink)}
+.ap-page .ap-drow__sub{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:2px}
+.ap-page .ap-drow__tag{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:100px;white-space:nowrap}
+.ap-page .ap-drow__tag--ready{color:var(--orange-2);background:rgba(239,90,40,.12)}
+.ap-page .ap-drow__tag--rev{color:var(--ink-3);background:rgba(255,255,255,.06)}
+
+/* Mockup live loop -- content-matched motion (board being worked): scan
+   shimmer sweeps, rows highlight in sequence, Ready tags pulse.
+   Gated on .go via IntersectionObserver; idle off-screen. */
+.ap-page.js .ap-mock-container.go .ap-mock-body::after{opacity:1;animation:ap-scan 4.6s var(--e) infinite}
+.ap-page.js .ap-mock-container.go .ap-drow{animation:ap-rowcycle 6.4s var(--e) infinite}
+.ap-page.js .ap-mock-container.go .ap-drow:nth-child(2){animation-delay:1.6s}
+.ap-page.js .ap-mock-container.go .ap-drow:nth-child(3){animation-delay:3.2s}
+.ap-page.js .ap-mock-container.go .ap-drow:nth-child(4){animation-delay:4.8s}
+.ap-page.js .ap-mock-container.go .ap-drow__tag--ready{animation:ap-tagpulse 3.2s var(--e) infinite}
+@keyframes ap-scan{0%{left:-45%}55%,100%{left:112%}}
+@keyframes ap-rowcycle{0%,18%{background:rgba(255,255,255,.06)}26%,100%{background:transparent}}
+@keyframes ap-tagpulse{0%,100%{box-shadow:0 0 0 0 rgba(239,90,40,0)}50%{box-shadow:0 0 0 5px rgba(239,90,40,.10)}}
+
+/* == LAYER 2 -- LOOPING BAND VIDEO (Example Tiles -> CTA) ==
+   A second fixed video behind everything after the scrub span.
+   Darkened + gradient-shaded so text stays readable; band sections go
+   transparent and band cards take the frosted-glass recipe. Toggled by
+   a viewport-centre probe. Desktop / fine-pointer only. */
+.ap-page .ap-band{position:relative;z-index:1}
+.ap-page .ap-bandvid{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .6s ease}
+.ap-page .ap-bandvid.on{opacity:1}
+.ap-page .ap-bandvid__media{position:absolute;inset:0;overflow:hidden}
+.ap-page .ap-bandvid__media video{position:absolute;left:50%;top:50%;width:100%;height:100%;transform:translate(-50%,-50%);object-fit:cover;filter:brightness(.6)}
+.ap-page .ap-bandvid__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.87) 0%,rgba(0,0,0,.81) 30%,rgba(0,0,0,.83) 70%,rgba(0,0,0,.9) 100%)}
+.ap-page .ap-band > section{background:transparent !important}
+
+/* == EXAMPLE TILES == */
+.ap-page .ap-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ap-page .ap-tile{background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:38px 28px;text-align:center;position:relative;overflow:hidden;transition:all .4s var(--e)}
+.ap-page .ap-tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--orange);transform:scaleY(0);transform-origin:top;transition:transform .4s var(--e)}
+.ap-page .ap-tile:hover{border-color:var(--line-2);transform:translateY(-5px);box-shadow:0 30px 60px -24px rgba(0,0,0,.8)}
+.ap-page .ap-tile:hover::before{transform:scaleY(1)}
+.ap-page .ap-tile__n{font-size:clamp(1.9rem,3.4vw,2.7rem);font-weight:900;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.ap-page .ap-tile__n .accent{color:var(--orange)}
+.ap-page .ap-tile__l{margin-top:12px;font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);line-height:1.5}
+.ap-page .ap-example__note{margin:36px auto 0;text-align:center;max-width:560px;font-size:.98rem;color:var(--ink-2)}
+.ap-page .ap-example__note strong{color:var(--ink);font-weight:700}
+.ap-page .ap-example__cta{margin-top:30px;text-align:center}
+
+/* == FAQ == */
+.ap-page .ap-faq{max-width:880px;margin:0 auto;display:grid;gap:12px}
+.ap-page .ap-faq__item{background:var(--bg-card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .3s var(--e)}
+.ap-page .ap-faq__item.open{border-color:rgba(239,90,40,.4)}
+.ap-page .ap-faq__q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 26px;background:transparent;border:none;text-align:left;font-family:var(--f);transition:background .25s var(--e)}
+.ap-page .ap-faq__q:hover{background:rgba(255,255,255,.02)}
+.ap-page .ap-faq__qt{font-size:1rem;font-weight:600;color:var(--ink);line-height:1.5;transition:color .25s var(--e)}
+.ap-page .ap-faq__item.open .ap-faq__qt{color:var(--orange-2)}
+.ap-page .ap-faq__tg{width:30px;height:30px;border-radius:9px;border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .35s var(--e)}
+.ap-page .ap-faq__tg svg{width:14px;height:14px;color:var(--ink-2);transition:color .3s var(--e)}
+.ap-page .ap-faq__item.open .ap-faq__tg{background:var(--orange);border-color:var(--orange);transform:rotate(45deg)}
+.ap-page .ap-faq__item.open .ap-faq__tg svg{color:#fff}
+.ap-page .ap-faq__a{max-height:0;overflow:hidden;transition:max-height .4s var(--e)}
+.ap-page .ap-faq__ain{padding:0 26px 24px;font-size:.95rem;color:var(--ink-2);line-height:1.75}
+.ap-page .ap-faq__ain a{color:var(--orange-2);font-weight:600;border-bottom:1px solid rgba(239,90,40,.4)}
+.ap-page .ap-faq__ain a:hover{color:var(--orange-3)}
+
+/* Frosted glass over the band video -- cards only, never grid wrappers */
+.ap-page .ap-band .ap-tile,
+.ap-page .ap-band .ap-faq__item{
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid var(--line-2) !important;
+  -webkit-backdrop-filter:blur(8px) saturate(1.08);
+          backdrop-filter:blur(8px) saturate(1.08);
+}
+.ap-page .ap-band .ap-tile{box-shadow:0 30px 60px -18px rgba(0,0,0,.7)}
+.ap-page .ap-band .ap-tile:hover{background:rgba(255,255,255,.075) !important;border-color:rgba(239,90,40,.4) !important}
+.ap-page .ap-band .ap-faq__item.open{border-color:rgba(239,90,40,.4) !important}
+.ap-page .ap-band .ap-faq__q:hover{background:rgba(255,255,255,.03)}
+
+/* == CTA == */
+.ap-page .ap-cta{text-align:center;background:radial-gradient(900px 460px at 50% 120%,rgba(239,90,40,.12),transparent 60%),var(--bg-1)}
+.ap-page .ap-cta .ap-section__label{margin-bottom:20px}
+.ap-page .ap-cta h2{font-size:clamp(2.1rem,4.6vw,3.6rem);padding-bottom:.09em}
+.ap-page .ap-cta p{margin:16px auto 34px;max-width:600px;font-size:1.06rem;color:var(--ink-2);line-height:1.7}
+.ap-page .ap-cta__btns{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+
+/* -- Reveal system -- hidden ONLY under .js (no-JS users see everything);
+   .js is flagged PRE-PAINT by the inline script inside the wrapper -- */
+.ap-page.js .rv{opacity:0;transform:translateY(20px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-page.js .rv.in{opacity:1;transform:none}
+.ap-page.js .rv.d1{transition-delay:.1s}.ap-page.js .rv.d2{transition-delay:.2s}.ap-page.js .rv.d3{transition-delay:.3s}
+
+/* Kinetic clip-wipe headings (left->right); descender room via the
+   padding-bottom set on each heading above */
+.ap-page.js .kw{clip-path:inset(0 105% 0 0);transition:clip-path 1.05s var(--e-out) .12s}
+.ap-page.js .in .kw,.ap-page.js .kw.in{clip-path:inset(0 0 0 0)}
+
+/* == RESPONSIVE == */
+@media(max-width:1024px){
+  .ap-page .ap-hero__grid{grid-template-columns:1fr;gap:60px}
+  .ap-page .ap-hero__copy{text-align:center}
+  .ap-page .ap-hero__label{justify-content:center}
+  .ap-page .ap-hero__sub{margin-left:auto;margin-right:auto}
+  .ap-page .ap-hero__ctas{justify-content:center}
+  .ap-page .ap-hero__tags{justify-content:center}
+  .ap-page .ap-hero__cards{height:360px;max-width:460px;margin:0 auto}
+  .ap-page .ap-split{grid-template-columns:1fr;gap:48px}
+}
+@media(max-width:900px){
+  .ap-page .ap-section{padding:80px 0}
+  .ap-page .ap-hero{padding:70px 0 80px}
+}
+@media(max-width:640px){
+  .ap-page .ap-section{padding:64px 0}
+  .ap-page .ap-section__head{margin-bottom:48px}
+  .ap-page .ap-tiles{grid-template-columns:1fr}
+  .ap-page .ap-btn{min-height:48px}
+  .ap-page .ap-faq__q{min-height:48px}
+  .ap-page .ap-hero__ctas{flex-direction:column;align-items:stretch}
+  .ap-page .ap-hero__ctas .ap-btn{width:100%;justify-content:center}
+  .ap-page .ap-cta__btns{flex-direction:column;align-items:stretch}
+  .ap-page .ap-cta__btns .ap-btn{width:100%;justify-content:center}
+  .ap-page .ap-hero__cards{height:auto;max-width:340px;perspective:none}
+  .ap-page .ap-hero__cards-in{height:auto;display:flex;flex-direction:column;gap:16px;transform:none!important}
+  .ap-page .ap-fcard{position:static;width:100%!important;animation:none}
+  .ap-page .ap-fcard--2{display:none}
+}
+@media(max-width:400px){
+  .ap-page .ap-section{padding:56px 0}
+  .ap-page .ap-hero{padding:56px 0 64px}
+  .ap-page .ap-section__head{margin-bottom:40px}
+  .ap-page .ap-tile{padding:30px 20px}
+  .ap-page .ap-faq__q{padding:18px}
+  .ap-page .ap-faq__ain{padding:0 18px 20px}
+  .ap-page .ap-fcard{padding:14px 16px}
+  .ap-page .ap-status .ap-wrap{padding:18px var(--gutter)}
+}
+
+/* -- No band video off-desktop -> restore every solid surface.
+   The scrub layer stays: mobile autoplay-loops the clip for the HERO
+   only (span sections regain solid floors below), reduced-motion
+   freezes frame 1. backdrop-filter is off -- heaviest paint case. -- */
+@media(max-width:1024px),(prefers-reduced-motion:reduce),(pointer:coarse){
+  .ap-page .ap-bandvid{display:none !important}
+  /* no parallax off-desktop -> no bleed needed; exact cover fit */
+  .ap-page .ap-scrub__vid{left:0;top:0;width:100%;height:100%}
+  .ap-page .ap-status{background:var(--bg-1) !important}
+  .ap-page #apIntro{background:var(--bg) !important}
+  .ap-page .ap-band > section{background:var(--bg) !important}
+  .ap-page .ap-band > section.ap-section--alt{background:var(--bg-1) !important}
+  .ap-page .ap-band > section.ap-cta{background:radial-gradient(900px 460px at 50% 120%,rgba(239,90,40,.12),transparent 60%),var(--bg-1) !important}
+  .ap-page .ap-fcard{background:linear-gradient(150deg,var(--bg-elev),var(--bg-card));-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page .ap-mock-body{background:linear-gradient(135deg,var(--bg-elev) 0%,var(--bg-1) 100%);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .ap-page .ap-band .ap-tile{background:var(--bg-card) !important;border:1px solid var(--line) !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
+  .ap-page .ap-band .ap-faq__item{background:var(--bg-card) !important;border:1px solid var(--line) !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ap-page *{animation:none!important;transition:none!important}
+  .ap-page.js .rv{opacity:1;transform:none}
+  .ap-page.js .kw{clip-path:none}
+  .ap-page .ap-mock-inner{transform:none}
+  .ap-page .ap-hero__copy-in,.ap-page .ap-hero__cards-in{transform:none!important}
+}
+</style>
+
+<div class="ap-page" id="apPage">
+<script>
+/* PRE-PAINT: flag the wrapper as JS-driven before anything renders. Without
+   this the reveal rules (.ap-page.js .rv{opacity:0}) only bind after the
+   bottom script runs -- the page paints visible, then snaps blank. */
+(function(){ var w=document.getElementById('apPage'); if(w) w.classList.add('js'); })();
+</script>
+
+  <!-- LAYER 1 -- SCROLL-SCRUBBED BACKGROUND VIDEO (hero span) -->
+  <div class="ap-scrub" id="apScrub" aria-hidden="true">
+    <div class="ap-scrub__par" id="apScrubPar">
+      <video class="ap-scrub__vid" id="apScrubVid" muted playsinline preload="auto"></video>
+    </div>
+    <div class="ap-scrub__grad" aria-hidden="true"></div>
+    <div class="ap-scrub__shade" id="apScrubShade"></div>
+  </div>
+
+  <!-- ========== HERO ========== -->
+  <header class="ap-hero">
+    <div class="ap-wrap ap-hero__grid">
+      <div class="ap-hero__copy rv">
+        <div class="ap-hero__copy-in">
+          <div class="ap-hero__label">Temporary Work Opportunities</div>
+          <h1 class="ap-hero__h1 kw">Strike Work<br>&amp; <span class="accent">Updates</span></h1>
+          <p class="ap-hero__sub">InSync Strike Support is experienced in providing Strike Replacement Workers to companies preparing for labor contract negotiations. We execute effective crisis labor solutions across numerous industries.</p>
+          <div class="ap-hero__ctas">
+            <a href="https://nexus-leap.laboredge.com/insync/quicksignup" class="ap-btn ap-btn--primary">Apply Now
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <a href="#faq" class="ap-btn ap-btn--ghost">Read the FAQ</a>
+          </div>
+          <div class="ap-hero__tags">
+            <span class="ap-tag">Northern California</span>
+            <span class="ap-tag">Spokane</span>
+            <span class="ap-tag">Seattle</span>
+          </div>
+        </div>
+      </div>
+      <div class="ap-hero__cards rv d2" aria-hidden="true">
+        <div class="ap-hero__cards-in">
+          <div class="ap-fcard ap-fcard--1">
+            <div class="ap-fcard__top">
+              <div class="ap-fcard__dot ap-grad-o">NC</div>
+              <div><div class="ap-fcard__role">Replacement Workers</div><div class="ap-fcard__meta">Northern California</div></div>
+            </div>
+            <div class="ap-fcard__row"><span>Shift pay</span><strong class="ap-fcard__val">$350&ndash;$500</strong></div>
+          </div>
+          <div class="ap-fcard ap-fcard--2">
+            <div class="ap-fcard__top">
+              <div class="ap-fcard__dot ap-grad-n">SP</div>
+              <div><div class="ap-fcard__role">Spokane, WA</div><div class="ap-fcard__meta">Work Stoppage</div></div>
+            </div>
+            <div class="ap-fcard__row"><span class="ap-fcard__status"><span class="ap-fcard__pulse"></span>Staffing now</span></div>
+          </div>
+          <div class="ap-fcard ap-fcard--3">
+            <div class="ap-fcard__top">
+              <div class="ap-fcard__dot ap-grad-o2">700</div>
+              <div><div class="ap-fcard__role">700+ Positions</div><div class="ap-fcard__meta">To Fill</div></div>
+            </div>
+            <div class="ap-fcard__row"><span>Travel &amp; lodging</span><strong class="ap-fcard__val">Included</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== STATUS STRIP ========== -->
+  <div class="ap-status">
+    <div class="ap-wrap">
+      <span class="ap-status__live"><span class="ap-fcard__pulse"></span>Current Status</span>
+      <p class="ap-status__text">The <strong>California &amp; Washington strike has concluded</strong> and was a success. Stay tuned for the next strike and apply now to stay up to date.</p>
+    </div>
+  </div>
+
+  <!-- ========== INTRO SPLIT (end of the scrub span) ========== -->
+  <section class="ap-section" id="apIntro">
+    <div class="ap-wrap ap-split">
+      <div class="ap-split__copy rv">
+        <div class="ap-section__label">Strike Support</div>
+        <h2 class="kw">Experienced Strike <span class="accent">Replacement</span> Support</h2>
+        <p>InSync Strike Support is experienced in providing <strong>Strike Replacement Workers</strong> to companies preparing for labor contract negotiations. We execute effective crisis labor solutions across numerous industries and in many situations.</p>
+        <p>We are preparing for an upcoming strike (collective bargaining agreement expiration) and need to identify key replacement workers during the work stoppages that are upcoming in the <strong>Northern California, Spokane, and Seattle areas</strong>.</p>
+        <ul class="ap-check">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>We will have over 700 positions to fill in the near future!</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>The pay is excellent! You don't want to miss out on this opportunity.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>You will be notified of the next strike.</li>
+        </ul>
+        <a href="https://nexus-leap.laboredge.com/insync/quicksignup" class="ap-btn ap-btn--primary">Apply Now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+      <div class="ap-mock-container rv d2">
+        <div class="ap-mock-inner">
+          <div class="ap-mock-body">
+            <div class="ap-dash__bar">
+              <div class="ap-dash__title"><span class="ap-fcard__pulse"></span>Strike Staffing Board</div>
+              <div class="ap-dash__count">700+ positions</div>
+            </div>
+            <div class="ap-dash__rows">
+              <div class="ap-drow">
+                <div class="ap-drow__av ap-grad-o">RN</div>
+                <div class="ap-drow__main"><div class="ap-drow__name">Registered Nurse</div><div class="ap-drow__sub">Northern California</div></div>
+                <div class="ap-drow__tag ap-drow__tag--ready">Ready</div>
+              </div>
+              <div class="ap-drow">
+                <div class="ap-drow__av ap-grad-n">CT</div>
+                <div class="ap-drow__main"><div class="ap-drow__name">Clinical Technician</div><div class="ap-drow__sub">Spokane, WA</div></div>
+                <div class="ap-drow__tag ap-drow__tag--ready">Ready</div>
+              </div>
+              <div class="ap-drow">
+                <div class="ap-drow__av ap-grad-o2">SP</div>
+                <div class="ap-drow__main"><div class="ap-drow__name">Support Personnel</div><div class="ap-drow__sub">Seattle, WA</div></div>
+                <div class="ap-drow__tag ap-drow__tag--rev">Screening</div>
+              </div>
+              <div class="ap-drow">
+                <div class="ap-drow__av ap-grad-n2">AL</div>
+                <div class="ap-drow__main"><div class="ap-drow__name">Allied Health</div><div class="ap-drow__sub">Northern California</div></div>
+                <div class="ap-drow__tag ap-drow__tag--rev">Screening</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYER 2 -- LOOPING BAND VIDEO (behind everything after the span) -->
+  <div class="ap-bandvid" id="apBandVid">
+    <div class="ap-bandvid__media" id="apBandVidMedia" aria-hidden="true"></div>
+    <div class="ap-bandvid__shade" aria-hidden="true"></div>
+  </div>
+
+  <div class="ap-band" id="apBand">
+
+  <!-- ========== EXAMPLE TILES ========== -->
+  <section class="ap-section ap-section--alt">
+    <div class="ap-wrap">
+      <div class="ap-section__head rv">
+        <div class="ap-section__label">Example of a Recent Strike Fulfilled by InSync</div>
+        <h2 class="ap-section__title kw">Temporary Strike Replacement Worker <span class="accent">Positions</span></h2>
+        <p class="ap-section__sub">A look at what candidates earned and received on a recent InSync-fulfilled work stoppage.</p>
+      </div>
+      <div class="ap-tiles">
+        <div class="ap-tile rv"><div class="ap-tile__n"><span class="accent">$</span><span data-count="350">350</span>&ndash;<span class="accent">$</span><span data-count="500">500</span></div><div class="ap-tile__l">Per Shift</div></div>
+        <div class="ap-tile rv"><div class="ap-tile__n" data-count="5">5</div><div class="ap-tile__l">Shifts Per Week</div></div>
+        <div class="ap-tile rv"><div class="ap-tile__n">Included</div><div class="ap-tile__l">Transportation, Lodging &amp; Meals</div></div>
+      </div>
+      <p class="ap-example__note rv">Transportation, lodging &amp; meals will be provided at <strong>no cost to you</strong>.</p>
+      <div class="ap-example__cta rv">
+        <a href="https://nexus-leap.laboredge.com/insync/quicksignup" class="ap-btn ap-btn--primary">Apply Now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FAQ ========== -->
+  <section class="ap-section" id="faq">
+    <div class="ap-wrap">
+      <div class="ap-section__head rv">
+        <div class="ap-section__label">Frequently Asked Questions</div>
+        <h2 class="ap-section__title kw">Strike Work <span class="accent">FAQ</span></h2>
+        <p class="ap-section__sub">Everything you need to know before signing on for a strike assignment with InSync.</p>
+      </div>
+      <div class="ap-faq">
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">What is a strike?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">This is a work stoppage put on by the unions at the facility. These are set up in advance for various reasons with various lengths. This particular work stoppage is still uncertain, but we are asking candidates be available for up to 5 days in order to provide adequate coverage.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">When is the strike taking place?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">The expected date is still unknown. We do know that there have been negotiations going on but until the 10-Day strike notice is filed &mdash; we do not know the exact dates. We will communicate more info as we get it and we will update this page as well.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">Can I drive myself to the work site?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">InSync will be providing all lodging and transportation during the work stoppage. This will ensure that there are no out of pocket costs for the candidates, as well as all shifts are attended on time. We will be having an induction in the city of the strike location. Most likely in a hotel area where candidates will be checked in and taken by bus/shuttle to the hotels and then work sites.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">What will happen at the induction?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">At the induction, you will be checked in by an InSync staff member and given any pertinent additional information required. We will also be completing an onsite drug test, as well as a blood draw for immunizations. After all is completed, all the workers will be taken to the strike location for a one day orientation before the work is to begin.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">Where is the strike being held?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">The next upcoming strikes are in negotiations at a location in Spokane &amp; Seattle, WA, and Northern CA.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">Will I be able to pick my shift?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">InSync will be scheduling all shifts according to the needs of the facilities. Candidates are required to be flexible and be able to work the shift assigned to them. Shift times are varied depending on the position you are covering. Some can start as early as 4am.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">What happens if the strike is called off?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">If the strike is called off prior to the induction date, all candidates will be notified of the situation and should the strike be called back on, we will reach out again. Once candidates have arrived to the hotel/work site, should the work stoppage get cancelled, InSync will notify all workers and provide transportation back to the original induction site.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">Do I have to commit to all the days needed?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">Yes. All candidates will be required to be available for the full amount of time required for the work stoppage.</div></div>
+        </div>
+        <div class="ap-faq__item rv">
+          <button class="ap-faq__q" type="button" aria-expanded="false"><span class="ap-faq__qt">How do I get a copy of my health/immunization records in the state of Washington?</span><span class="ap-faq__tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span></button>
+          <div class="ap-faq__a"><div class="ap-faq__ain">This site will only work for Washington residents only. Follow the detailed instructions by clicking <a href="https://www.doh.wa.gov/YouandYourFamily/IllnessandDisease/Immunization/PatientResources/ImmunizationRecords" target="_blank" rel="noopener">here</a>.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="ap-section ap-cta">
+    <div class="ap-wrap rv">
+      <div class="ap-section__label">Don't Miss the Next One</div>
+      <h2 class="kw">Stay Ready for the Next <span class="accent">Strike</span></h2>
+      <p>Apply now and you will be notified of the next strike. Excellent pay, transportation, lodging, and meals &mdash; all provided by InSync.</p>
+      <div class="ap-cta__btns">
+        <a href="https://nexus-leap.laboredge.com/insync/quicksignup" class="ap-btn ap-btn--primary">Apply Now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="https://insync-revamped-website.vercel.app/contact-us/" class="ap-btn ap-btn--ghost">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /.ap-band -- close stays in the body block -->
+
+</div>
+
+<script>
+/* Main behavior: v2 reveal contract, sibling stagger, hero parallax,
+   mockup loop, count-ups, FAQ accordion. All null-guarded. */
+(function(){
+  'use strict';
+  var page=document.getElementById('apPage');
+  if(!page)return;
+
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* -- Scroll-entrance reveals (v2 contract) -- */
+  var revs=[].slice.call(page.querySelectorAll('.rv'));
+
+  /* Sibling stagger in JS: where a parent holds several reveal children,
+     cascade them 70ms apart (cap 350ms). Explicit d1/d2/d3 left alone. */
+  if(!reduce){
+    var groups=[];
+    revs.forEach(function(el){
+      var p=el.parentElement;
+      if(p&&groups.indexOf(p)<0)groups.push(p);
+    });
+    groups.forEach(function(p){
+      var kids=[],i;
+      for(i=0;i<p.children.length;i++){
+        var c=p.children[i];
+        if(c.classList.contains('rv')&&!/\bd[123]\b/.test(c.className))kids.push(c);
+      }
+      if(kids.length<2)return;
+      for(i=0;i<kids.length;i++){
+        kids[i].style.transitionDelay=Math.min(i*0.07,0.35).toFixed(2)+'s';
+      }
+    });
+  }
+
+  var pending=revs.slice(),io=null;
+  function markIn(el){
+    el.classList.add('in');
+    if(io)io.unobserve(el);
+    var i=pending.indexOf(el);if(i>-1)pending.splice(i,1);
+  }
+  if('IntersectionObserver' in window&&!reduce){
+    /* threshold 0 + bottom rootMargin: fires when an element's top crosses
+       ~88% of the viewport. A ratio threshold starves on blocks taller than
+       the viewport (the FAQ list), leaving them invisible forever. */
+    io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting)return;
+        markIn(e.target);
+      });
+    },{threshold:0,rootMargin:'0px 0px -12% 0px'});
+    revs.forEach(function(el){io.observe(el);});
+  }else{revs.forEach(function(el){markIn(el);});}
+
+  /* Scroll sweep: on a fast wheel, a short element can jump across the whole
+     observer band between frames and never fire. Sweep any pending element
+     whose top has crossed the reveal line -- same line the observer uses, so
+     entrances still animate on the way in and nothing can end up skipped. */
+  var swraf=0;
+  function sweep(){
+    swraf=0;
+    if(!pending.length)return;
+    var line=window.innerHeight*0.92;
+    for(var i=pending.length-1;i>=0;i--){
+      if(pending[i].getBoundingClientRect().top<line)markIn(pending[i]);
+    }
+  }
+  window.addEventListener('scroll',function(){if(!swraf)swraf=requestAnimationFrame(sweep);},{passive:true});
+
+  /* Above-the-fold reveal on the first frame... */
+  requestAnimationFrame(function(){
+    revs.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*0.94)markIn(el);});
+  });
+  /* ...and a safety net for ON-SCREEN elements ONLY. A blanket reveal here
+     would kill every scroll entrance below the fold. */
+  setTimeout(function(){
+    revs.forEach(function(el){
+      if(el.getBoundingClientRect().top<window.innerHeight)markIn(el);
+    });
+  },2500);
+
+  /* -- Hero mouse-parallax on hover (desktop + fine pointer only; rides
+        inner wrappers so it never fights the .rv reveals). The scrub
+        video layer drifts slightly opposite for depth. -- */
+  var hero=page.querySelector('.ap-hero'),
+      pxCopy=page.querySelector('.ap-hero__copy-in'),
+      pxCards=page.querySelector('.ap-hero__cards-in'),
+      pxVid=document.getElementById('apScrubPar');
+  if(hero&&pxCopy&&pxCards&&fine&&!reduce&&window.innerWidth>1024){
+    var tx=0,ty=0,cx=0,cy=0,raf=null,over=false;
+    function tick(){
+      cx+=(tx-cx)*.09;cy+=(ty-cy)*.09;
+      pxCopy.style.transform='translate3d('+(cx*8).toFixed(2)+'px,'+(cy*6).toFixed(2)+'px,0)';
+      pxCards.style.transform='translate3d('+(cx*22).toFixed(2)+'px,'+(cy*16).toFixed(2)+'px,0) rotateX('+(cy*-4).toFixed(2)+'deg) rotateY('+(cx*4).toFixed(2)+'deg)';
+      if(pxVid)pxVid.style.transform='translate3d('+(-cx*14).toFixed(2)+'px,'+(-cy*10).toFixed(2)+'px,0)';
+      if(over||Math.abs(tx-cx)>.002||Math.abs(ty-cy)>.002){raf=requestAnimationFrame(tick);}else{raf=null;}
+    }
+    hero.addEventListener('pointermove',function(e){
+      var r=hero.getBoundingClientRect();
+      tx=((e.clientX-r.left)/r.width-.5)*2;
+      ty=((e.clientY-r.top)/r.height-.5)*2;
+      over=true;if(!raf)raf=requestAnimationFrame(tick);
+    });
+    hero.addEventListener('pointerleave',function(){
+      tx=0;ty=0;over=false;if(!raf)raf=requestAnimationFrame(tick);
+    });
+  }
+
+  /* -- Mockup live loop -- toggled by IntersectionObserver, idle off-screen -- */
+  var mock=page.querySelector('.ap-mock-container');
+  if(mock&&'IntersectionObserver' in window&&!reduce){
+    var mio=new IntersectionObserver(function(es){
+      es.forEach(function(e){mock.classList.toggle('go',e.isIntersecting);});
+    },{threshold:.25});
+    mio.observe(mock);
+  }
+
+  /* -- Count-up -- */
+  var counters=page.querySelectorAll('[data-count]');
+  function countUp(el){
+    var end=parseInt(el.getAttribute('data-count'),10)||0,dur=1400,st=null;
+    if(reduce){el.textContent=end;return;}
+    function fr(ts){if(st===null)st=ts;var p=Math.min((ts-st)/dur,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(fr);}
+    requestAnimationFrame(fr);
+  }
+  if(counters.length&&'IntersectionObserver' in window){
+    var cio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){countUp(e.target);cio.unobserve(e.target);}});},{threshold:.5});
+    counters.forEach(function(c){cio.observe(c);});
+  }else{counters.forEach(function(c){c.textContent=parseInt(c.getAttribute('data-count'),10)||0;});}
+
+  /* -- FAQ accordion (one open at a time) -- */
+  var qs=page.querySelectorAll('.ap-faq__q');
+  qs.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.parentElement,open=item.classList.contains('open');
+      page.querySelectorAll('.ap-faq__item.open').forEach(function(it){
+        it.classList.remove('open');
+        it.querySelector('.ap-faq__q').setAttribute('aria-expanded','false');
+        it.querySelector('.ap-faq__a').style.maxHeight='0';
+      });
+      if(!open){
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded','true');
+        var a=item.querySelector('.ap-faq__a');
+        a.style.maxHeight=a.scrollHeight+'px';
+      }
+    });
+  });
+})();
+</script>
+
+<script>
+/* LAYER 1 driver -- scroll-scrubbed background video. Desktop: playhead
+   driven by scroll (frame 1 at page top, last frame at the bottom of the
+   Strike Support split), eased each rAF to kill micro-stutter. Mobile /
+   touch: muted autoplay loop, paused past the span. Reduced-motion:
+   freeze frame 1. Media URL is a JS runtime constant (immune to GHL
+   attribute corruption). */
+(function(){
+  'use strict';
+  var wrap=document.getElementById('apScrub');
+  var vid=document.getElementById('apScrubVid');
+  if(!wrap||!vid)return;
+
+  /* Strike hero scrub asset (GHL media library). For clean desktop
+     scrubbing the clip should be H.264 .mp4 with dense keyframes:
+     ffmpeg -i in -c:v libx264 -pix_fmt yuv420p -g 12 -movflags +faststart out.mp4 */
+  var STRIKE_SCRUB_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7ef68099074f5ef655a3be.mp4';
+
+  /* position:fixed is unreliable if an ancestor establishes a containing
+     block (GHL wrappers sometimes carry transforms). If broken, leave the
+     layer off -- sections sit on clean black. */
+  function fixedBroken(){
+    for(var n=wrap.parentElement;n&&n!==document.documentElement;n=n.parentElement){
+      var s=window.getComputedStyle(n);
+      if(s.transform!=='none'||s.perspective!=='none'||(s.filter&&s.filter!=='none')||
+         /transform|perspective/.test(s.willChange||'')||/paint|layout|strict|content/.test(s.contain||''))return true;
+    }
+    return false;
+  }
+  if(fixedBroken())return;
+
+  var dead=false;
+  vid.addEventListener('error',function(){dead=true;wrap.classList.remove('is-on');});
+  vid.src=STRIKE_SCRUB_VIDEO_URL;
+
+  var shade=document.getElementById('apScrubShade');
+
+  /* The scrub spans scrollY 0 (top of the hero) -> the BOTTOM of the
+     Strike Support split (#apIntro). */
+  function scrubEnd(){
+    var sec=document.getElementById('apIntro');
+    if(sec){
+      var r=sec.getBoundingClientRect();
+      if(r.height>0)return r.top+window.scrollY+r.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* Start of the spanned content below the hero: the hero's bottom edge. */
+  function sectionTop(){
+    var h=document.querySelector('.ap-page .ap-hero');
+    if(h){
+      var hr=h.getBoundingClientRect();
+      if(hr.height>0)return hr.top+window.scrollY+hr.height;
+    }
+    return window.innerHeight;
+  }
+
+  /* Hero shows the video CLEAN (only the constant left-fade grad); the
+     full dark overlay ramps in across the last 45vh of the hero so it is
+     at full strength by the time Current Status begins, and holds. */
+  function updateShade(){
+    if(!shade)return;
+    var vh=window.innerHeight;
+    var y=window.scrollY;
+    var endY=sectionTop(),startY=endY-vh*0.45;
+    var o=(y-startY)/(endY-startY);
+    if(o<0)o=0;if(o>1)o=1;
+    shade.style.opacity=String(o);
+  }
+  window.addEventListener('scroll',updateShade,{passive:true});
+  window.addEventListener('resize',updateShade);
+  updateShade();
+
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia&&window.matchMedia('(min-width:1025px) and (pointer:fine)').matches;
+  var touch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  var canScrub=fine&&!touch&&!reduced;
+
+  /* ---- NON-SCRUB fallbacks ---- */
+  if(!canScrub){
+    if(!dead)wrap.classList.add('is-on');
+    if(reduced){
+      vid.removeAttribute('autoplay');vid.pause();
+      var freeze=function(){try{vid.currentTime=0;}catch(e){}vid.pause();};
+      vid.addEventListener('loadeddata',freeze);
+    }else{
+      vid.loop=true;vid.autoplay=true;vid.muted=true;vid.setAttribute('autoplay','');
+      var pl=function(){var p=vid.play();if(p&&p.catch)p.catch(function(){});};
+      vid.addEventListener('loadeddata',pl);pl();
+      /* the span ends with the split; drop the layer and stop playback
+         past it so the loop costs nothing for the rest of the page */
+      var gate=function(){
+        if(dead){wrap.classList.remove('is-on');return;}
+        var past=window.scrollY>scrubEnd()+4;
+        if(past){wrap.classList.remove('is-on');if(!vid.paused)vid.pause();}
+        else{wrap.classList.add('is-on');if(vid.paused)pl();}
+      };
+      window.addEventListener('scroll',gate,{passive:true});
+      window.addEventListener('resize',gate);
+      gate();
+    }
+    return;
+  }
+
+  /* ---- DESKTOP: scrub currentTime from scroll ---- */
+  vid.loop=false;vid.autoplay=false;vid.pause();
+
+  var dur=0,ready=false,target=0,raf=0;
+
+  function onMeta(){dur=vid.duration||0;ready=dur>0;if(!dead)wrap.classList.add('is-on');tick();}
+  vid.addEventListener('loadedmetadata',onMeta);
+  vid.addEventListener('loadeddata',function(){if(!ready)onMeta();});
+
+  function computeTarget(){
+    var end=scrubEnd();
+    var y=window.scrollY;
+    var p=end>0?(y/end):0;
+    if(p<0)p=0;if(p>1)p=1;
+    /* switch the whole layer off once we're past the span (it cross-fades
+       out over .5s; the band layer owns everything below) */
+    if(dead||y>end+4)wrap.classList.remove('is-on');else wrap.classList.add('is-on');
+    return p*dur;
+  }
+
+  /* rAF loop: ease currentTime toward the scroll-derived target. */
+  function tick(){
+    raf=0;
+    if(ready){
+      target=computeTarget();
+      var cur=vid.currentTime||0;
+      var diff=target-cur;
+      if(Math.abs(diff)<0.008){/* settled */}
+      else{
+        var next=cur+diff*0.28;
+        try{vid.currentTime=next;}catch(e){}
+      }
+      if(Math.abs(target-(vid.currentTime||0))>0.008)schedule();
+    }
+  }
+  function schedule(){if(!raf)raf=requestAnimationFrame(tick);}
+
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  schedule();
+})();
+</script>
+
+<script>
+/* LAYER 2 driver -- looping band video (Example Tiles onward). Built in JS
+   from a URL constant; decode-guarded; toggled while the viewport centre
+   sits inside the band's vertical range. Desktop / fine-pointer only. */
+(function(){
+  'use strict';
+  var STRIKE_BAND_VIDEO_URL='https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/6a7ef68099074f5ef655a3be.mp4';
+  var wrap=document.getElementById('apBandVid');
+  var media=document.getElementById('apBandVidMedia');
+  var band=document.getElementById('apBand');
+  if(!wrap||!media||!band)return;
+  var mqOff=window.matchMedia('(max-width:1024px), (prefers-reduced-motion: reduce), (pointer: coarse)');
+  if(mqOff.matches)return;
+
+  function fixedBroken(){
+    for(var n=wrap.parentElement;n&&n!==document.documentElement;n=n.parentElement){
+      var s=window.getComputedStyle(n);
+      if(s.transform!=='none'||s.perspective!=='none'||(s.filter&&s.filter!=='none')||
+         /transform|perspective/.test(s.willChange||'')||/paint|layout|strict|content/.test(s.contain||''))return true;
+    }
+    return false;
+  }
+  if(fixedBroken())return;
+
+  var vidOk=true;
+  if(STRIKE_BAND_VIDEO_URL.indexOf('http')===0){
+    var v=document.createElement('video');
+    v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;
+    v.setAttribute('playsinline','');v.preload='auto';v.src=STRIKE_BAND_VIDEO_URL;
+    /* if the container/codec is refused, keep the layer off entirely so the
+       band sections sit on clean black, not a stray gradient wash */
+    v.addEventListener('error',function(){vidOk=false;wrap.classList.remove('on');});
+    media.appendChild(v);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  }
+
+  /* Toggle the layer on while the viewport centre sits inside the band's
+     vertical range. Absolute document offsets, so the band's height is fine. */
+  var raf=0;
+  function bandRange(){
+    var r=band.getBoundingClientRect();
+    var top=r.top+window.scrollY;
+    return {top:top,bottom:top+r.height};
+  }
+  function update(){
+    raf=0;
+    var vh=window.innerHeight;
+    var y=window.scrollY+vh*0.5;
+    var r=bandRange();
+    wrap.classList.toggle('on',vidOk&&y>r.top+60&&y<r.bottom);
+  }
+  function onScroll(){if(!raf)raf=requestAnimationFrame(update);}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  update();
+})();
+</script>
+<!-- ============== END INSYNC STRIKE WORK . APEX v2 BODY ============== -->
