@@ -30,6 +30,15 @@ body{
 img,svg{ display:block; max-width:100%; }
 
 button{ font:inherit; cursor:none; border:0; background:0; color:inherit; padding:0; }
+
+/* Chrome anchor reset — scoped to the chrome, zero specificity via :where()
+   so component rules (.ap-nav__cta colour, etc.) still win.
+   Do not rewrite as `.ap-nav a` — that is (0,1,1) and would outrank
+   .ap-nav__cta{color:var(--bg)}, turning the CTA pill's black label white. */
+:where(.ap-topbar, .ap-nav, .ap-mobile-menu) a{
+  color: inherit;
+  text-decoration: none;
+}
 /* REVEAL */
 .rv{ opacity:0; transform:translateY(24px); transition:opacity 1s var(--e-out),transform 1s var(--e-out); }
 

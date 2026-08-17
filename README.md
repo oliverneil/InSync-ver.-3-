@@ -26,7 +26,9 @@ src/
     joint-commission.html
     joint-commission-policy-statement.html
     meet-your-insync-team.html
+    privacy-policy.html
     strike-work-updates.html
+    terms-and-conditions.html
     404.html              -> /404.html
   partials/
     nav.html          global nav, injected at the top of every page
@@ -99,9 +101,8 @@ matches your source.
   as a dark panel with no motion in Chrome; Safari plays it. Both need an H.264
   MP4 re-encode. The Educational page already has a comment noting this, and its
   script keeps the layer usable if playback is refused.
-- **3 internal links have no destination yet**: `/terms-and-conditions/` (5
-  references), `/privacy-policy/` (5), and `/blog/` (2). They land on the 404
-  page until those pages are added.
+- **1 internal link has no destination yet**: `/blog/` (2 references, both in
+  the nav). It lands on the 404 page until that page is added.
 - **Two links omit the trailing slash** — `/joint-commission-policy-statement`
   and `/continuing-education-links`, both on the Joint Commission page. They
   work, but Vercel issues a 308 redirect first. Adding the slash removes the
@@ -136,6 +137,14 @@ each change as it runs:
   or its JS. The sector pages force `cursor:auto !important` inside their own
   wrapper, so page content was safe, but the nav and footer sit outside that
   wrapper and would have lost the pointer entirely.
+
+The nav partial also carries a `:where(.ap-topbar, .ap-nav, .ap-mobile-menu) a`
+reset. The chrome sits outside every page wrapper, so a page-scoped rule like
+`.ap-page a{text-decoration:none}` can never reach it and the browser default
+underline wins. `:where()` contributes zero specificity, so the rule computes as
+plain `a` — do not rewrite it as `.ap-nav a`, which is (0,1,1) and would outrank
+`.ap-nav__cta{color:var(--bg)}`, turning the CTA pill's black label white on a
+white pill.
 
 The `:root` token block in each partial is left alone on purpose. The sector
 pages scope their tokens to their own wrapper and never define `:root`, so the

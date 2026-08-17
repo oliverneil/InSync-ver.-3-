@@ -4060,11 +4060,16 @@ section.ap-guide ol.ap-guide__toc{
   .pcx--native .pcx__card{ opacity:1; transform:none; }
   .pcx--native .pcx__card:not(.is-active){ border-color:var(--line); }
 
-  /* 4. swipe hygiene: don't chain the gesture to the page / browser back */
+  /* 4. swipe hygiene: don't chain the gesture to the page / browser back, and
+        stop the card <a> elements behaving like draggable links mid-swipe */
   .pcx--native .pcx__viewport{
     overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;
     scroll-padding-inline:0;
+  }
+  .pcx--native .pcx__card{
+    -webkit-user-drag:none; -webkit-touch-callout:none;
+    -webkit-user-select:none; user-select:none;
   }
   .psx .pcx__stage{ padding-bottom:8px; }
 }
@@ -4728,6 +4733,51 @@ function apInitPinnedScroll(ids){
   if (!canPin){
     root.classList.add('pcx--native');
 
+    // --- DRAG vs TAP ---------------------------------------------------
+    // Every card in this track is an <a>. Without this guard the browser
+    // resolves a swipe as a tap on the link and navigates away mid-gesture,
+    // which reads exactly like "the slider won't slide". We watch how far the
+    // pointer travelled (and whether the track actually scrolled) and cancel
+    // the click in the CAPTURE phase if it was a drag.
+    var downX = 0, downY = 0, downScroll = 0, dragged = false;
+    function markDown(x, y){ downX = x; downY = y; downScroll = viewport.scrollLeft; dragged = false; }
+    function markMove(x, y){
+      if (Math.abs(x - downX) > 8 || Math.abs(y - downY) > 8) dragged = true;
+    }
+    viewport.addEventListener('pointerdown', function(e){ markDown(e.clientX, e.clientY); }, { passive:true });
+    viewport.addEventListener('pointermove', function(e){ markMove(e.clientX, e.clientY); }, { passive:true });
+    // once native scrolling takes over the browser cancels the pointer stream,
+    // so a cancel is itself proof the gesture became a scroll
+    viewport.addEventListener('pointercancel', function(){ dragged = true; }, { passive:true });
+    viewport.addEventListener('touchstart', function(e){
+      if (e.touches && e.touches[0]) markDown(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive:true });
+    viewport.addEventListener('touchmove', function(e){
+      if (e.touches && e.touches[0]) markMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive:true });
+    viewport.addEventListener('click', function(e){
+      if (dragged || Math.abs(viewport.scrollLeft - downScroll) > 4){
+        e.preventDefault(); e.stopPropagation();
+      }
+      dragged = false;
+    }, true);
+    // stop the browser's native link-drag (mouse) from pre-empting the scroll
+    track.addEventListener('dragstart', function(e){ e.preventDefault(); });
+    cards.forEach(function(c){ c.setAttribute('draggable', 'false'); });
+
+    // mouse drag-to-scroll, for the desktop native fallback where there are no
+    // touch gestures and a link drag would otherwise be the only outcome
+    var mDown = false, mStartX = 0, mStartScroll = 0;
+    viewport.addEventListener('pointerdown', function(e){
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      mDown = true; mStartX = e.clientX; mStartScroll = viewport.scrollLeft;
+    });
+    window.addEventListener('pointermove', function(e){
+      if (!mDown) return;
+      viewport.scrollLeft = mStartScroll - (e.clientX - mStartX);
+    });
+    window.addEventListener('pointerup', function(){ mDown = false; });
+
     // --- centre-snap padding: without it the first and last card can never sit
     // --- in the middle of the viewport, so scroll-snap-align:center misbehaves
     function padNative(){
@@ -5008,3 +5058,4 @@ apInitPinnedScroll({ root:'pcxRoot', spacer:'pcxSpacer', stage:'pcxStage', viewp
   schedule();
 })();
 </script>
+

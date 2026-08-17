@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Page not found — InSync Consulting Services</title>
-  <link rel="canonical" href="https://insynconline.net/404/">
+  <title>Privacy Policy — InSync Consulting Services</title>
+  <meta name="description" content="How InSync Consulting Services collects, uses, and protects your personal information.">
+  <link rel="canonical" href="https://insynconline.net/privacy-policy/">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://insynconline.net/404/">
-  <meta property="og:title" content="Page not found — InSync Consulting Services">
+  <meta property="og:url" content="https://insynconline.net/privacy-policy/">
+  <meta property="og:title" content="Privacy Policy — InSync Consulting Services">
+  <meta property="og:description" content="How InSync Consulting Services collects, uses, and protects your personal information.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -727,115 +729,417 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   }
 })();
 </script>
-<!-- InSync Consulting Services — 404 page body.
-     Uses the tokens the nav/footer partials define, with literal fallbacks so
-     it still renders correctly if those partials are ever changed. -->
+<!-- ================================================================
+     INSYNC — PRIVACY POLICY (APEX variant) — GHL body block
+     Apex design system: pure-black, restrained orange, Inter +
+     JetBrains Mono, custom cursor, .ap-* prefixed throughout.
+     Paste between the Apex nav block and Apex footer block,
+     in a full-width section with section/row/column padding = 0.
+     ================================================================ -->
 
 <style>
-.ins404{
-  --o:#ef5a28; --o2:#ff7a4d;
-  --ink:#fff; --ink2:rgba(255,255,255,.66); --ink3:rgba(255,255,255,.4);
-  --line:rgba(255,255,255,.14);
-  min-height:78svh;
-  display:flex; align-items:center; justify-content:center;
-  padding:clamp(96px,14vh,180px) clamp(20px,5vw,64px) clamp(72px,10vh,120px);
-  background:#000; color:var(--ink);
-  font-family:'Inter',system-ui,-apple-system,sans-serif;
-  position:relative; overflow:clip; isolation:isolate;
+:root{
+  --bg:#000;--bg-1:#0a0a0a;--bg-card:#0e0e0e;--bg-elev:#171717;
+  --ink:#fff;--ink-2:rgba(255,255,255,.72);--ink-3:rgba(255,255,255,.5);
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --orange:#ef5a28;--orange-2:#ff7a4d;--orange-3:#ff9060;
+  --f:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.4,0,.2,1);--e-out:cubic-bezier(.16,1,.3,1);
+  --nav-h:64px;--gutter:24px;--max-w:1440px;
 }
-.ins404__glow{
-  position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
-  width:min(760px,120vw); aspect-ratio:1; border-radius:50%; z-index:-1;
-  background:radial-gradient(circle,rgba(239,90,40,.16) 0%,rgba(239,90,40,.04) 42%,transparent 70%);
-  filter:blur(24px); pointer-events:none;
+@media (max-width:640px){:root{--gutter:16px}}
+@media (max-width:400px){:root{--gutter:14px}}
+
+.ap-legal *,.ap-legal *::before,.ap-legal *::after{box-sizing:border-box;margin:0;padding:0}
+.ap-legal{font-family:var(--f);background:var(--bg);color:var(--ink-2);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+.ap-legal a{color:inherit;text-decoration:none}
+.ap-legal [id]{scroll-margin-top:calc(var(--nav-h) + 24px)}
+
+/* ── CUSTOM CURSOR (mandatory on every Apex page) ── */
+.ap-cursor{position:fixed;top:0;left:0;width:8px;height:8px;background:#fff;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:opacity .3s var(--e);opacity:0}
+.ap-cursor-glow{position:fixed;top:0;left:0;width:400px;height:400px;background:radial-gradient(circle,rgba(239,90,40,.07) 0%,transparent 60%);border-radius:50%;pointer-events:none;z-index:1;transform:translate(-50%,-50%);transition:opacity .3s var(--e);opacity:0}
+.ap-cursor.on,.ap-cursor-glow.on{opacity:1}
+@media (hover:none),(pointer:coarse),(max-width:900px){.ap-cursor,.ap-cursor-glow{display:none}}
+
+/* ── LAYOUT ── */
+.ap-legal .ap-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--gutter)}
+.ap-legal .ap-col{max-width:880px;margin:0 auto}
+.ap-legal .ap-section{padding:140px 0}
+@media (max-width:900px){.ap-legal .ap-section{padding:80px 0}}
+@media (max-width:640px){.ap-legal .ap-section{padding:64px 0}}
+
+/* ── HERO ── */
+.ap-legal .ap-hero{position:relative;padding:calc(96px) 0 96px;border-bottom:1px solid var(--line);overflow:hidden;background:var(--bg)}
+.ap-legal .ap-hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse at center,rgba(239,90,40,.08) 0%,transparent 65%);pointer-events:none}
+.ap-legal .ap-hero__inner{position:relative;z-index:2;text-align:center}
+.ap-legal .ap-hero__label{font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--orange-2)}
+.ap-legal .ap-hero h1{font-size:clamp(48px,9vw,112px);font-weight:900;letter-spacing:-.03em;line-height:1.02;color:var(--ink);margin:20px 0 24px}
+.ap-legal .ap-hero h1 .accent{color:var(--orange)}
+.ap-legal .ap-hero__sub{font-size:clamp(1rem,1.6vw,1.15rem);line-height:1.7;color:var(--ink-2);max-width:620px;margin:0 auto}
+.ap-legal .ap-hero__meta{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.06em;color:var(--ink-3);margin-top:28px}
+.ap-legal .ap-hero__meta .sep{color:var(--orange);padding:0 10px}
+
+/* Floating pills (hero cards) */
+.ap-legal .ap-hero__cards{position:absolute;inset:0;pointer-events:none;z-index:1}
+.ap-legal .ap-float{position:absolute;display:flex;align-items:center;gap:10px;background:rgba(14,14,14,.85);border:1px solid var(--line-2);padding:12px 18px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.04em;color:var(--ink-2);box-shadow:0 24px 48px -12px rgba(0,0,0,.8),0 8px 24px -6px rgba(239,90,40,.12);backdrop-filter:blur(6px);animation:apFloat 7s ease-in-out infinite}
+.ap-legal .ap-float .dot{width:7px;height:7px;background:var(--orange);border-radius:2px;flex-shrink:0;position:relative}
+.ap-legal .ap-float .dot::after{content:'';position:absolute;inset:-4px;border:1px solid rgba(239,90,40,.4);border-radius:3px;animation:apPulse 2.4s var(--e) infinite}
+.ap-legal .ap-float--1{top:26%;left:7%;animation-delay:0s}
+.ap-legal .ap-float--2{bottom:20%;right:7%;animation-delay:-3.5s}
+@keyframes apFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes apPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.9);opacity:0}}
+@media (max-width:900px){
+.ap-legal .ap-hero{display:flex;flex-direction:column;align-items:center}
+.ap-legal .ap-hero__inner{order:1}
+.ap-legal .ap-hero__cards{position:static;order:2;inset:auto;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin-top:36px;padding:0 var(--gutter)}
+.ap-legal .ap-float{position:static}
 }
-.ins404__grid{
-  position:absolute; inset:0; z-index:-2; pointer-events:none;
-  background-image:
-    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
-  background-size:60px 60px;
-  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 45%,#000 25%,transparent 80%);
-          mask-image:radial-gradient(ellipse 70% 70% at 50% 45%,#000 25%,transparent 80%);
-}
-.ins404__in{ max-width:680px; text-align:center; }
-.ins404__eyebrow{
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
-  color:var(--o); margin:0 0 22px;
-}
-.ins404__eyebrow::before{ content:'— '; }
-.ins404__code{
-  font-size:clamp(72px,14vw,168px); font-weight:800; letter-spacing:-.05em;
-  line-height:.9; margin:0 0 20px; padding-bottom:.08em;
-  color:transparent; -webkit-text-stroke:1.5px rgba(239,90,40,.55);
-  font-variant-numeric:tabular-nums;
-}
-.ins404__title{
-  font-size:clamp(28px,4.4vw,52px); font-weight:800; letter-spacing:-.035em;
-  line-height:1.06; margin:0 0 18px; padding-bottom:.09em;
-}
-.ins404__title span{ color:var(--o); }
-.ins404__sub{
-  font-size:clamp(15px,1.4vw,18px); color:var(--ink2); line-height:1.6;
-  margin:0 auto 40px; max-width:52ch;
-}
-.ins404__ctas{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:52px; }
-.ins404__btn{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:14px 26px; border-radius:100px; min-height:48px;
-  font-size:15px; font-weight:600; letter-spacing:-.005em; text-decoration:none;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s,border-color .3s,color .3s;
-}
-.ins404__btn--primary{
-  background:var(--o); color:#fff; border:1px solid var(--o);
-  box-shadow:0 6px 24px -8px rgba(239,90,40,.4);
-}
-.ins404__btn--primary:hover{ background:var(--o2); border-color:var(--o2); transform:translateY(-2px); }
-.ins404__btn--ghost{ background:transparent; color:var(--ink); border:1px solid var(--line); }
-.ins404__btn--ghost:hover{ border-color:var(--ink); background:rgba(255,255,255,.04); }
-.ins404__links{
-  border-top:1px solid rgba(255,255,255,.08); padding-top:28px;
-  display:flex; gap:10px 26px; justify-content:center; flex-wrap:wrap;
-}
-.ins404__links a{
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--ink3); text-decoration:none; transition:color .3s;
-}
-.ins404__links a:hover{ color:var(--o2); }
-@media (max-width:520px){
-  .ins404__ctas{ flex-direction:column; align-items:stretch; }
-  .ins404__btn{ justify-content:center; }
-}
+@media (max-width:640px){.ap-legal .ap-float{padding:9px 13px;font-size:.62rem}}
+
+/* ── TOC ── */
+.ap-legal .ap-toc{background:var(--bg-card);border:1px solid var(--line);position:relative;overflow:hidden;padding:40px 44px}
+.ap-legal .ap-toc::before{content:'';position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.08) 0%,transparent 60%);pointer-events:none}
+.ap-legal .ap-toc__label{font-family:var(--f-mono);font-size:.68rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--orange-2);margin-bottom:22px}
+.ap-legal .ap-toc ol{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 48px;position:relative;z-index:1}
+.ap-legal .ap-toc ol li{border-bottom:1px solid var(--line)}
+.ap-legal .ap-toc ol li:nth-last-child(-n+2){border-bottom:0}
+.ap-legal .ap-toc ol li a{display:flex;align-items:baseline;gap:14px;padding:12px 2px;font-size:.9rem;font-weight:500;color:var(--ink-2);transition:color .25s var(--e),padding-left .25s var(--e)}
+.ap-legal .ap-toc ol li a:hover{color:var(--ink);padding-left:8px}
+.ap-legal .ap-toc ol li a .n{font-family:var(--f-mono);font-size:.7rem;color:var(--orange);flex-shrink:0}
+@media (max-width:640px){.ap-legal .ap-toc{padding:28px 22px}.ap-legal .ap-toc ol{grid-template-columns:1fr}.ap-legal .ap-toc ol li:nth-last-child(2){border-bottom:1px solid var(--line)}}
+
+/* ── INTRO ── */
+.ap-legal .ap-intro{padding:64px 0 0}
+.ap-legal .ap-intro p{color:var(--ink-2);margin-bottom:16px;font-size:1rem;line-height:1.8}
+.ap-legal .ap-intro p:last-child{margin-bottom:0}
+.ap-legal .ap-intro strong{color:var(--ink);font-weight:600}
+
+/* ── POLICY SECTIONS (numbered w/ side label + ghost number) ── */
+.ap-legal .ap-terms{display:flex;flex-direction:column}
+.ap-legal .ap-term{position:relative;display:grid;grid-template-columns:180px 1fr;gap:0 48px;padding:56px 0;border-top:1px solid var(--line)}
+.ap-legal .ap-term:first-child{border-top:0}
+.ap-legal .ap-term__side{position:relative;z-index:1}
+.ap-legal .ap-term__side-label{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.ap-legal .ap-term__label{font-family:var(--f-mono);font-size:.78rem;font-weight:600;letter-spacing:.08em;color:var(--orange)}
+.ap-legal .ap-term__body{position:relative;z-index:1}
+.ap-legal .ap-term h2{font-size:clamp(1.25rem,2vw,1.55rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;color:var(--ink);margin-bottom:16px}
+.ap-legal .ap-term p{color:var(--ink-2);font-size:.96rem;line-height:1.8;margin-bottom:14px}
+.ap-legal .ap-term p:last-child{margin-bottom:0}
+.ap-legal .ap-term strong{color:var(--ink);font-weight:600}
+.ap-legal .ap-term a{color:var(--orange-2);font-weight:500;border-bottom:1px solid rgba(239,90,40,.35);transition:color .25s var(--e),border-color .25s var(--e)}
+.ap-legal .ap-term a:hover{color:var(--orange-3);border-color:var(--orange-3)}
+.ap-legal .ap-term ul{list-style:none;display:grid;gap:12px;margin-bottom:14px}
+.ap-legal .ap-term ul:last-child{margin-bottom:0}
+.ap-legal .ap-term li{display:flex;gap:14px;align-items:flex-start;font-size:.96rem;line-height:1.8;color:var(--ink-2)}
+.ap-legal .ap-term li::before{content:'';width:6px;height:6px;border-radius:2px;background:var(--orange);flex-shrink:0;margin-top:12px}
+.ap-legal .ap-term__ghost{position:absolute;top:44px;right:0;font-size:clamp(4rem,8vw,7rem);font-weight:900;letter-spacing:-.04em;line-height:1;color:rgba(255,255,255,.04);user-select:none;pointer-events:none;font-family:var(--f)}
+@media (max-width:900px){.ap-legal .ap-term{grid-template-columns:1fr;gap:14px;padding:44px 0}.ap-legal .ap-term__ghost{display:none}}
+
+/* ── CTA ── */
+.ap-legal .ap-cta{margin-top:24px}
+.ap-legal .ap-cta__card{position:relative;background:linear-gradient(135deg,var(--bg-elev) 0%,var(--bg-1) 100%);border:1px solid var(--line-2);padding:72px 48px;text-align:center;overflow:hidden;box-shadow:0 40px 80px -20px rgba(0,0,0,.9),0 20px 40px -8px rgba(239,90,40,.15)}
+.ap-legal .ap-cta__card::before{content:'';position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at 100% 0%,rgba(239,90,40,.1) 0%,transparent 60%);pointer-events:none}
+.ap-legal .ap-cta__label{font-family:var(--f-mono);font-size:.68rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--orange-2);margin-bottom:16px}
+.ap-legal .ap-cta h3{font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:800;letter-spacing:-.03em;color:var(--ink);margin-bottom:12px;position:relative;z-index:1}
+.ap-legal .ap-cta p{color:var(--ink-2);font-size:.98rem;max-width:460px;margin:0 auto 36px;position:relative;z-index:1}
+.ap-legal .ap-cta__btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+@media (max-width:640px){.ap-legal .ap-cta__card{padding:48px 22px}.ap-legal .ap-cta__btns{flex-direction:column;align-items:stretch}.ap-legal .ap-cta__btns .ap-btn{width:100%;justify-content:center}}
+
+/* ── BUTTONS ── */
+.ap-legal .ap-btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--f);font-size:.9rem;font-weight:600;letter-spacing:-.01em;padding:15px 28px;border:1px solid transparent;cursor:pointer;transition:all .3s var(--e-out)}
+.ap-legal .ap-btn svg{width:16px;height:16px;transition:transform .3s var(--e-out)}
+.ap-legal .ap-btn:hover svg{transform:translateX(4px)}
+.ap-legal .ap-btn--primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.ap-legal .ap-btn--primary:hover{background:var(--orange-2);border-color:var(--orange-2);box-shadow:0 12px 32px -6px rgba(239,90,40,.5);transform:translateY(-2px)}
+.ap-legal .ap-btn--ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.ap-legal .ap-btn--ghost:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);transform:translateY(-2px)}
+
+/* ── REVEAL ── */
+.ap-legal .rv{opacity:0;transform:translateY(20px);transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.ap-legal .rv.in{opacity:1;transform:none}
+.ap-legal .rv.d1{transition-delay:.1s}.ap-legal .rv.d2{transition-delay:.2s}.ap-legal .rv.d3{transition-delay:.3s}.ap-legal .rv.d4{transition-delay:.4s}.ap-legal .rv.d5{transition-delay:.5s}
+.ap-legal.no-js .rv{opacity:1;transform:none}
+
 @media (prefers-reduced-motion:reduce){
-  .ins404__btn{ transition:none; }
+  .ap-legal .rv{opacity:1;transform:none;transition:none}
+  .ap-legal .ap-float{animation:none}
+  .ap-legal .ap-float .dot::after{animation:none;display:none}
+  .ap-cursor,.ap-cursor-glow{display:none}
 }
 </style>
 
-<section class="ins404">
-  <div class="ins404__grid" aria-hidden="true"></div>
-  <div class="ins404__glow" aria-hidden="true"></div>
-  <div class="ins404__in">
-    <p class="ins404__eyebrow">Error 404</p>
-    <div class="ins404__code" aria-hidden="true">404</div>
-    <h1 class="ins404__title">This page isn't <span>where you left it.</span></h1>
-    <p class="ins404__sub">The link may be out of date, or the page may have moved. Let's get you back on track &mdash; whether you're hiring or looking for your next role.</p>
-    <div class="ins404__ctas">
-      <a href="/" class="ins404__btn ins404__btn--primary">
-        Back to Home
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="/contact-us/" class="ins404__btn ins404__btn--ghost">Contact Us</a>
+<div class="ap-cursor" aria-hidden="true"></div>
+<div class="ap-cursor-glow" aria-hidden="true"></div>
+
+<div class="ap-legal no-js" id="apLegal">
+
+  <!-- ── HERO ── -->
+  <header class="ap-hero">
+    <div class="ap-hero__cards" aria-hidden="true">
+      <div class="ap-float ap-float--1"><span class="dot"></span>HTTPS ENCRYPTED</div>
+      <div class="ap-float ap-float--2"><span class="dot"></span>RESPONSE WITHIN 30 DAYS</div>
     </div>
-    <nav class="ins404__links" aria-label="Popular pages">
-      <a href="/healthcare-staffing/">Healthcare Staffing</a>
-      <a href="/education-staffing/">Educational Staffing</a>
-      <a href="/employer-of-record/">Employer of Record</a>
-      <a href="/apply-now/">Apply Now</a>
-    </nav>
-  </div>
-</section>
+    <div class="ap-wrap ap-hero__inner">
+      <div class="ap-hero__label rv">Legal</div>
+      <h1 class="rv d1">Privacy <span class="accent">Policy</span></h1>
+      <p class="ap-hero__sub rv d2">We are committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data when you engage with InSync Consulting.</p>
+      <p class="ap-hero__meta rv d3">EFFECTIVE: JAN 1, 2026<span class="sep">/</span>UPDATED: MAR 2026</p>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <section class="ap-section">
+    <div class="ap-wrap">
+      <div class="ap-col">
+
+        <!-- TABLE OF CONTENTS -->
+        <nav class="ap-toc rv" aria-label="Table of contents">
+          <div class="ap-toc__label">Table of Contents</div>
+          <ol>
+            <li><a href="#information-we-collect"><span class="n">01</span>Information We Collect</a></li>
+            <li><a href="#how-we-use"><span class="n">02</span>How We Use Your Information</a></li>
+            <li><a href="#sharing"><span class="n">03</span>Sharing of Information</a></li>
+            <li><a href="#data-retention"><span class="n">04</span>Data Retention</a></li>
+            <li><a href="#your-rights"><span class="n">05</span>Your Rights</a></li>
+            <li><a href="#cookies"><span class="n">06</span>Cookies &amp; Tracking</a></li>
+            <li><a href="#security"><span class="n">07</span>Security</a></li>
+            <li><a href="#international"><span class="n">08</span>International Transfers</a></li>
+            <li><a href="#children"><span class="n">09</span>Children's Privacy</a></li>
+            <li><a href="#changes"><span class="n">10</span>Changes to This Policy</a></li>
+          </ol>
+        </nav>
+
+        <!-- INTRO -->
+        <div class="ap-intro rv">
+          <p>InSync Consulting Services ("InSync," "we," "our," or "us") respects your privacy and is committed to protecting your personal information. This Privacy Policy describes how we collect, use, and share information when you visit <strong>insynconline.net</strong>, use our staffing services, or interact with our team.</p>
+          <p>By using our website or services, you agree to the practices described in this policy.</p>
+        </div>
+
+        <!-- POLICY SECTIONS -->
+        <div class="ap-terms">
+
+          <div class="ap-term rv" id="information-we-collect">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 01</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Information We Collect</h2>
+              <p>We collect information you provide directly, including:</p>
+              <ul>
+                <li><span><strong>Contact information</strong> — name, email, phone number, physical address</span></li>
+                <li><span><strong>Employment information</strong> — resume, work history, certifications, skills, and availability</span></li>
+                <li><span><strong>Business information</strong> — company name, job title, staffing needs, hiring preferences</span></li>
+                <li><span><strong>Healthcare credentials</strong> — licenses, certifications, compliance documentation (for healthcare placements)</span></li>
+                <li><span><strong>Communications</strong> — messages, emails, or other content you send to us</span></li>
+              </ul>
+              <p>We also collect information automatically:</p>
+              <ul>
+                <li><span>IP address, browser type, device type, and operating system</span></li>
+                <li><span>Pages visited, time on site, and referring URLs</span></li>
+                <li><span>Cookies and similar tracking technologies</span></li>
+              </ul>
+            </div>
+            <div class="ap-term__ghost">01</div>
+          </div>
+
+          <div class="ap-term rv" id="how-we-use">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 02</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>How We Use Your Information</h2>
+              <ul>
+                <li><span>Match candidates with relevant job opportunities</span></li>
+                <li><span>Connect employers with qualified talent</span></li>
+                <li><span>Process applications and manage placements</span></li>
+                <li><span>Communicate about open roles, interviews, and onboarding</span></li>
+                <li><span>Verify credentials and conduct background checks (with consent)</span></li>
+                <li><span>Send service updates and relevant communications</span></li>
+                <li><span>Improve our website and services through analytics</span></li>
+                <li><span>Comply with legal and regulatory obligations</span></li>
+              </ul>
+            </div>
+            <div class="ap-term__ghost">02</div>
+          </div>
+
+          <div class="ap-term rv" id="sharing">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 03</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Sharing of Information</h2>
+              <p>We do not sell your personal information. We may share it with:</p>
+              <ul>
+                <li><span><strong>Employer clients</strong> — candidate profiles shared with employers seeking to fill open roles, with your consent</span></li>
+                <li><span><strong>Service providers</strong> — background check providers, ATS platforms, payroll processors, and other vendors operating under confidentiality agreements</span></li>
+                <li><span><strong>Compliance authorities</strong> — credentialing bodies, Joint Commission, or regulatory agencies as required</span></li>
+                <li><span><strong>Legal authorities</strong> — when required by law, subpoena, or to protect our rights</span></li>
+                <li><span><strong>Business transfers</strong> — in connection with a merger, acquisition, or sale of assets</span></li>
+              </ul>
+            </div>
+            <div class="ap-term__ghost">03</div>
+          </div>
+
+          <div class="ap-term rv" id="data-retention">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 04</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Data Retention</h2>
+              <p>We retain candidate and employer information for as long as necessary to maintain our working relationship and comply with applicable laws. Candidate profiles may be retained for up to seven (7) years to facilitate future placements. You may request deletion of your information at any time (subject to legal retention requirements).</p>
+            </div>
+            <div class="ap-term__ghost">04</div>
+          </div>
+
+          <div class="ap-term rv" id="your-rights">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 05</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Your Rights</h2>
+              <p>You have the right to:</p>
+              <ul>
+                <li><span><strong>Access</strong> — request a copy of the personal information we hold about you</span></li>
+                <li><span><strong>Correction</strong> — request updates to inaccurate or outdated information</span></li>
+                <li><span><strong>Deletion</strong> — request removal of your personal data from our systems</span></li>
+                <li><span><strong>Opt-out</strong> — unsubscribe from marketing communications at any time</span></li>
+                <li><span><strong>Portability</strong> — receive your data in a portable format</span></li>
+              </ul>
+              <p>To exercise your rights, email us at <a href="mailto:privacy@insynconline.net">privacy@insynconline.net</a>. We respond within 30 days.</p>
+            </div>
+            <div class="ap-term__ghost">05</div>
+          </div>
+
+          <div class="ap-term rv" id="cookies">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 06</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Cookies &amp; Tracking</h2>
+              <p>We use cookies for website functionality, analytics (Google Analytics), and marketing. You can control cookie preferences through your browser settings. Disabling cookies may affect certain website features.</p>
+            </div>
+            <div class="ap-term__ghost">06</div>
+          </div>
+
+          <div class="ap-term rv" id="security">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 07</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Security</h2>
+              <p>We use industry-standard security measures including HTTPS encryption, access controls, and regular security reviews to protect your information. No internet transmission is 100% secure, but we take every reasonable precaution to safeguard your data.</p>
+            </div>
+            <div class="ap-term__ghost">07</div>
+          </div>
+
+          <div class="ap-term rv" id="international">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 08</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>International Transfers</h2>
+              <p>InSync operates primarily within the United States. If your information is transferred internationally, we ensure appropriate safeguards are in place in accordance with applicable data protection laws.</p>
+            </div>
+            <div class="ap-term__ghost">08</div>
+          </div>
+
+          <div class="ap-term rv" id="children">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 09</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Children's Privacy</h2>
+              <p>Our services are intended for adults 18 and older. We do not knowingly collect information from individuals under 18. If you believe we have collected information from a minor, please contact us immediately.</p>
+            </div>
+            <div class="ap-term__ghost">09</div>
+          </div>
+
+          <div class="ap-term rv" id="changes">
+            <div class="ap-term__side">
+              <div class="ap-term__side-label">Privacy Policy</div>
+              <div class="ap-term__label">Section 10</div>
+            </div>
+            <div class="ap-term__body">
+              <h2>Changes to This Policy</h2>
+              <p>We may update this Privacy Policy periodically. We will post the updated policy on this page with a revised "Last Updated" date. Significant changes will be communicated via email or a website notice.</p>
+              <p>Questions? Contact us at <a href="mailto:privacy@insynconline.net">privacy@insynconline.net</a> or call <a href="tel:8886413444">(888) 641-3444</a>.</p>
+            </div>
+            <div class="ap-term__ghost">10</div>
+          </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="ap-cta rv">
+          <div class="ap-cta__card">
+            <div class="ap-cta__label">Get In Touch</div>
+            <h3>Privacy Questions?</h3>
+            <p>Our team responds to all privacy requests within 30 business days.</p>
+            <div class="ap-cta__btns">
+              <a href="/contact-us/" class="ap-btn ap-btn--primary">
+                Get in Touch
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="tel:8886413444" class="ap-btn ap-btn--ghost">(888) 641-3444</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var page=document.getElementById('apLegal');
+  if(page){page.classList.remove('no-js');}
+
+  /* Reveal on scroll + 2.5s force-reveal safety */
+  var els=document.querySelectorAll('.ap-legal .rv');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -50px 0px'});
+    els.forEach(function(el){io.observe(el);});
+  }else{els.forEach(function(el){el.classList.add('in');});}
+  setTimeout(function(){
+    els.forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<(window.innerHeight||document.documentElement.clientHeight)){el.classList.add('in');}
+    });
+  },2500);
+
+  /* Custom cursor (desktop only) */
+  var cur=document.querySelector('.ap-cursor');
+  var glow=document.querySelector('.ap-cursor-glow');
+  if(cur&&glow&&window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine) and (min-width:901px)').matches){
+    var cx=0,cy=0,gx=0,gy=0,shown=false;
+    document.addEventListener('mousemove',function(e){
+      cx=e.clientX;cy=e.clientY;
+      cur.style.transform='translate('+cx+'px,'+cy+'px) translate(-50%,-50%)';
+      if(!shown){shown=true;cur.classList.add('on');glow.classList.add('on');}
+    },{passive:true});
+    (function loop(){
+      gx+=(cx-gx)*.08;gy+=(cy-gy)*.08;
+      glow.style.transform='translate('+gx+'px,'+gy+'px) translate(-50%,-50%)';
+      requestAnimationFrame(loop);
+    })();
+    document.addEventListener('mouseleave',function(){cur.classList.remove('on');glow.classList.remove('on');shown=false;});
+  }
+})();
+</script>
+<!-- ============== END INSYNC PRIVACY POLICY (APEX) ============== -->
 <!-- InSync Consulting Services — Global Footer (Apex Design)
      Paste into GHL Global Footer Block. Body-only fragment. -->
 

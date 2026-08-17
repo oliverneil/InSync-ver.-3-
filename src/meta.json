@@ -112,5 +112,17 @@
     "description": "Warehouse, manufacturing, logistics, and skilled trades staffing from InSync Consulting Services \u2014 qualified crews deployed within 72 hours.",
     "og_title": "",
     "og_description": ""
+  },
+  "terms-and-conditions": {
+    "title": "Terms & Conditions \u2014 InSync Consulting Services",
+    "description": "The terms and conditions governing use of the InSync Consulting Services website and services.",
+    "og_title": "",
+    "og_description": ""
+  },
+  "privacy-policy": {
+    "title": "Privacy Policy \u2014 InSync Consulting Services",
+    "description": "How InSync Consulting Services collects, uses, and protects your personal information.",
+    "og_title": "",
+    "og_description": ""
   }
 }
