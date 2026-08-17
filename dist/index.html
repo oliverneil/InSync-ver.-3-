@@ -5786,6 +5786,88 @@ apInitPinnedScroll({ root:'pcxRoot', spacer:'pcxSpacer', stage:'pcxStage', viewp
   schedule();
 })();
 </script>
+
+
+<style id="apCardShadowNormalise">
+/* ============================================================
+   CARD SHADOW NORMALISATION
+   The card shadows on this page had grown to 40–80px dark spreads
+   plus a 60px orange bloom on the active slider card. Over the
+   video layers those read as muddy halos rather than depth, and
+   they stack visibly where cards sit close together.
+   This block brings every card onto one restrained scale:
+   a tight ambient shadow for lift, and a 1px ring (not a bloom)
+   for the active state. Appended last so it wins on source order;
+   nothing above is edited, so removing this block reverts the page.
+   ============================================================ */
+
+/* --- slider cards: keep the orange ring, drop the bloom --- */
+.pcx__card.is-active{
+  box-shadow:0 0 0 1px rgba(239,90,40,.45), 0 10px 28px -16px rgba(0,0,0,.7) !important;
+}
+.psx .pcx__card.is-active.ap-tile{
+  box-shadow:0 0 0 1px var(--orange), 0 10px 28px -16px rgba(0,0,0,.7) !important;
+}
+
+/* --- frosted cards over the band video --- */
+.ap-band .ap-tile,
+.ap-band .ap-cred,
+.ap-band .ap-challenge,
+.ap-band .ap-story,
+.ap-band .ap-split__card,
+.ap-band .ap-tenet,
+.ap-band .ap-guide__form{
+  box-shadow:0 12px 30px -18px rgba(0,0,0,.6) !important;
+}
+
+/* --- product mockups (dashboard, phone, pipeline, guide book) --- */
+.ap-mock-dashboard,
+.ap-mock-mobile,
+.ap-pipeline,
+.ap-guide__book-front{
+  box-shadow:0 16px 38px -20px rgba(0,0,0,.75),
+             inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+/* --- floating hero cards --- */
+.ap-hero__card{ box-shadow:0 10px 28px -14px rgba(0,0,0,.7); }
+
+/* --- hero service mini-cards --- */
+.ap-svcmini__card{ box-shadow:0 10px 26px -16px rgba(0,0,0,.7); }
+.ap-svcmini__card:hover{
+  box-shadow:0 14px 34px -16px rgba(0,0,0,.75), 0 6px 18px -10px rgba(239,90,40,.2);
+}
+
+/* --- the featured job row in the phone mockup --- */
+.ap-mock-mobile__job.is-hot{
+  box-shadow:0 0 0 1px rgba(239,90,40,.25) !important;
+}
+
+/* on phones the cards are near full-width, so large shadows have
+   nowhere to fall and only muddy the edges — go tighter again */
+@media (max-width:640px){
+  .pcx__card.is-active,
+  .psx .pcx__card.is-active.ap-tile{
+    box-shadow:0 0 0 1px var(--orange), 0 6px 18px -12px rgba(0,0,0,.65) !important;
+  }
+  .ap-band .ap-tile,
+  .ap-band .ap-cred,
+  .ap-band .ap-challenge,
+  .ap-band .ap-story,
+  .ap-band .ap-split__card,
+  .ap-band .ap-tenet,
+  .ap-band .ap-guide__form{
+    box-shadow:0 8px 22px -16px rgba(0,0,0,.55) !important;
+  }
+  .ap-mock-dashboard,
+  .ap-mock-mobile,
+  .ap-pipeline,
+  .ap-guide__book-front{
+    box-shadow:0 10px 26px -18px rgba(0,0,0,.7),
+               inset 0 1px 0 rgba(255,255,255,.05) !important;
+  }
+}
+</style>
 <!-- InSync Consulting Services — Global Footer (Apex Design)
      Paste into GHL Global Footer Block. Body-only fragment. -->
 
