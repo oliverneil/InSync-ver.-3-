@@ -16,6 +16,15 @@
   --ink:#fff; --ink-2:rgba(255,255,255,.72); --ink-3:rgba(255,255,255,.5); --ink-4:rgba(255,255,255,.32); --ink-5:rgba(255,255,255,.18);
   --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
   --orange:#ef5a28; --orange-2:#ff7a4d; --orange-3:#ff9060; --orange-glow:rgba(239,90,40,.4);
+  /* --- card elevation system ---------------------------------------
+     One shadow scale for every card on the page. The old values were a
+     grab-bag of 40-80px near-black drops with an orange bleed layered in,
+     which over the video background read as dirty smudges rather than
+     elevation. These are tighter, cooler and consistent. */
+  --sh-1:0 10px 26px -18px rgba(0,0,0,.7);
+  --sh-2:0 18px 44px -26px rgba(0,0,0,.72);
+  --sh-3:0 26px 60px -32px rgba(0,0,0,.75);
+  --sh-active:0 0 0 1px rgba(239,90,40,.45), 0 20px 48px -28px rgba(239,90,40,.3);
   --f:'Inter',system-ui,-apple-system,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
   --e:cubic-bezier(.4,0,.2,1); --e-out:cubic-bezier(.16,1,.3,1); --e-spring:cubic-bezier(.34,1.56,.64,1);
@@ -874,7 +883,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border-radius:14px;
   backdrop-filter:blur(20px) saturate(1.4);
   -webkit-backdrop-filter:blur(20px) saturate(1.4);
-  box-shadow:0 20px 60px -20px rgba(0,0,0,.8);
+  box-shadow:var(--sh-2);
   display:flex; align-items:center; gap:12px;
   min-width:190px;
   opacity:0;
@@ -994,10 +1003,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border-radius:2px 12px 12px 2px;
   padding:32px 28px;
   display:flex; flex-direction:column; justify-content:space-between;
-  box-shadow:
-    0 40px 80px -20px rgba(0,0,0,.9),
-    0 20px 40px -12px rgba(239,90,40,.15),
-    inset 4px 0 8px rgba(0,0,0,.5);
+  box-shadow:var(--sh-3), inset 4px 0 8px rgba(0,0,0,.35);
   overflow:hidden;
 }
 
@@ -1074,10 +1080,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border:1px solid var(--line-2);
   border-radius:12px;
   padding:16px;
-  box-shadow:
-    0 40px 80px -20px rgba(0,0,0,.9),
-    0 20px 40px -8px rgba(239,90,40,.15),
-    inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:var(--sh-3), inset 0 1px 0 rgba(255,255,255,.05);
   display:flex; flex-direction:column;
   overflow:hidden; position:relative;
 }
@@ -1183,10 +1186,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border:1.5px solid var(--line-2);
   border-radius:22px;
   padding:14px 12px;
-  box-shadow:
-    0 40px 80px -20px rgba(0,0,0,.9),
-    0 20px 40px -8px rgba(239,90,40,.15),
-    inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:var(--sh-3), inset 0 1px 0 rgba(255,255,255,.05);
   position:relative; overflow:hidden;
   display:flex; flex-direction:column;
 }
@@ -1296,10 +1296,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border:1px solid var(--line-2);
   border-radius:14px;
   padding:22px 26px;
-  box-shadow:
-    0 60px 100px -30px rgba(0,0,0,.9),
-    0 30px 50px -12px rgba(239,90,40,.15),
-    inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:var(--sh-3), inset 0 1px 0 rgba(255,255,255,.05);
   position:relative;
   overflow:hidden;
 }
@@ -2803,7 +2800,7 @@ h1,h2,h3,h4,p{ margin:0; }
   background:rgba(255,255,255,.03);
   border:1px solid var(--line-2);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
-  box-shadow:0 30px 60px -18px rgba(0,0,0,.85);
+  box-shadow:var(--sh-2);
   text-decoration:none;
   transition:transform .5s var(--e-out), border-color .5s, box-shadow .5s;
 }
@@ -2815,7 +2812,7 @@ h1,h2,h3,h4,p{ margin:0; }
 .ap-svcmini__card:hover{
   transform:translateY(-5px);
   border-color:rgba(239,90,40,.5);
-  box-shadow:0 40px 80px -20px rgba(0,0,0,.9), 0 16px 40px -8px rgba(239,90,40,.22);
+  box-shadow:var(--sh-3), 0 12px 32px -22px rgba(239,90,40,.28);
 }
 .ap-svcmini__num{
   position:absolute; top:10px; left:10px;
@@ -3072,7 +3069,7 @@ h1,h2,h3,h4,p{ margin:0; }
   border:1px solid var(--line-2) !important;
   -webkit-backdrop-filter:blur(8px) saturate(1.08);
           backdrop-filter:blur(8px) saturate(1.08);
-  box-shadow:0 30px 60px -18px rgba(0,0,0,.7);
+  box-shadow:var(--sh-2);
 }
 /* keep the orange hover lift, but as a translucent tint (not the solid --bg-elev) */
 .ap-band .ap-tile:hover,
@@ -3114,7 +3111,7 @@ h1,h2,h3,h4,p{ margin:0; }
   .ap-band .ap-guide__form{
     background:rgba(255,255,255,.075) !important;
     -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
-    box-shadow:0 18px 40px -22px rgba(0,0,0,.85);
+    box-shadow:var(--sh-2);
   }
   .ap-band .ap-guide__toc li{
     background:rgba(255,255,255,.075) !important;
@@ -3678,7 +3675,7 @@ section.ap-guide ol.ap-guide__toc{
   opacity:1; transform:scale(1);
   background:var(--bg-elev);
   border-color:var(--orange);
-  box-shadow:0 0 0 1px rgba(239,90,40,.35), 0 40px 80px -30px rgba(239,90,40,.4), 0 20px 50px -24px rgba(0,0,0,.8);
+  box-shadow:var(--sh-active);
 }
 .pcx__card-logo{
   width:104px; height:104px; border-radius:18px;
@@ -3938,7 +3935,7 @@ section.ap-guide ol.ap-guide__toc{
 .psx .pcx__card.is-active{ box-shadow:none; }    /* highlight is applied to the tile surface below */
 .psx .pcx__card.is-active.ap-tile{
   border-color:var(--orange) !important;
-  box-shadow:0 0 0 1px var(--orange), 0 24px 60px -18px rgba(239,90,40,.5);
+  box-shadow:var(--sh-active);
 }
 .psx .pcx__card--featured, .psx .ap-tile--featured{ /* keep the featured wash */ }
 
@@ -4064,7 +4061,11 @@ section.ap-guide ol.ap-guide__toc{
         stop the card <a> elements behaving like draggable links mid-swipe */
   .pcx--native .pcx__viewport{
     overscroll-behavior-x:contain;
-    scroll-snap-type:x mandatory;
+    /* JS drives scrollLeft during a drag and snaps on release, so native
+       mandatory snapping is turned OFF here — the two fight each other and the
+       result is a track that springs back to the same card. The base rule keeps
+       mandatory snap for the no-JS fallback, where nothing else is running. */
+    scroll-snap-type:none;
     scroll-padding-inline:0;
   }
   .pcx--native .pcx__card{
@@ -4733,13 +4734,62 @@ function apInitPinnedScroll(ids){
   if (!canPin){
     root.classList.add('pcx--native');
 
+    // --- SWIPE ------------------------------------------------------------
+    // iOS locks a touch gesture to ONE axis on the first few pixels of travel.
+    // These cards are ~500px tall, so almost every swipe starts with a little
+    // vertical drift, Safari locks to vertical page scrolling, and the track
+    // never moves — the slider feels dead. (The credentials carousel escapes
+    // this because it declares touch-action:pan-x, but we can't do that here:
+    // it would stop the visitor scrolling the PAGE from over a card that fills
+    // their screen.) So we decide the axis ourselves, with a bias toward
+    // horizontal, and drive scrollLeft directly once we've claimed the gesture.
+    var tX = 0, tY = 0, tScroll = 0, axis = null, dragged = false;
+    viewport.addEventListener('touchstart', function(e){
+      if (!e.touches || e.touches.length !== 1) return;
+      tX = e.touches[0].clientX; tY = e.touches[0].clientY;
+      tScroll = viewport.scrollLeft; axis = null; dragged = false;
+    }, { passive:true });
+
+    viewport.addEventListener('touchmove', function(e){
+      if (!e.touches || e.touches.length !== 1) return;
+      var dx = e.touches[0].clientX - tX;
+      var dy = e.touches[0].clientY - tY;
+      if (axis === null){
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;   // too early to tell
+        // horizontal bias: a swipe only has to be mostly sideways to count
+        axis = (Math.abs(dx) > Math.abs(dy) * 0.7) ? 'x' : 'y';
+      }
+      if (axis !== 'x') return;                              // let the page scroll
+      e.preventDefault();                                    // claim the gesture
+      dragged = true;
+      viewport.scrollLeft = tScroll - dx;
+    }, { passive:false });                                   // MUST be non-passive
+
+    function snapNearest(){
+      var mid = viewport.scrollLeft + viewport.clientWidth / 2;
+      var best = 0, bestD = Infinity;
+      for (var i = 0; i < N; i++){
+        var c = cards[i];
+        var d = Math.abs((c.offsetLeft + c.offsetWidth / 2) - mid);
+        if (d < bestD){ bestD = d; best = i; }
+      }
+      var c2 = cards[best];
+      var left = c2.offsetLeft - (viewport.clientWidth - c2.offsetWidth) / 2;
+      if (viewport.scrollTo) viewport.scrollTo({ left: left, behavior: reduced ? 'auto' : 'smooth' });
+      else viewport.scrollLeft = left;
+    }
+    viewport.addEventListener('touchend', function(){
+      if (axis === 'x') snapNearest();
+      axis = null;
+    }, { passive:true });
+
     // --- DRAG vs TAP ---------------------------------------------------
     // Every card in this track is an <a>. Without this guard the browser
     // resolves a swipe as a tap on the link and navigates away mid-gesture,
     // which reads exactly like "the slider won't slide". We watch how far the
     // pointer travelled (and whether the track actually scrolled) and cancel
     // the click in the CAPTURE phase if it was a drag.
-    var downX = 0, downY = 0, downScroll = 0, dragged = false;
+    var downX = 0, downY = 0, downScroll = 0;
     function markDown(x, y){ downX = x; downY = y; downScroll = viewport.scrollLeft; dragged = false; }
     function markMove(x, y){
       if (Math.abs(x - downX) > 8 || Math.abs(y - downY) > 8) dragged = true;
@@ -5059,84 +5109,3 @@ apInitPinnedScroll({ root:'pcxRoot', spacer:'pcxSpacer', stage:'pcxStage', viewp
 })();
 </script>
 
-
-<style id="apCardShadowNormalise">
-/* ============================================================
-   CARD SHADOW NORMALISATION
-   The card shadows on this page had grown to 40–80px dark spreads
-   plus a 60px orange bloom on the active slider card. Over the
-   video layers those read as muddy halos rather than depth, and
-   they stack visibly where cards sit close together.
-   This block brings every card onto one restrained scale:
-   a tight ambient shadow for lift, and a 1px ring (not a bloom)
-   for the active state. Appended last so it wins on source order;
-   nothing above is edited, so removing this block reverts the page.
-   ============================================================ */
-
-/* --- slider cards: keep the orange ring, drop the bloom --- */
-.pcx__card.is-active{
-  box-shadow:0 0 0 1px rgba(239,90,40,.45), 0 10px 28px -16px rgba(0,0,0,.7) !important;
-}
-.psx .pcx__card.is-active.ap-tile{
-  box-shadow:0 0 0 1px var(--orange), 0 10px 28px -16px rgba(0,0,0,.7) !important;
-}
-
-/* --- frosted cards over the band video --- */
-.ap-band .ap-tile,
-.ap-band .ap-cred,
-.ap-band .ap-challenge,
-.ap-band .ap-story,
-.ap-band .ap-split__card,
-.ap-band .ap-tenet,
-.ap-band .ap-guide__form{
-  box-shadow:0 12px 30px -18px rgba(0,0,0,.6) !important;
-}
-
-/* --- product mockups (dashboard, phone, pipeline, guide book) --- */
-.ap-mock-dashboard,
-.ap-mock-mobile,
-.ap-pipeline,
-.ap-guide__book-front{
-  box-shadow:0 16px 38px -20px rgba(0,0,0,.75),
-             inset 0 1px 0 rgba(255,255,255,.05) !important;
-}
-
-/* --- floating hero cards --- */
-.ap-hero__card{ box-shadow:0 10px 28px -14px rgba(0,0,0,.7); }
-
-/* --- hero service mini-cards --- */
-.ap-svcmini__card{ box-shadow:0 10px 26px -16px rgba(0,0,0,.7); }
-.ap-svcmini__card:hover{
-  box-shadow:0 14px 34px -16px rgba(0,0,0,.75), 0 6px 18px -10px rgba(239,90,40,.2);
-}
-
-/* --- the featured job row in the phone mockup --- */
-.ap-mock-mobile__job.is-hot{
-  box-shadow:0 0 0 1px rgba(239,90,40,.25) !important;
-}
-
-/* on phones the cards are near full-width, so large shadows have
-   nowhere to fall and only muddy the edges — go tighter again */
-@media (max-width:640px){
-  .pcx__card.is-active,
-  .psx .pcx__card.is-active.ap-tile{
-    box-shadow:0 0 0 1px var(--orange), 0 6px 18px -12px rgba(0,0,0,.65) !important;
-  }
-  .ap-band .ap-tile,
-  .ap-band .ap-cred,
-  .ap-band .ap-challenge,
-  .ap-band .ap-story,
-  .ap-band .ap-split__card,
-  .ap-band .ap-tenet,
-  .ap-band .ap-guide__form{
-    box-shadow:0 8px 22px -16px rgba(0,0,0,.55) !important;
-  }
-  .ap-mock-dashboard,
-  .ap-mock-mobile,
-  .ap-pipeline,
-  .ap-guide__book-front{
-    box-shadow:0 10px 26px -18px rgba(0,0,0,.7),
-               inset 0 1px 0 rgba(255,255,255,.05) !important;
-  }
-}
-</style>
