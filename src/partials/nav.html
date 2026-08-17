@@ -39,6 +39,16 @@ button{ font:inherit; cursor:none; border:0; background:0; color:inherit; paddin
   color: inherit;
   text-decoration: none;
 }
+
+/* Contact links (tel: / mailto:) never want the UA blue + underline. Pages
+   scope their anchor resets to their own wrapper, so a contact link that sits
+   outside that wrapper — or on a page with no reset at all — falls back to the
+   browser default. :where() keeps this at zero specificity, so any page or
+   component rule that deliberately colours a contact link still wins. */
+:where(a[href^="tel:"], a[href^="mailto:"]){
+  color: inherit;
+  text-decoration: none;
+}
 /* REVEAL */
 .rv{ opacity:0; transform:translateY(24px); transition:opacity 1s var(--e-out),transform 1s var(--e-out); }
 

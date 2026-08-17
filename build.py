@@ -50,6 +50,12 @@ SHELL = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- iOS Safari auto-detects bare phone numbers in text and wraps them in its
+       own tel: anchors, styled with the UA default blue + underline. Those
+       anchors are not in the markup, so no CSS in the page can pre-empt them.
+       Turning detection off means only the tel: links we author are links. -->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="format-detection" content="date=no, address=no, email=no">
   <title>{title}</title>
 {meta_tags}
   {fonts}

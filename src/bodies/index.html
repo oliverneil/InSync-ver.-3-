@@ -4744,42 +4744,97 @@ function apInitPinnedScroll(ids){
     // their screen.) So we decide the axis ourselves, with a bias toward
     // horizontal, and drive scrollLeft directly once we've claimed the gesture.
     var tX = 0, tY = 0, tScroll = 0, axis = null, dragged = false;
+    var vel = 0, lastX = 0, lastT = 0, animRaf = 0;
+
+    function stopAnim(){ if (animRaf){ cancelAnimationFrame(animRaf); animRaf = 0; } }
+
+    // Eased programmatic scroll. scrollTo({behavior:'smooth'}) uses the browser's
+    // own curve and duration, which lands hard and feels mechanical next to a
+    // finger flick; this is a soft ease-out we control.
+    function animateTo(target, dur){
+      stopAnim();
+      var start = viewport.scrollLeft, delta = target - start;
+      if (Math.abs(delta) < 1){ viewport.scrollLeft = target; return; }
+      if (reduced){ viewport.scrollLeft = target; return; }
+      var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+      dur = dur || 460;
+      function step(now){
+        var p = Math.min(1, (now - t0) / dur);
+        var e = 1 - Math.pow(1 - p, 3);            // ease-out cubic
+        viewport.scrollLeft = start + delta * e;
+        animRaf = p < 1 ? requestAnimationFrame(step) : 0;
+      }
+      animRaf = requestAnimationFrame(step);
+    }
+
+    function cardLeft(i){
+      var c = cards[Math.max(0, Math.min(N - 1, i))];
+      return c.offsetLeft - (viewport.clientWidth - c.offsetWidth) / 2;
+    }
+
     viewport.addEventListener('touchstart', function(e){
       if (!e.touches || e.touches.length !== 1) return;
+      stopAnim();                                   // let a new grab interrupt the glide
       tX = e.touches[0].clientX; tY = e.touches[0].clientY;
       tScroll = viewport.scrollLeft; axis = null; dragged = false;
+      lastX = tX; vel = 0;
+      lastT = (window.performance && performance.now) ? performance.now() : Date.now();
     }, { passive:true });
 
     viewport.addEventListener('touchmove', function(e){
       if (!e.touches || e.touches.length !== 1) return;
-      var dx = e.touches[0].clientX - tX;
+      var cx = e.touches[0].clientX;
+      var dx = cx - tX;
       var dy = e.touches[0].clientY - tY;
       if (axis === null){
-        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;   // too early to tell
-        // horizontal bias: a swipe only has to be mostly sideways to count
-        axis = (Math.abs(dx) > Math.abs(dy) * 0.7) ? 'x' : 'y';
+        // engage sooner (3px) and with a friendlier bias, so the slider claims
+        // the gesture before it starts to feel like it is resisting
+        if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+        axis = (Math.abs(dx) > Math.abs(dy) * 0.6) ? 'x' : 'y';
       }
       if (axis !== 'x') return;                              // let the page scroll
       e.preventDefault();                                    // claim the gesture
       dragged = true;
+      var now = (window.performance && performance.now) ? performance.now() : Date.now();
+      var dt = now - lastT;
+      if (dt > 0){
+        // smoothed px/ms, so one jittery frame can't throw the flick off
+        vel = vel * 0.7 + ((cx - lastX) / dt) * 0.3;
+        lastX = cx; lastT = now;
+      }
       viewport.scrollLeft = tScroll - dx;
     }, { passive:false });                                   // MUST be non-passive
 
-    function snapNearest(){
-      var mid = viewport.scrollLeft + viewport.clientWidth / 2;
-      var best = 0, bestD = Infinity;
+    function indexAt(pos){
+      var mid = pos + viewport.clientWidth / 2, best = 0, bestD = Infinity;
       for (var i = 0; i < N; i++){
-        var c = cards[i];
-        var d = Math.abs((c.offsetLeft + c.offsetWidth / 2) - mid);
+        var c = cards[i], d = Math.abs((c.offsetLeft + c.offsetWidth / 2) - mid);
         if (d < bestD){ bestD = d; best = i; }
       }
-      var c2 = cards[best];
-      var left = c2.offsetLeft - (viewport.clientWidth - c2.offsetWidth) / 2;
-      if (viewport.scrollTo) viewport.scrollTo({ left: left, behavior: reduced ? 'auto' : 'smooth' });
-      else viewport.scrollLeft = left;
+      return best;
+    }
+    function nearestIndex(){ return indexAt(viewport.scrollLeft); }
+
+    // On release, resolve against the card the gesture STARTED on, so one swipe
+    // always means one card. (Measuring from the nearest card instead double
+    // counts: a long drag has already moved the nearest card forward, so adding
+    // a flick on top of it skips one.) Either a quick flick OR a deliberate drag
+    // past ~18% of a card commits the move — the distance rule is what makes a
+    // slow, short swipe feel like it took, instead of springing back.
+    function settle(){
+      var startIdx = indexAt(tScroll);
+      var moved = viewport.scrollLeft - tScroll;
+      var speed = Math.abs(vel);
+      var committed = speed > 0.25 || Math.abs(moved) > cards[0].offsetWidth * 0.18;
+      var idx = startIdx;
+      if (committed && moved !== 0){
+        idx = startIdx + (moved > 0 ? 1 : -1) * (speed > 1.1 ? 2 : 1);
+      }
+      idx = Math.max(0, Math.min(N - 1, idx));
+      animateTo(cardLeft(idx), speed > 0.8 ? 380 : 480);
     }
     viewport.addEventListener('touchend', function(){
-      if (axis === 'x') snapNearest();
+      if (axis === 'x') settle();
       axis = null;
     }, { passive:true });
 
@@ -4856,10 +4911,7 @@ function apInitPinnedScroll(ids){
           var nm = cards[idx].querySelector('.ap-tile__title, .pcx__card-name');
           b.setAttribute('aria-label', nm ? nm.textContent.trim() : ('Slide ' + (idx + 1)));
           b.addEventListener('click', function(){
-            var c = cards[idx];
-            var left = c.offsetLeft - (viewport.clientWidth - c.offsetWidth) / 2;
-            if (viewport.scrollTo) viewport.scrollTo({ left: left, behavior: reduced ? 'auto' : 'smooth' });
-            else viewport.scrollLeft = left;
+            animateTo(cardLeft(idx), 520);   // same eased glide as a flick
           });
           dots.appendChild(b);
           dotBtns.push(b);

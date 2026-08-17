@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- iOS Safari auto-detects bare phone numbers in text and wraps them in its
+       own tel: anchors, styled with the UA default blue + underline. Those
+       anchors are not in the markup, so no CSS in the page can pre-empt them.
+       Turning detection off means only the tel: links we author are links. -->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="format-detection" content="date=no, address=no, email=no">
   <title>Apply Now — InSync Consulting Services</title>
   <meta name="description" content="Find your next role with InSync Consulting Services. Travel and local positions nationwide, competitive pay, benefits, and a dedicated recruiter.">
   <link rel="canonical" href="https://insynconline.net/apply-now/">
@@ -51,6 +57,16 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
    Do not rewrite as `.ap-nav a` — that is (0,1,1) and would outrank
    .ap-nav__cta{color:var(--bg)}, turning the CTA pill's black label white. */
 :where(.ap-topbar, .ap-nav, .ap-mobile-menu) a{
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Contact links (tel: / mailto:) never want the UA blue + underline. Pages
+   scope their anchor resets to their own wrapper, so a contact link that sits
+   outside that wrapper — or on a page with no reset at all — falls back to the
+   browser default. :where() keeps this at zero specificity, so any page or
+   component rule that deliberately colours a contact link still wins. */
+:where(a[href^="tel:"], a[href^="mailto:"]){
   color: inherit;
   text-decoration: none;
 }

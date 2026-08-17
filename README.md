@@ -146,6 +146,14 @@ plain `a` — do not rewrite it as `.ap-nav a`, which is (0,1,1) and would outra
 `.ap-nav__cta{color:var(--bg)}`, turning the CTA pill's black label white on a
 white pill.
 
+The nav partial also resets `tel:` and `mailto:` anchors, again via `:where()`
+so page rules still win. Pages scope their anchor resets to their own wrapper,
+so a contact link outside that wrapper falls back to the browser's blue
+underline. Related: the shell sets `<meta name="format-detection"
+content="telephone=no">`, because iOS Safari otherwise auto-wraps bare phone
+numbers in its own `tel:` anchors styled UA-blue — those anchors are not in the
+markup, so no CSS can reach them.
+
 The `:root` token block in each partial is left alone on purpose. The sector
 pages scope their tokens to their own wrapper and never define `:root`, so the
 nav and footer genuinely need to carry their own.
