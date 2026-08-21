@@ -395,14 +395,10 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   height:42px;
   width:auto;
   display:block;
-  filter:grayscale(1) invert(1) contrast(1.4);
-  mix-blend-mode:lighten;
-  transition:filter .3s var(--e);
+  transition:opacity .3s var(--e);
 }
 
-.ap-nav__logo:hover .ap-nav__logo-img{
-  filter:grayscale(1) invert(1) contrast(1.4) brightness(1.15);
-}
+.ap-nav__logo:hover .ap-nav__logo-img{ opacity:.86; }
 /* Nav menu with dropdowns */
 .ap-nav__menu{ display:flex; align-items:stretch; height:100%; gap:4px; list-style:none; padding:0; margin:0; justify-self:center; }
 
@@ -580,7 +576,7 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
 <!-- Main Nav -->
 <nav class="ap-nav" id="apNav" aria-label="Main navigation">
   <a href="/" class="ap-nav__logo" aria-label="InSync Consulting Services Home">
-    <img src="https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/691ce4ae6a5d3b97a2a3438e.jpg" alt="InSync Consulting Services" class="ap-nav__logo-img" loading="eager">
+    <img src="/img/insync-logo-dark.png" alt="InSync Consulting Services" class="ap-nav__logo-img" loading="eager">
   </a>
 
   <ul class="ap-nav__menu">
@@ -1543,12 +1539,10 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
 
 .ap-foot__logo-img{
   height:56px; width:auto; display:block;
-  filter:grayscale(1) invert(1) contrast(1.4);
-  mix-blend-mode:lighten;
-  transition:filter .3s var(--e);
+  transition:opacity .3s var(--e);
 }
 
-.ap-foot__logo:hover .ap-foot__logo-img{ filter:grayscale(1) invert(1) contrast(1.4) brightness(1.15); }
+.ap-foot__logo:hover .ap-foot__logo-img{ opacity:.86; }
 
 .ap-foot__tag{
   font-size:18px; font-weight:800; color:var(--ink);
@@ -1740,7 +1734,7 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
     <div class="ap-foot__grid">
       <div class="ap-foot__brand">
         <a href="/" class="ap-foot__logo" aria-label="InSync Consulting Services Home">
-          <img src="https://assets.cdn.filesafe.space/lAvsV54bgyIkgTbpk5QX/media/691ce4ae6a5d3b97a2a3438e.jpg" alt="InSync Consulting Services" class="ap-foot__logo-img" loading="lazy">
+          <img src="/img/insync-logo-dark.png" alt="InSync Consulting Services" class="ap-foot__logo-img" loading="lazy">
         </a>
         <div class="ap-foot__tag">Staffing <span class="accent">evolved.</span><br>Results guaranteed.</div>
         <p class="ap-foot__blurb">
