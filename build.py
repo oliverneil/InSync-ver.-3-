@@ -66,6 +66,7 @@ SHELL = """<!DOCTYPE html>
 {body}
 {footer}
 {holo}
+{closebot}
 </body>
 </html>
 """
@@ -147,6 +148,28 @@ def read_partial(name):
     return normalize_partial(name, text)
 
 
+# Pages that should NOT get the chat widget. Add a slug to opt one out.
+CLOSEBOT_EXCLUDE = {"employee-hub", "employee-hub-login"}
+
+
+def read_closebot():
+    """
+    Site-wide chat widget. Returns '' until the real embed snippet has been
+    pasted into src/partials/closebot.html, so an unconfigured widget can
+    never reach the live site — an empty container renders as a dead box and
+    a half-pasted script is worse than no script.
+    """
+    p = PARTIALS / "closebot.html"
+    if not p.exists():
+        return ""
+    text = p.read_text(encoding="utf-8").strip()
+    if "CLOSEBOT_SNIPPET_PLACEHOLDER" in text:
+        print("  ! CloseBot: snippet not yet pasted into src/partials/closebot.html "
+              "— widget SKIPPED on every page")
+        return ""
+    return text
+
+
 def main():
     if not BODIES.exists():
         sys.exit("src/bodies/ not found")
@@ -154,6 +177,7 @@ def main():
     meta = json.loads(META.read_text(encoding="utf-8")) if META.exists() else {}
     nav = read_partial("nav.html")
     footer = read_partial("footer.html")
+    closebot = read_closebot()
 
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -196,6 +220,8 @@ def main():
             body = body.replace(HOLO_TOKEN, holo)
             holo = ""
 
+        cb = "" if slug in CLOSEBOT_EXCLUDE or slug == "404" else closebot
+
         html = SHELL.format(
             title=esc(title),
             meta_tags=meta_tags_for(slug, m),
@@ -204,6 +230,7 @@ def main():
             body=body,
             footer=footer,
             holo=holo,
+            closebot=cb,
         )
 
         if slug == "index":
@@ -222,7 +249,8 @@ def main():
         else:
             url = f"/{slug}/"
         kind = "hero" if slug == "index" else "edges"
-        print(f"  built {url:26} {len(html):>8,} bytes   holo:{kind}")
+        chat = "chat" if cb else "----"
+        print(f"  built {url:26} {len(html):>8,} bytes   holo:{kind:<5} {chat}")
 
     # sitemap + robots, generated from whatever pages exist
     slugs = [p.stem for p in pages if p.stem != "404"]

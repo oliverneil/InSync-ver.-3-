@@ -33,6 +33,7 @@ src/
   partials/
     nav.html          global nav, injected at the top of every page
     footer.html       global footer, injected at the bottom of every page
+    closebot.html     site-wide chat widget — see below
   meta.json           per-page <title>, description, and og tags
 public/               copied to dist/ untouched
   js/holo-hero.js     homepage only — hero face scan
@@ -54,6 +55,27 @@ Each `src/bodies/<slug>.html` becomes `dist/<slug>/index.html`, served at
 Drop the body block in `src/bodies/<slug>.html`, add a `<slug>` entry to
 `src/meta.json`, and rebuild. Nothing else to wire — the shell, nav, footer, and
 holo script are attached automatically.
+
+## Chat widget (CloseBot)
+
+`src/partials/closebot.html` is injected on every page just before `</body>`.
+
+**It is not live yet.** Paste your CloseBot embed snippet into that file,
+replacing the `CLOSEBOT_SNIPPET_PLACEHOLDER` line, then rebuild. Until you do,
+`build.py` skips the partial on every page and prints a warning — an
+unconfigured widget can't ship by accident.
+
+The build log shows `chat` or `----` per page so you can see at a glance where
+it landed.
+
+To keep a page out of it, add its slug to `CLOSEBOT_EXCLUDE` in `build.py`.
+The Employee Hub, the Hub login and the 404 page are excluded already.
+
+That snippet gives the default floating bubble, bottom right. If you later want
+it embedded inside a section on one page instead, put
+`<div id="cb-widget-container"></div>` in that page's body — CloseBot renders
+into that box rather than the corner, and the container is already styled to
+the Apex tokens. One widget per page.
 
 ## Holo overlay
 

@@ -1,0 +1,42 @@
+<!-- ============================================================
+     CloseBot chat widget — site-wide embed
+     ------------------------------------------------------------
+     PASTE YOUR CLOSEBOT EMBED SNIPPET BELOW, replacing the whole
+     PLACEHOLDER line. Get it from your CloseBot account (Chat
+     Widget -> install / embed code). It will look roughly like:
+
+         <script src="https://widget.closebot.ai/..." async></script>
+
+     Until that line is replaced, build.py skips this partial
+     entirely and prints a warning — so a half-configured widget
+     can never ship to the live site.
+
+     This gives the DEFAULT bottom-right floating bubble on every
+     page. If you later want it embedded inside a section on a
+     specific page instead, add <div id="cb-widget-container"></div>
+     to that page's body and give it a height; CloseBot renders
+     into that box instead of the corner. One widget per page.
+     ============================================================ -->
+
+CLOSEBOT_SNIPPET_PLACEHOLDER
+
+<style id="apCloseBotSkin">
+/* Container styling only applies on pages that embed the widget
+   inline via #cb-widget-container. The floating bubble is drawn
+   by CloseBot itself and is left alone here — restyling it means
+   overriding their internal class names, which can change without
+   notice. Inspect the live widget and add overrides below with
+   !important if you want it on-brand. */
+#cb-widget-container{
+  position:relative;
+  height:520px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;            /* semi-square, per the brand rule */
+  overflow:hidden;
+  background:#0e0e0e;
+  isolation:isolate;
+}
+@media (max-width:640px){
+  #cb-widget-container{ height:460px; }
+}
+</style>
