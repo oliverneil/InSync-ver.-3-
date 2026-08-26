@@ -1,15 +1,17 @@
 <!-- ============================================================
      CloseBot chat widget — site-wide embed
      ------------------------------------------------------------
-     PASTE YOUR CLOSEBOT EMBED SNIPPET BELOW, replacing the whole
-     PLACEHOLDER line. Get it from your CloseBot account (Chat
-     Widget -> install / embed code). It will look roughly like:
+     The CloseBot pixel script is installed below. It loads the
+     widget on every page the build includes it on.
 
-         <script src="https://widget.closebot.ai/..." async></script>
+     IMPORTANT: the widget will not render until the site's domain
+     is on the allowed-domains list inside CloseBot. Add both the
+     live domain and the Vercel preview URL — they differ, and a
+     missing preview domain looks identical to a broken install.
 
-     Until that line is replaced, build.py skips this partial
-     entirely and prints a warning — so a half-configured widget
-     can never ship to the live site.
+     Page targeting is also configurable inside CloseBot. Between
+     that and CLOSEBOT_EXCLUDE in build.py, pick one place to
+     control visibility rather than both.
 
      This gives the DEFAULT bottom-right floating bubble on every
      page. If you later want it embedded inside a section on a
@@ -18,7 +20,7 @@
      into that box instead of the corner. One widget per page.
      ============================================================ -->
 
-CLOSEBOT_SNIPPET_PLACEHOLDER
+<script src="https://api.closebot.com/scripts/cb.js?source=szQlveElNx6k6Jjj" async></script>
 
 <style id="apCloseBotSkin">
 /* Container styling only applies on pages that embed the widget

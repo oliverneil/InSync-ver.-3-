@@ -2240,6 +2240,49 @@ button{ font:inherit; cursor:auto; border:0; background:0; color:inherit; paddin
   </div>
 </footer>
 <script src="/js/holo-edges.js" data-z="98" defer></script>
+<!-- ============================================================
+     CloseBot chat widget — site-wide embed
+     ------------------------------------------------------------
+     The CloseBot pixel script is installed below. It loads the
+     widget on every page the build includes it on.
 
+     IMPORTANT: the widget will not render until the site's domain
+     is on the allowed-domains list inside CloseBot. Add both the
+     live domain and the Vercel preview URL — they differ, and a
+     missing preview domain looks identical to a broken install.
+
+     Page targeting is also configurable inside CloseBot. Between
+     that and CLOSEBOT_EXCLUDE in build.py, pick one place to
+     control visibility rather than both.
+
+     This gives the DEFAULT bottom-right floating bubble on every
+     page. If you later want it embedded inside a section on a
+     specific page instead, add <div id="cb-widget-container"></div>
+     to that page's body and give it a height; CloseBot renders
+     into that box instead of the corner. One widget per page.
+     ============================================================ -->
+
+<script src="https://api.closebot.com/scripts/cb.js?source=szQlveElNx6k6Jjj" async></script>
+
+<style id="apCloseBotSkin">
+/* Container styling only applies on pages that embed the widget
+   inline via #cb-widget-container. The floating bubble is drawn
+   by CloseBot itself and is left alone here — restyling it means
+   overriding their internal class names, which can change without
+   notice. Inspect the live widget and add overrides below with
+   !important if you want it on-brand. */
+#cb-widget-container{
+  position:relative;
+  height:520px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;            /* semi-square, per the brand rule */
+  overflow:hidden;
+  background:#0e0e0e;
+  isolation:isolate;
+}
+@media (max-width:640px){
+  #cb-widget-container{ height:460px; }
+}
+</style>
 </body>
 </html>
